@@ -1,21 +1,20 @@
-import React from "react";
 import { Routes, Route } from "react-router-dom";
-import HomePage from "../pages/HomePage";
-import ProfilePage from "../pages/ProfilePage";
-import PlaylistsPage from "../pages/PlaylistsPage";
-import LoginPage from "../pages/LoginPage";
-import SignupPage from "../pages/SignupPage";
-import NotFoundPage from "../pages/NotFoundPage";
-import ProtectedRoute from "../components/ProtectedRoute";
+import { HomePage } from "../pages/HomePage";
+import { ProfilePage } from "../pages/ProfilePage";
+import { PlaylistsPage } from "../pages/PlaylistsPage";
+import { LoginPage } from "../pages/LoginPage";
+import { SignUpPage } from "../pages/SignUpPage";
+import { NotFoundPage } from "../pages/NotFoundPage";
+import { ProtectedRoute } from "../components/auth/ProtectedRoute";
 
-export const AppRoutes: React.FC = () => {
+export const AppRoutes = () => {
   return (
     <Routes>
       {/* Public Routes */}
       <Route
         path="/login"
         element={
-          <ProtectedRoute requireAuth={false}>
+          <ProtectedRoute isPublic>
             <LoginPage />
           </ProtectedRoute>
         }
@@ -23,8 +22,8 @@ export const AppRoutes: React.FC = () => {
       <Route
         path="/signup"
         element={
-          <ProtectedRoute requireAuth={false}>
-            <SignupPage />
+          <ProtectedRoute isPublic>
+            <SignUpPage />
           </ProtectedRoute>
         }
       />

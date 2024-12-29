@@ -1,9 +1,8 @@
-import type { AuthUser } from "@aws-amplify/auth";
-import type { AuthNextSignInStep, AuthNextSignUpStep } from "@aws-amplify/auth";
+import { AuthUser, SignInOutput, SignUpOutput } from "@aws-amplify/auth";
 
 export enum UserType {
-  VIEWER = "VIEWER",
-  CREATOR = "CREATOR",
+  FAN = "FAN",
+  CREATIVE = "CREATIVE",
 }
 
 export interface UserAttributes {
@@ -20,11 +19,13 @@ export interface AuthContextType {
   userAttributes: UserAttributes | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  isInitialized: boolean;
   error: Error | null;
-  signIn: (username: string, password: string) => Promise<AuthNextSignInStep>;
-  signUp: (input: SignUpInput) => Promise<AuthNextSignUpStep>;
+  signIn: (username: string, password: string) => Promise<SignInOutput>;
+  signUp: (input: SignUpInput) => Promise<SignUpOutput>;
   signOut: () => Promise<void>;
   updateProfile: (attributes: Record<string, string>) => Promise<void>;
+  clearError: () => void;
 }
 
 export interface SignInInput {
@@ -37,4 +38,9 @@ export interface SignUpInput {
   password: string;
   email: string;
   userType: UserType;
+}
+
+export interface AuthErrorType extends Error {
+  code: string;
+  originalError?: unknown;
 }

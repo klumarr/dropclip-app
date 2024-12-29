@@ -19,11 +19,11 @@ import {
   Mail,
   Notifications,
   Settings,
-  Security,
   Close,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { UserType } from "../../types/auth.types";
 
 const DrawerHeader = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -42,7 +42,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ open, onClose }) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const { userAttributes } = useAuth();
-  const isCreative = userAttributes?.userType === "CREATOR";
+  const isCreative = userAttributes?.userType === UserType.CREATIVE;
 
   const menuItems = isCreative
     ? [

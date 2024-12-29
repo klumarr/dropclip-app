@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -13,8 +13,20 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 import { fetchUserAttributes } from "aws-amplify/auth";
 import type { UserAttributes } from "../types/auth.types";
+import { UserType } from "../types/auth.types";
 
-const HomePage = () => {
+// Type guard to validate user attributes
+const isValidUserAttributes = (
+  attributes: Record<string, any>
+): attributes is UserAttributes => {
+  return (
+    typeof attributes.sub === "string" &&
+    typeof attributes.email === "string" &&
+    typeof attributes.email_verified === "boolean"
+  );
+};
+
+export const HomePage = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -28,7 +40,12 @@ const HomePage = () => {
     const loadUserAttributes = async () => {
       try {
         const attributes = await fetchUserAttributes();
-        setUserAttributes(attributes);
+        if (isValidUserAttributes(attributes)) {
+          setUserAttributes(attributes);
+        } else {
+          console.error("Invalid user attributes format:", attributes);
+          setUserAttributes(null);
+        }
       } catch (error) {
         console.error("Error loading user attributes:", error);
       } finally {
@@ -115,7 +132,7 @@ const HomePage = () => {
             ))}
           </Grid>
 
-          {userAttributes?.userType === "CREATOR" && (
+          {userAttributes?.userType === UserType.CREATIVE && (
             <Box sx={{ mt: 6, textAlign: "center" }}>
               <Typography variant="h5" component="h3" gutterBottom>
                 Creative Tools
@@ -139,5 +156,3 @@ const HomePage = () => {
     </Box>
   );
 };
-
-export default HomePage;

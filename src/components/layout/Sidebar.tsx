@@ -7,6 +7,7 @@ import {
   Typography,
   Divider,
   styled,
+  ListItemButton,
 } from "@mui/material";
 import {
   Home,
@@ -42,7 +43,7 @@ const SidebarContainer = styled(Box)(({ theme }) => ({
   },
 }));
 
-const StyledListItem = styled(ListItem)<{ active?: boolean }>(
+const StyledListItemButton = styled(ListItemButton)<{ active?: boolean }>(
   ({ theme, active }) => ({
     color: active ? theme.palette.primary.main : theme.palette.text.primary,
     "&:hover": {
@@ -75,15 +76,15 @@ export const Sidebar = () => {
     <SidebarContainer>
       <List>
         {mainMenuItems.map((item) => (
-          <StyledListItem
-            button
-            key={item.text}
-            onClick={() => navigate(item.path)}
-            active={location.pathname === item.path}
-          >
-            <ListItemIcon>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.text} />
-          </StyledListItem>
+          <ListItem key={item.text} disablePadding>
+            <StyledListItemButton
+              onClick={() => navigate(item.path)}
+              active={location.pathname === item.path}
+            >
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.text} />
+            </StyledListItemButton>
+          </ListItem>
         ))}
       </List>
 
@@ -91,15 +92,15 @@ export const Sidebar = () => {
 
       <List>
         {libraryItems.map((item) => (
-          <StyledListItem
-            button
-            key={item.text}
-            onClick={() => navigate(item.path)}
-            active={location.pathname === item.path}
-          >
-            <ListItemIcon>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.text} />
-          </StyledListItem>
+          <ListItem key={item.text} disablePadding>
+            <StyledListItemButton
+              onClick={() => navigate(item.path)}
+              active={location.pathname === item.path}
+            >
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.text} />
+            </StyledListItemButton>
+          </ListItem>
         ))}
       </List>
 

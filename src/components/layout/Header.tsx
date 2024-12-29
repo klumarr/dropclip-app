@@ -47,7 +47,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onMenuOpen }) => {
   const navigate = useNavigate();
   const theme = useTheme();
-  const { user, signOut } = useAuth();
+  const { user, userAttributes, signOut } = useAuth();
   const [notificationsAnchor, setNotificationsAnchor] =
     useState<null | HTMLElement>(null);
   const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(
@@ -109,10 +109,10 @@ export const Header: React.FC<HeaderProps> = ({ onMenuOpen }) => {
             aria-label="menu"
             onClick={onMenuOpen}
           >
-            {user?.picture ? (
+            {userAttributes?.picture ? (
               <Avatar
-                src={user.picture}
-                alt={user.name || "User"}
+                src={userAttributes.picture}
+                alt={userAttributes.name ?? "User"}
                 sx={{ width: 32, height: 32 }}
               />
             ) : (
@@ -131,7 +131,39 @@ export const Header: React.FC<HeaderProps> = ({ onMenuOpen }) => {
               <Notifications />
             </Badge>
           </IconButton>
+
+          <IconButton
+            color="inherit"
+            onClick={handleUserMenuClick}
+            size="large"
+          >
+            <Settings />
+          </IconButton>
         </Box>
+
+        <Menu
+          anchorEl={userMenuAnchor}
+          open={Boolean(userMenuAnchor)}
+          onClose={handleUserMenuClose}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+        >
+          <MenuItem
+            onClick={() => {
+              handleUserMenuClose();
+              navigate("/profile");
+            }}
+          >
+            Profile
+          </MenuItem>
+          <MenuItem onClick={handleSignOut}>Sign Out</MenuItem>
+        </Menu>
 
         <Popover
           open={Boolean(notificationsAnchor)}

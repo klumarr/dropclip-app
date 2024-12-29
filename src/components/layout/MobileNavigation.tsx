@@ -5,21 +5,20 @@ import {
   styled,
 } from "@mui/material";
 import {
-  Home,
   Search,
   VideoLibrary,
-  Person,
   Event,
   CloudUpload,
   Dashboard,
+  Person,
 } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
+import { UserType } from "../../types/auth.types";
 
 const StyledBottomNavigation = styled(BottomNavigation)(({ theme }) => ({
-  backgroundColor: "rgba(0, 0, 0, 0.85)",
-  backdropFilter: "blur(10px)",
+  backgroundColor: theme.palette.background.paper,
   borderTop: `1px solid ${theme.palette.divider}`,
   position: "fixed",
   bottom: 0,
@@ -44,21 +43,23 @@ export const MobileNavigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [value, setValue] = useState(0);
-  const { user, userAttributes } = useAuth();
-  const isCreative = userAttributes?.userType === "CREATOR";
+  const { userAttributes } = useAuth();
+  const isCreative = userAttributes?.userType === UserType.CREATIVE;
 
   const navigationItems = isCreative
     ? [
         { label: "Dashboard", icon: <Dashboard />, path: "/dashboard" },
         { label: "Events", icon: <Event />, path: "/events" },
-        { label: "Playlists", icon: <VideoLibrary />, path: "/playlists" },
+        { label: "Search", icon: <Search />, path: "/search" },
         { label: "Videos", icon: <VideoLibrary />, path: "/videos" },
+        { label: "Profile", icon: <Person />, path: "/profile" },
       ]
     : [
         { label: "Dashboard", icon: <Dashboard />, path: "/dashboard" },
         { label: "Search", icon: <Search />, path: "/search" },
-        { label: "Playlists", icon: <VideoLibrary />, path: "/playlists" },
+        { label: "Events", icon: <Event />, path: "/events" },
         { label: "Upload", icon: <CloudUpload />, path: "/upload" },
+        { label: "Profile", icon: <Person />, path: "/profile" },
       ];
 
   useEffect(() => {
@@ -67,6 +68,13 @@ export const MobileNavigation = () => {
     );
     if (currentIndex !== -1) setValue(currentIndex);
   }, [location, navigationItems]);
+
+  const handleNavigation = (newValue: number) => {
+    setValue(newValue);
+    const path = navigationItems[newValue].path;
+    console.log(`Navigating to: ${path}`);
+    navigate(path);
+  };
 
   return (
     <Paper
@@ -81,10 +89,7 @@ export const MobileNavigation = () => {
     >
       <StyledBottomNavigation
         value={value}
-        onChange={(_, newValue) => {
-          setValue(newValue);
-          navigate(navigationItems[newValue].path);
-        }}
+        onChange={(_, newValue) => handleNavigation(newValue)}
         showLabels
       >
         {navigationItems.map((item) => (

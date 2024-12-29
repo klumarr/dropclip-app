@@ -1,89 +1,133 @@
 import React from "react";
-import { Box, Typography, Grid, Paper, styled } from "@mui/material";
+import {
+  Box,
+  Grid,
+  Paper,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  CardActions,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
+import {
+  VideoLibrary,
+  Favorite,
+  PlaylistPlay,
+  Timeline,
+} from "@mui/icons-material";
 import { useAuth } from "../contexts/AuthContext";
 
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(3),
-  backgroundColor: "rgba(255, 255, 255, 0.05)",
-  transition: "transform 0.2s, background-color 0.2s",
-  "&:hover": {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    transform: "translateY(-4px)",
-  },
-}));
-
-const DashboardPage: React.FC = () => {
+export const DashboardPage = () => {
   const { userAttributes } = useAuth();
-  const isCreative = userAttributes?.userType === "CREATOR";
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const stats = [
+    { icon: <VideoLibrary />, label: "Total Videos", value: "42" },
+    { icon: <Favorite />, label: "Total Likes", value: "1.2K" },
+    { icon: <PlaylistPlay />, label: "Playlists", value: "8" },
+    { icon: <Timeline />, label: "Views", value: "15.6K" },
+  ];
+
+  const recentActivity = [
+    { type: "upload", title: "Summer Vibes Mix", date: "2 hours ago" },
+    { type: "like", title: "Beach Sunset", date: "5 hours ago" },
+    { type: "playlist", title: "Chill Beats", date: "1 day ago" },
+  ];
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Dashboard
+      <Typography variant="h4" gutterBottom>
+        Welcome back, {userAttributes?.name || "Creator"}!
       </Typography>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <StyledPaper>
-            <Typography variant="h6" gutterBottom>
-              Quick Stats
-            </Typography>
-            {isCreative ? (
-              <>
-                <Typography>Total Views: 1,234</Typography>
-                <Typography>Total Subscribers: 567</Typography>
-                <Typography>Recent Events: 3</Typography>
-              </>
-            ) : (
-              <>
-                <Typography>Watched Videos: 45</Typography>
-                <Typography>Liked Videos: 12</Typography>
-                <Typography>Playlists Created: 5</Typography>
-              </>
-            )}
-          </StyledPaper>
-        </Grid>
+      {/* Stats Grid */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        {stats.map((stat, index) => (
+          <Grid item xs={12} sm={6} md={3} key={index}>
+            <Paper
+              elevation={2}
+              sx={{
+                p: 2,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                bgcolor: "background.paper",
+                borderRadius: 2,
+              }}
+            >
+              <Box sx={{ color: "primary.main", mb: 1 }}>{stat.icon}</Box>
+              <Typography variant="h5" component="div">
+                {stat.value}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {stat.label}
+              </Typography>
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
 
-        <Grid item xs={12} md={6}>
-          <StyledPaper>
+      {/* Main Content Grid */}
+      <Grid container spacing={3}>
+        {/* Recent Activity */}
+        <Grid item xs={12} md={8}>
+          <Paper sx={{ p: 2, borderRadius: 2 }}>
             <Typography variant="h6" gutterBottom>
               Recent Activity
             </Typography>
-            {isCreative ? (
-              <>
-                <Typography>New subscribers: +23 this week</Typography>
-                <Typography>Latest video performance: 456 views</Typography>
-                <Typography>Upcoming events: 2 this month</Typography>
-              </>
-            ) : (
-              <>
-                <Typography>Recently watched: Video Title</Typography>
-                <Typography>Last playlist update: 2 days ago</Typography>
-                <Typography>
-                  New content from subscriptions: 8 videos
-                </Typography>
-              </>
-            )}
-          </StyledPaper>
+            <Grid container spacing={2}>
+              {recentActivity.map((activity, index) => (
+                <Grid item xs={12} key={index}>
+                  <Card variant="outlined">
+                    <CardContent>
+                      <Typography variant="subtitle1">
+                        {activity.title}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {activity.type.charAt(0).toUpperCase() +
+                          activity.type.slice(1)}{" "}
+                        • {activity.date}
+                      </Typography>
+                    </CardContent>
+                    <CardActions>
+                      <Button size="small">View Details</Button>
+                    </CardActions>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Paper>
         </Grid>
 
-        {isCreative && (
-          <Grid item xs={12}>
-            <StyledPaper>
-              <Typography variant="h6" gutterBottom>
-                Content Performance
-              </Typography>
-              <Typography>
-                Most viewed video: "Video Title" - 10K views
-              </Typography>
-              <Typography>Average watch time: 5:45 minutes</Typography>
-              <Typography>Engagement rate: 8.5%</Typography>
-            </StyledPaper>
-          </Grid>
-        )}
+        {/* Quick Actions */}
+        <Grid item xs={12} md={4}>
+          <Paper sx={{ p: 2, borderRadius: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              Quick Actions
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Button variant="contained" fullWidth>
+                  Upload New Video
+                </Button>
+              </Grid>
+              <Grid item xs={12}>
+                <Button variant="outlined" fullWidth>
+                  Create Playlist
+                </Button>
+              </Grid>
+              <Grid item xs={12}>
+                <Button variant="outlined" fullWidth>
+                  View Analytics
+                </Button>
+              </Grid>
+            </Grid>
+          </Paper>
+        </Grid>
       </Grid>
     </Box>
   );
 };
-
-export default DashboardPage;

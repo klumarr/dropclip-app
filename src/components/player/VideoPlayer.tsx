@@ -18,6 +18,7 @@ import {
   QueueMusic,
   Fullscreen,
   FullscreenExit,
+  Close,
 } from "@mui/icons-material";
 import { useState, useRef, useEffect } from "react";
 
@@ -153,6 +154,14 @@ export const VideoPlayer = ({ open, onClose }: VideoPlayerProps) => {
     }
   };
 
+  const handleClose = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+      setPlaying(false);
+    }
+    onClose();
+  };
+
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -184,13 +193,29 @@ export const VideoPlayer = ({ open, onClose }: VideoPlayerProps) => {
       </VideoThumbnail>
 
       <Box sx={{ display: "flex", flexDirection: "column", flex: 1, gap: 0.5 }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Typography variant="subtitle1" noWrap>
-            Video Title
-          </Typography>
-          <Typography variant="caption" color="text.secondary" noWrap>
-            Creator Name
-          </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            justifyContent: "space-between",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Typography variant="subtitle1" noWrap>
+              Video Title
+            </Typography>
+            <Typography variant="caption" color="text.secondary" noWrap>
+              Creator Name
+            </Typography>
+          </Box>
+          <IconButton
+            onClick={handleClose}
+            size="small"
+            sx={{ color: "text.secondary" }}
+          >
+            <Close />
+          </IconButton>
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>

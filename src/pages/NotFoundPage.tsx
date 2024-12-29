@@ -1,8 +1,7 @@
-import React from "react";
 import { Container, Box, Typography, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-const NotFoundPage: React.FC = () => {
+export const NotFoundPage = () => {
   const navigate = useNavigate();
 
   return (
@@ -23,20 +22,18 @@ const NotFoundPage: React.FC = () => {
         <Typography variant="h4" component="h2" gutterBottom>
           Page Not Found
         </Typography>
-        <Typography variant="body1" color="text.secondary" paragraph>
-          The page you are looking for might have been removed, had its name
-          changed, or is temporarily unavailable.
+        <Typography variant="body1" paragraph>
+          The page you're looking for doesn't exist or has been moved.
         </Typography>
         <Button
           variant="contained"
+          color="primary"
           onClick={() => navigate("/")}
-          sx={{ mt: 2 }}
+          size="large"
         >
-          Go to Home
+          Go Home
         </Button>
       </Box>
     </Container>
   );
 };
-
-export default NotFoundPage;

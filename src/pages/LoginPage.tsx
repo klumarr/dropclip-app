@@ -1,121 +1,106 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import {
-  Container,
   Box,
-  Typography,
   TextField,
   Button,
+  Typography,
   Link,
-  Alert,
   CircularProgress,
-  Paper,
-} from '@mui/material';
-import { useAuth } from '../contexts/AuthContext';
+  Alert,
+} from "@mui/material";
+import { useAuth } from "../contexts/AuthContext";
 
-const LoginPage: React.FC = () => {
+export const LoginPage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { signIn } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const { signIn, error, isLoading, clearError, isAuthenticated } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const from = location.state?.from?.pathname || '/';
+  useEffect(() => {
+    if (isAuthenticated) {
+      console.log("User already authenticated, redirecting to dashboard");
+      navigate("/dashboard");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
-
     try {
       await signIn(email, password);
-      navigate(from, { replace: true });
+      navigate("/dashboard");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred during sign in');
-    } finally {
-      setLoading(false);
+      console.error("Login error:", err);
     }
   };
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Box
+      sx={{
+        height: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       <Box
+        component="form"
+        onSubmit={handleSubmit}
         sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          width: "100%",
+          maxWidth: 400,
+          p: 3,
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
         }}
       >
-        <Paper
-          elevation={3}
-          sx={{
-            padding: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            width: '100%',
-          }}
+        <Typography variant="h4" align="center" gutterBottom>
+          Login to DropClip
+        </Typography>
+
+        {error && (
+          <Alert severity="error" onClose={clearError}>
+            {error.message}
+          </Alert>
+        )}
+
+        <TextField
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          fullWidth
+        />
+
+        <TextField
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          fullWidth
+        />
+
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          size="large"
+          fullWidth
+          disabled={isLoading}
         >
-          <Typography component="h1" variant="h5">
-            Sign in to DropClip
-          </Typography>
-          {error && (
-            <Alert severity="error" sx={{ mt: 2, width: '100%' }}>
-              {error}
-            </Alert>
-          )}
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, width: '100%' }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={loading}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              disabled={loading}
-            >
-              {loading ? <CircularProgress size={24} /> : 'Sign In'}
-            </Button>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-              <Link component={RouterLink} to="/forgot-password" variant="body2">
-                Forgot password?
-              </Link>
-              <Link component={RouterLink} to="/signup" variant="body2">
-                {"Don't have an account? Sign Up"}
-              </Link>
-            </Box>
-          </Box>
-        </Paper>
+          {isLoading ? <CircularProgress size={24} /> : "Login"}
+        </Button>
+
+        <Typography align="center">
+          Don't have an account?{" "}
+          <Link component={RouterLink} to="/signup">
+            Sign up
+          </Link>
+        </Typography>
       </Box>
-    </Container>
+    </Box>
   );
 };
-
-export default LoginPage;

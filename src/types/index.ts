@@ -16,6 +16,7 @@ export interface Video {
   description?: string;
   uploadedAt?: Date;
   userId?: string;
+  creator?: string;
 }
 
 export interface Event {

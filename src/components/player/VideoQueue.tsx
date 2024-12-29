@@ -99,7 +99,10 @@ export const VideoQueue = ({
           >
             <ListItemText
               primary={videos.find((v) => v.id === currentVideoId)?.title}
-              secondary={videos.find((v) => v.id === currentVideoId)?.creator}
+              secondary={
+                videos.find((v) => v.id === currentVideoId)?.creator ||
+                "Unknown creator"
+              }
             />
           </Paper>
         )}
@@ -143,13 +146,13 @@ export const VideoQueue = ({
                           />
                           <IconButton
                             size="small"
-                            onClick={() => onVideoSelect(video.id)}
+                            onClick={() => onVideoSelect(String(video.id))}
                           >
                             <PlayArrow />
                           </IconButton>
                           <IconButton
                             size="small"
-                            onClick={() => onRemoveFromQueue(video.id)}
+                            onClick={() => onRemoveFromQueue(String(video.id))}
                           >
                             <Clear />
                           </IconButton>
