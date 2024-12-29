@@ -2,9 +2,9 @@ import { Box, useMediaQuery, useTheme } from "@mui/material";
 import { Header } from "./Header";
 import { SideMenu } from "./SideMenu";
 import { MobileNavigation } from "./MobileNavigation";
-import { MiniPlayer } from "../player/MiniPlayer";
 import { styled } from "@mui/material/styles";
 import { useState } from "react";
+import { VideoPlayerContainer } from "../player/VideoPlayerContainer";
 
 const MainContent = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -17,28 +17,34 @@ const MainContent = styled(Box)(({ theme }) => ({
   paddingBottom: theme.spacing(16),
   minHeight: "100vh",
   marginTop: 64,
+  marginBottom: 64,
+  [theme.breakpoints.down("md")]: {
+    marginBottom: 120,
+  },
 }));
 
 const RootContainer = styled(Box)({
   display: "flex",
   height: "100vh",
   overflow: "hidden",
+  position: "relative",
 });
+
+const PlayerWrapper = styled(Box)(({ theme }) => ({
+  position: "fixed",
+  bottom: theme.spacing(0),
+  left: 0,
+  right: 0,
+  zIndex: theme.zIndex.appBar + 2,
+  [theme.breakpoints.down("md")]: {
+    bottom: 56,
+  },
+}));
 
 export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
-  const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
-
-  const [currentVideo, setCurrentVideo] = useState({
-    isPlaying: false,
-    title: "Sample Video",
-    creator: "Sample Creator",
-    thumbnailUrl: "https://example.com/thumbnail.jpg",
-    currentTime: 0,
-    duration: 180,
-  });
 
   return (
     <RootContainer>
@@ -48,18 +54,9 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
         onClose={() => setIsSideMenuOpen(false)}
       />
       <MainContent>{children}</MainContent>
-      <MiniPlayer
-        onExpand={() => setIsVideoPlayerOpen(true)}
-        isPlaying={currentVideo.isPlaying}
-        title={currentVideo.title}
-        creator={currentVideo.creator}
-        thumbnailUrl={currentVideo.thumbnailUrl}
-        currentTime={currentVideo.currentTime}
-        duration={currentVideo.duration}
-        onPlayPause={() =>
-          setCurrentVideo((prev) => ({ ...prev, isPlaying: !prev.isPlaying }))
-        }
-      />
+      <PlayerWrapper>
+        <VideoPlayerContainer />
+      </PlayerWrapper>
       <MobileNavigation />
     </RootContainer>
   );

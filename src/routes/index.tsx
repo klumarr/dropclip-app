@@ -1,10 +1,13 @@
-import { Routes, Route } from "react-router-dom";
-import { HomePage } from "../pages/HomePage";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { DashboardPage } from "../pages/DashboardPage";
 import { ProfilePage } from "../pages/ProfilePage";
 import { PlaylistsPage } from "../pages/PlaylistsPage";
 import { LoginPage } from "../pages/LoginPage";
 import { SignUpPage } from "../pages/SignUpPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
+import { SearchPage } from "../pages/SearchPage";
+import EventsPage from "../pages/EventsPage";
+import { UploadPage } from "../pages/UploadPage";
 import { ProtectedRoute } from "../components/auth/ProtectedRoute";
 
 export const AppRoutes = () => {
@@ -33,7 +36,39 @@ export const AppRoutes = () => {
         path="/"
         element={
           <ProtectedRoute>
-            <HomePage />
+            <Navigate to="/dashboard" replace />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <DashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/search"
+        element={
+          <ProtectedRoute>
+            <SearchPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/events"
+        element={
+          <ProtectedRoute>
+            <EventsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/upload"
+        element={
+          <ProtectedRoute>
+            <UploadPage />
           </ProtectedRoute>
         }
       />

@@ -20,11 +20,11 @@ import {
 import {
   Menu as MenuIcon,
   Notifications,
-  Settings,
   AccountCircle,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { UserType } from "../../types/auth.types";
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: "rgba(0, 0, 0, 0.85)",
@@ -32,6 +32,17 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   borderBottom: "none",
   boxShadow: "none",
 }));
+
+const UserAvatar = styled(Avatar)<{ usertype: "fan" | "creative" }>(
+  ({ theme, usertype }) => ({
+    width: 32,
+    height: 32,
+    backgroundColor:
+      usertype === "creative"
+        ? theme.palette.secondary.main
+        : theme.palette.primary.main,
+  })
+);
 
 const NotificationItem = styled(ListItem)(({ theme }) => ({
   "&:hover": {
@@ -50,9 +61,9 @@ export const Header: React.FC<HeaderProps> = ({ onMenuOpen }) => {
   const { user, userAttributes, signOut } = useAuth();
   const [notificationsAnchor, setNotificationsAnchor] =
     useState<null | HTMLElement>(null);
-  const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(
-    null
-  );
+  const isCreative = userAttributes?.userType === UserType.CREATIVE;
+  const userInitial = userAttributes?.name?.charAt(0) || "U";
+  const userType = isCreative ? "creative" : "fan";
 
   // Mock notifications - replace with real data
   const notifications = [
@@ -80,18 +91,9 @@ export const Header: React.FC<HeaderProps> = ({ onMenuOpen }) => {
     setNotificationsAnchor(null);
   };
 
-  const handleUserMenuClick = (event: React.MouseEvent<HTMLElement>) => {
-    setUserMenuAnchor(event.currentTarget);
-  };
-
-  const handleUserMenuClose = () => {
-    setUserMenuAnchor(null);
-  };
-
   const handleSignOut = async () => {
     try {
       await signOut();
-      handleUserMenuClose();
       navigate("/login");
     } catch (error) {
       console.error("Error signing out:", error);
@@ -108,16 +110,14 @@ export const Header: React.FC<HeaderProps> = ({ onMenuOpen }) => {
             color="inherit"
             aria-label="menu"
             onClick={onMenuOpen}
+            sx={{ p: 0 }}
           >
-            {userAttributes?.picture ? (
-              <Avatar
-                src={userAttributes.picture}
-                alt={userAttributes.name ?? "User"}
-                sx={{ width: 32, height: 32 }}
-              />
-            ) : (
-              <AccountCircle />
-            )}
+            <UserAvatar
+              usertype={userType}
+              src={userAttributes?.picture || undefined}
+            >
+              {!userAttributes?.picture && userInitial}
+            </UserAvatar>
           </IconButton>
         </Box>
 
@@ -131,39 +131,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuOpen }) => {
               <Notifications />
             </Badge>
           </IconButton>
-
-          <IconButton
-            color="inherit"
-            onClick={handleUserMenuClick}
-            size="large"
-          >
-            <Settings />
-          </IconButton>
         </Box>
-
-        <Menu
-          anchorEl={userMenuAnchor}
-          open={Boolean(userMenuAnchor)}
-          onClose={handleUserMenuClose}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-        >
-          <MenuItem
-            onClick={() => {
-              handleUserMenuClose();
-              navigate("/profile");
-            }}
-          >
-            Profile
-          </MenuItem>
-          <MenuItem onClick={handleSignOut}>Sign Out</MenuItem>
-        </Menu>
 
         <Popover
           open={Boolean(notificationsAnchor)}

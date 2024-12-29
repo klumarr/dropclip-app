@@ -52,14 +52,12 @@ export const MobileNavigation = () => {
         { label: "Events", icon: <Event />, path: "/events" },
         { label: "Search", icon: <Search />, path: "/search" },
         { label: "Videos", icon: <VideoLibrary />, path: "/videos" },
-        { label: "Profile", icon: <Person />, path: "/profile" },
       ]
     : [
         { label: "Dashboard", icon: <Dashboard />, path: "/dashboard" },
         { label: "Search", icon: <Search />, path: "/search" },
         { label: "Events", icon: <Event />, path: "/events" },
         { label: "Upload", icon: <CloudUpload />, path: "/upload" },
-        { label: "Profile", icon: <Person />, path: "/profile" },
       ];
 
   useEffect(() => {

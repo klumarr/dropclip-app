@@ -1,0 +1,25 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Check for protected files
+protected_files=$(cat .protect | grep -v '^#' | grep -v '^$' | cut -d' ' -f1)
+staged_files=$(git diff --cached --name-only)
+
+for file in $protected_files; do
+  if echo "$staged_files" | grep -q "^$file$"; then
+    # Get the number of lines changed
+    lines_changed=$(git diff --cached "$file" | grep -E "^[+-]" | grep -v "^[+-]{3}" | wc -l)
+    
+    # If more than 50% of the file is changed, block the commit
+    total_lines=$(wc -l < "$file")
+    if [ $lines_changed -gt $((total_lines / 2)) ]; then
+      echo "Error: $file is protected and cannot be substantially modified."
+      echo "The changes affect more than 50% of the file."
+      echo "If you need to make major changes to this file, please remove it from .protect first."
+      exit 1
+    fi
+  fi
+done
+
+# Run other pre-commit hooks
+npm run lint 

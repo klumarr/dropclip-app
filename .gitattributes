@@ -10,3 +10,13 @@
 
 # Enforce case sensitivity
 src/pages/* casesensitive 
+
+# Protected files (read from .protect file)
+src/pages/DashboardPage.tsx merge=protected
+src/pages/LoginPage.tsx merge=protected
+src/pages/SignUpPage.tsx merge=protected
+src/components/auth/ProtectedRoute.tsx merge=protected
+src/components/layout/AppLayout.tsx merge=protected
+src/components/layout/MobileNavigation.tsx merge=protected
+src/theme/theme.ts merge=protected
+src/config/aws/amplify.config.ts merge=protected 
