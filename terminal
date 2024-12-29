@@ -1,0 +1,8 @@
+# Create project directory structure
+mkdir -p dropclip/{.github,.vscode,public,src/{__tests__,assets,components/{auth,layout,player,shared,upload},config,contexts,features/{events,playlists,profile,search},hooks,lib,pages,services,styles,types,utils}}
+
+# Create initial configuration files
+touch dropclip/{.env.example,.eslintrc,.gitignore,.prettierrc,jest.config.js,package.json,README.md,tsconfig.json,vite.config.ts}
+
+# Create auth types file with necessary interfaces
+touch dropclip/src/types/auth.ts
