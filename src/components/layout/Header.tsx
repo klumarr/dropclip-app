@@ -22,7 +22,7 @@ import {
   Notifications,
   AccountCircle,
 } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { UserType } from "../../types/auth.types";
 
@@ -57,6 +57,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onMenuOpen }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const theme = useTheme();
   const { user, userAttributes, signOut } = useAuth();
   const [notificationsAnchor, setNotificationsAnchor] =
@@ -100,10 +101,29 @@ export const Header: React.FC<HeaderProps> = ({ onMenuOpen }) => {
     }
   };
 
+  // Get page title based on current route
+  const getPageTitle = () => {
+    const path = location.pathname;
+    switch (path) {
+      case "/dashboard":
+        return "Dashboard";
+      case "/events":
+        return "Events";
+      case "/search":
+        return "Search";
+      case "/videos":
+        return "Videos";
+      case "/upload":
+        return "Upload";
+      default:
+        return "DropClip";
+    }
+  };
+
   return (
     <StyledAppBar position="fixed">
       <Toolbar sx={{ justifyContent: "space-between" }}>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <IconButton
             size="large"
             edge="start"
@@ -119,6 +139,9 @@ export const Header: React.FC<HeaderProps> = ({ onMenuOpen }) => {
               {!userAttributes?.picture && userInitial}
             </UserAvatar>
           </IconButton>
+          <Typography variant="h6" component="div" sx={{ ml: 2 }}>
+            {getPageTitle()}
+          </Typography>
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>

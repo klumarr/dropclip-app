@@ -1,10 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
-  Card,
-  CardContent,
-  CardMedia,
   IconButton,
   Button,
   Dialog,
@@ -13,255 +11,749 @@ import {
   DialogActions,
   TextField,
   Grid,
-  styled,
+  Tab,
+  Tabs,
+  Container,
+  useTheme,
+  useMediaQuery,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
 import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
+  PhotoCamera as PhotoCameraIcon,
+  Share as ShareIcon,
+  Facebook as FacebookIcon,
+  Twitter as TwitterIcon,
+  Instagram as InstagramIcon,
+  Link as LinkIcon,
+  QrCode as QrCodeIcon,
+  Message as MessageIcon,
+  WhatsApp as WhatsAppIcon,
 } from "@mui/icons-material";
-
-const ScrollSection = styled(Box)(({ theme }) => ({
-  overflowX: "auto",
-  whiteSpace: "nowrap",
-  padding: theme.spacing(2, 0),
-  "&::-webkit-scrollbar": {
-    height: 12,
-  },
-  "&::-webkit-scrollbar-track": {
-    background: "rgba(255, 255, 255, 0.05)",
-    borderRadius: 6,
-  },
-  "&::-webkit-scrollbar-thumb": {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    borderRadius: 6,
-    "&:hover": {
-      backgroundColor: "rgba(255, 255, 255, 0.2)",
-    },
-  },
-}));
-
-const EventCard = styled(Card)(({ theme }) => ({
-  display: "inline-block",
-  width: 280,
-  marginRight: theme.spacing(2),
-  backgroundColor: "rgba(255, 255, 255, 0.05)",
-  transition: "transform 0.2s, background-color 0.2s",
-  "&:hover": {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    transform: "translateY(-4px)",
-  },
-  whiteSpace: "normal",
-}));
+import {
+  ScrollSection,
+  EventsRow,
+  EventCard,
+  EventCardMedia,
+  EventCardContent,
+  ActionButtonsContainer,
+  ActionButton,
+} from "../components/events/EventsPageStyles";
+import FlyerScanner from "../components/events/FlyerScanner";
+import SocialMediaHub from "../components/events/SocialMediaHub";
+import ImageDialog from "../components/events/ImageDialog";
 
 interface Event {
   id: string;
   title: string;
   date: string;
+  startTime?: string;
+  endTime?: string;
   location: string;
   description: string;
   imageUrl?: string;
+  imageFile?: File;
+  ticketLink?: string;
   isAutomatic?: boolean;
 }
 
+interface EventFormData {
+  title: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  location: string;
+  description: string;
+  ticketLink: string;
+  imageUrl?: string;
+  imageFile?: File;
+}
+
 const EventsPage = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const navigate = useNavigate();
+
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [activeTab, setActiveTab] = useState(0);
+  const [isFlyerScannerOpen, setIsFlyerScannerOpen] = useState(false);
+  const [isSocialHubOpen, setIsSocialHubOpen] = useState(false);
+  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | undefined>();
+  const [events, setEvents] = useState<{
+    upcoming: Event[];
+    past: Event[];
+    automatic: Event[];
+  }>({
+    upcoming: [],
+    past: [],
+    automatic: [],
+  });
+  const [formData, setFormData] = useState<EventFormData>({
+    title: "",
+    date: new Date().toISOString().split("T")[0],
+    startTime: "",
+    endTime: "",
+    location: "",
+    description: "",
+    ticketLink: "",
+  });
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
+  const [shareAnchorEl, setShareAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedShareEvent, setSelectedShareEvent] = useState<Event | null>(
+    null
+  );
 
-  // Mock data - replace with real data from API
-  const upcomingEvents: Event[] = [
-    {
-      id: "1",
-      title: "Summer Festival 2024",
-      date: "2024-07-15",
-      location: "Central Park, NY",
-      description: "Annual summer music festival featuring local artists",
-      imageUrl: "https://example.com/event1.jpg",
-    },
-  ];
-
-  const pastEvents: Event[] = [
-    {
-      id: "2",
-      title: "Winter Concert 2023",
-      date: "2023-12-20",
-      location: "Madison Square Garden",
-      description: "End of year special performance",
-      imageUrl: "https://example.com/event2.jpg",
-    },
-  ];
-
-  const automaticEvents: Event[] = [
-    {
-      id: "3",
-      title: "Club Performance",
-      date: "2024-08-01",
-      location: "Blue Note Jazz Club",
-      description: "Found from Instagram post",
-      imageUrl: "https://example.com/event3.jpg",
-      isAutomatic: true,
-    },
-  ];
+  // Initialize with mock data
+  useEffect(() => {
+    setEvents({
+      upcoming: [
+        {
+          id: "1",
+          title: "Summer Festival 2024",
+          date: "2024-07-15",
+          location: "Central Park, NY",
+          description: "Annual summer music festival featuring local artists",
+          imageUrl: "https://example.com/event1.jpg",
+        },
+      ],
+      past: [
+        {
+          id: "2",
+          title: "Winter Concert 2023",
+          date: "2023-12-20",
+          location: "Madison Square Garden",
+          description: "End of year special performance",
+          imageUrl: "https://example.com/event2.jpg",
+        },
+      ],
+      automatic: [
+        {
+          id: "3",
+          title: "Club Performance",
+          date: "2024-08-01",
+          location: "Blue Note Jazz Club",
+          description: "Found from Instagram post",
+          imageUrl: "https://example.com/event3.jpg",
+          isAutomatic: true,
+        },
+      ],
+    });
+  }, []);
 
   const handleCreateEvent = () => {
     setSelectedEvent(null);
+    setFormData({
+      title: "",
+      date: new Date().toISOString().split("T")[0],
+      startTime: "",
+      endTime: "",
+      location: "",
+      description: "",
+      ticketLink: "",
+    });
     setIsCreateDialogOpen(true);
   };
 
   const handleEditEvent = (event: Event) => {
     setSelectedEvent(event);
+    setFormData({
+      title: event.title || "",
+      date: event.date || new Date().toISOString().split("T")[0],
+      startTime: event.startTime || "",
+      endTime: event.endTime || "",
+      location: event.location || "",
+      description: event.description || "",
+      ticketLink: event.ticketLink || "",
+      imageUrl: event.imageUrl,
+    });
     setIsCreateDialogOpen(true);
   };
 
   const handleSaveEvent = () => {
-    // Save event logic here
+    if (!formData.title || !formData.date || !formData.location) {
+      // Show error or validation message
+      return;
+    }
+
+    const eventToSave: Event = {
+      id: selectedEvent?.id || Date.now().toString(),
+      ...formData,
+    };
+
+    const eventDate = new Date(eventToSave.date);
+    const now = new Date();
+    const category = eventDate > now ? "upcoming" : "past";
+
+    setEvents((prev) => {
+      if (selectedEvent) {
+        // Update existing event
+        const currentCategory = prev.upcoming.find(
+          (e) => e.id === selectedEvent.id
+        )
+          ? "upcoming"
+          : prev.past.find((e) => e.id === selectedEvent.id)
+          ? "past"
+          : "automatic";
+
+        // Remove from old category
+        const updatedEvents = {
+          ...prev,
+          [currentCategory]: prev[currentCategory].filter(
+            (e) => e.id !== selectedEvent.id
+          ),
+        };
+
+        // Add to new category
+        return {
+          ...updatedEvents,
+          [category]: [...updatedEvents[category], eventToSave],
+        };
+      } else {
+        // Add new event
+        return {
+          ...prev,
+          [category]: [...prev[category], eventToSave],
+        };
+      }
+    });
+
     setIsCreateDialogOpen(false);
   };
 
-  const handleApproveAutoEvent = (event: Event) => {
-    // Move automatic event to upcoming events
-    console.log("Approving auto event:", event);
+  const handleDeleteEvent = (eventToDelete: Event) => {
+    setEvents((prev) => {
+      const category = prev.upcoming.find((e) => e.id === eventToDelete.id)
+        ? "upcoming"
+        : prev.past.find((e) => e.id === eventToDelete.id)
+        ? "past"
+        : "automatic";
+
+      return {
+        ...prev,
+        [category]: prev[category].filter((e) => e.id !== eventToDelete.id),
+      };
+    });
   };
 
-  return (
-    <Box sx={{ p: 3 }}>
-      <Box
-        sx={{
-          mb: 4,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Typography variant="h4" component="h1">
-          Events
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleCreateEvent}
-        >
-          Create Event
-        </Button>
-      </Box>
+  const handleImageClick = (imageUrl: string | undefined) => {
+    if (imageUrl) {
+      setSelectedImage(imageUrl);
+      setIsImageDialogOpen(true);
+    }
+  };
 
-      <Box sx={{ mb: 6 }}>
-        <Typography variant="h5" gutterBottom>
-          Upcoming Events
-        </Typography>
-        <ScrollSection>
-          {upcomingEvents.map((event) => (
-            <EventCard key={event.id}>
-              {event.imageUrl && (
-                <CardMedia
-                  component="img"
-                  height="140"
-                  image={event.imageUrl}
-                  alt={event.title}
-                />
+  const handleFlyerUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Create object URL for preview
+    const imageUrl = URL.createObjectURL(file);
+    setFormData((prev) => ({
+      ...prev,
+      imageUrl,
+      imageFile: file,
+    }));
+  };
+
+  const handleApproveAutoEvent = (event: Event) => {
+    const eventDate = new Date(event.date);
+    const now = new Date();
+    const category = eventDate > now ? "upcoming" : "past";
+
+    // Add to appropriate category
+    setEvents((prev) => ({
+      ...prev,
+      [category]: [...prev[category], { ...event, isAutomatic: false }],
+      automatic: prev.automatic.filter((e) => e.id !== event.id),
+    }));
+  };
+
+  const handleEventDetected = (eventData: Partial<Event>) => {
+    const newEvent: Event = {
+      id: Date.now().toString(),
+      title: eventData.title || "Untitled Event",
+      date: eventData.date || new Date().toISOString().split("T")[0],
+      startTime: eventData.startTime,
+      endTime: eventData.endTime,
+      location: eventData.location || "Location TBD",
+      description: eventData.description || "",
+      imageUrl: eventData.imageUrl,
+      imageFile: eventData.imageFile,
+      ticketLink: eventData.ticketLink,
+      isAutomatic: true,
+    };
+
+    setEvents((prev) => ({
+      ...prev,
+      automatic: [...prev.automatic, newEvent],
+    }));
+
+    // Close the dialog but don't change the active tab
+    setIsFlyerScannerOpen(false);
+  };
+
+  const handleSocialEventImported = (eventData: any) => {
+    const newEvent: Event = {
+      id: Date.now().toString(),
+      title: eventData.title,
+      date: new Date(eventData.date).toISOString().split("T")[0],
+      location: eventData.location,
+      description: eventData.description,
+      isAutomatic: true,
+    };
+
+    setEvents((prev) => ({
+      ...prev,
+      automatic: [...prev.automatic, newEvent],
+    }));
+  };
+
+  const handleDeleteConfirm = () => {
+    if (eventToDelete) {
+      handleDeleteEvent(eventToDelete);
+      setEventToDelete(null);
+      setIsDeleteConfirmOpen(false);
+    }
+  };
+
+  const handleDeleteClick = (event: Event) => {
+    setEventToDelete(event);
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const handleShareClick = (
+    event: React.MouseEvent<HTMLElement>,
+    eventData: Event
+  ) => {
+    event.stopPropagation();
+    setShareAnchorEl(event.currentTarget);
+    setSelectedShareEvent(eventData);
+  };
+
+  const handleShareClose = () => {
+    setShareAnchorEl(null);
+    setSelectedShareEvent(null);
+  };
+
+  const handleShare = async (platform: string) => {
+    if (!selectedShareEvent) return;
+
+    const eventUrl = `${window.location.origin}/events/${selectedShareEvent.id}/upload`;
+    const eventText = `Check out ${selectedShareEvent.title} at ${
+      selectedShareEvent.location
+    } on ${new Date(selectedShareEvent.date).toLocaleDateString()}`;
+
+    switch (platform) {
+      case "facebook":
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+            eventUrl
+          )}`,
+          "_blank"
+        );
+        break;
+      case "twitter":
+        window.open(
+          `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+            eventText
+          )}&url=${encodeURIComponent(eventUrl)}`,
+          "_blank"
+        );
+        break;
+      case "instagram":
+        alert("Copy the link to share on Instagram");
+        break;
+      case "whatsapp":
+        window.open(
+          `https://wa.me/?text=${encodeURIComponent(
+            eventText + " " + eventUrl
+          )}`,
+          "_blank"
+        );
+        break;
+      case "sms":
+        window.open(
+          `sms:?body=${encodeURIComponent(eventText + " " + eventUrl)}`,
+          "_blank"
+        );
+        break;
+      case "link":
+        await navigator.clipboard.writeText(eventUrl);
+        alert("Link copied to clipboard!");
+        break;
+      case "qr":
+        // Implement QR code dialog
+        break;
+    }
+    handleShareClose();
+  };
+
+  const handleEventClick = (event: Event) => {
+    if (activeTab === 1) {
+      // Past events
+      navigate(`/events/${event.id}/manage`);
+    }
+  };
+
+  const renderPastEvents = () => (
+    <ScrollSection>
+      <EventsRow>
+        {events.past.map((event) => (
+          <EventCard key={event.id} onClick={() => handleEventClick(event)}>
+            {event.imageUrl && (
+              <EventCardMedia
+                src={event.imageUrl || "/placeholder-event.jpg"}
+                alt={event.title}
+                onClick={() => handleImageClick(event.imageUrl)}
+              />
+            )}
+            <EventCardContent>
+              <Typography variant="h6" gutterBottom>
+                {event.title}
+              </Typography>
+              <Typography variant="body1" color="text.secondary" gutterBottom>
+                {new Date(event.date).toLocaleDateString(undefined, {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </Typography>
+              {event.startTime && (
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  {event.startTime} - {event.endTime}
+                </Typography>
               )}
-              <CardContent>
-                <Typography variant="h6" noWrap>
-                  {event.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {new Date(event.date).toLocaleDateString()}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" noWrap>
-                  {event.location}
-                </Typography>
-                <Box sx={{ mt: 1, display: "flex", gap: 1 }}>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                {event.location}
+              </Typography>
+              <Box
+                sx={{
+                  mt: 2,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Box sx={{ display: "flex", gap: 1 }}>
                   <IconButton
                     size="small"
-                    onClick={() => handleEditEvent(event)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditEvent(event);
+                    }}
                   >
                     <EditIcon />
                   </IconButton>
-                  <IconButton size="small">
+                  <IconButton
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteClick(event);
+                    }}
+                  >
                     <DeleteIcon />
                   </IconButton>
-                </Box>
-              </CardContent>
-            </EventCard>
-          ))}
-        </ScrollSection>
-      </Box>
-
-      <Box sx={{ mb: 6 }}>
-        <Typography variant="h5" gutterBottom>
-          Past Events
-        </Typography>
-        <ScrollSection>
-          {pastEvents.map((event) => (
-            <EventCard key={event.id}>
-              {event.imageUrl && (
-                <CardMedia
-                  component="img"
-                  height="140"
-                  image={event.imageUrl}
-                  alt={event.title}
-                />
-              )}
-              <CardContent>
-                <Typography variant="h6" noWrap>
-                  {event.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {new Date(event.date).toLocaleDateString()}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" noWrap>
-                  {event.location}
-                </Typography>
-              </CardContent>
-            </EventCard>
-          ))}
-        </ScrollSection>
-      </Box>
-
-      <Box sx={{ mb: 6 }}>
-        <Typography variant="h5" gutterBottom>
-          Automatic Events
-        </Typography>
-        <ScrollSection>
-          {automaticEvents.map((event) => (
-            <EventCard key={event.id}>
-              {event.imageUrl && (
-                <CardMedia
-                  component="img"
-                  height="140"
-                  image={event.imageUrl}
-                  alt={event.title}
-                />
-              )}
-              <CardContent>
-                <Typography variant="h6" noWrap>
-                  {event.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {new Date(event.date).toLocaleDateString()}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" noWrap>
-                  {event.location}
-                </Typography>
-                <Box sx={{ mt: 1 }}>
-                  <Button
-                    variant="contained"
+                  <IconButton
                     size="small"
-                    onClick={() => handleApproveAutoEvent(event)}
+                    onClick={(e) => handleShareClick(e, event)}
                   >
-                    Approve & Add
-                  </Button>
+                    <ShareIcon />
+                  </IconButton>
                 </Box>
-              </CardContent>
-            </EventCard>
-          ))}
-        </ScrollSection>
+              </Box>
+            </EventCardContent>
+          </EventCard>
+        ))}
+      </EventsRow>
+    </ScrollSection>
+  );
+
+  return (
+    <Container
+      maxWidth={false}
+      sx={{
+        p: 3,
+        pb: 10,
+        pt: 1,
+        maxWidth: "1920px",
+        mx: "auto",
+        minHeight: "100vh",
+        position: "relative",
+      }}
+    >
+      <Box sx={{ mb: 4 }}>
+        <Tabs
+          value={activeTab}
+          onChange={(_, newValue) => setActiveTab(newValue)}
+          sx={{ mb: 3 }}
+          variant={isMobile ? "fullWidth" : "standard"}
+        >
+          <Tab label="Upcoming" />
+          <Tab label="Past" />
+          <Tab label="Automatic" />
+        </Tabs>
+
+        {activeTab === 0 && (
+          <ScrollSection>
+            <EventsRow>
+              {events.upcoming.map((event) => (
+                <EventCard key={event.id}>
+                  {event.imageUrl && (
+                    <EventCardMedia
+                      src={event.imageUrl || "/placeholder-event.jpg"}
+                      alt={event.title}
+                      onClick={() => handleImageClick(event.imageUrl)}
+                    />
+                  )}
+                  <EventCardContent>
+                    <Typography variant="h6" gutterBottom>
+                      {event.title}
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      color="text.secondary"
+                      gutterBottom
+                    >
+                      {new Date(event.date).toLocaleDateString(undefined, {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </Typography>
+                    {event.startTime && (
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        gutterBottom
+                      >
+                        {event.startTime} - {event.endTime}
+                      </Typography>
+                    )}
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      gutterBottom
+                    >
+                      {event.location}
+                    </Typography>
+                    <Box
+                      sx={{
+                        mt: 2,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleEditEvent(event)}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleDeleteEvent(event)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Box>
+                      {event.ticketLink && (
+                        <Button
+                          href={event.ticketLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          size="small"
+                          variant="outlined"
+                        >
+                          Get Tickets
+                        </Button>
+                      )}
+                    </Box>
+                  </EventCardContent>
+                </EventCard>
+              ))}
+            </EventsRow>
+          </ScrollSection>
+        )}
+
+        {activeTab === 1 && renderPastEvents()}
+
+        {activeTab === 2 && (
+          <ScrollSection>
+            <EventsRow>
+              {events.automatic.map((event) => (
+                <EventCard key={event.id}>
+                  {event.imageUrl && (
+                    <EventCardMedia
+                      src={event.imageUrl || "/placeholder-event.jpg"}
+                      alt={event.title}
+                      onClick={() => handleImageClick(event.imageUrl)}
+                    />
+                  )}
+                  <EventCardContent>
+                    <Typography variant="h6" gutterBottom>
+                      {event.title}
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      color="text.secondary"
+                      gutterBottom
+                    >
+                      {new Date(event.date).toLocaleDateString(undefined, {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </Typography>
+                    {event.startTime && (
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        gutterBottom
+                      >
+                        {event.startTime} - {event.endTime}
+                      </Typography>
+                    )}
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      gutterBottom
+                    >
+                      {event.location}
+                    </Typography>
+                    <Box
+                      sx={{
+                        mt: 2,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleEditEvent(event)}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleDeleteClick(event)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Box>
+                      {event.ticketLink && (
+                        <Button
+                          href={event.ticketLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          size="small"
+                          variant="outlined"
+                        >
+                          Get Tickets
+                        </Button>
+                      )}
+                    </Box>
+                    <Box sx={{ mt: 2 }}>
+                      <Button
+                        variant="contained"
+                        size="small"
+                        onClick={() => handleApproveAutoEvent(event)}
+                        sx={{ mr: 1 }}
+                      >
+                        Approve
+                      </Button>
+                    </Box>
+                  </EventCardContent>
+                </EventCard>
+              ))}
+            </EventsRow>
+          </ScrollSection>
+        )}
+
+        <ActionButtonsContainer>
+          <ActionButton
+            variant="outlined"
+            startIcon={<ShareIcon />}
+            onClick={() => setIsSocialHubOpen(true)}
+            size="small"
+          >
+            Social
+          </ActionButton>
+          <ActionButton
+            variant="outlined"
+            startIcon={<PhotoCameraIcon />}
+            onClick={() => setIsFlyerScannerOpen(true)}
+            size="small"
+          >
+            Scan
+          </ActionButton>
+          <ActionButton
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleCreateEvent}
+            size="small"
+          >
+            Create
+          </ActionButton>
+        </ActionButtonsContainer>
       </Box>
+
+      {/* Dialogs */}
+      <ImageDialog
+        open={isImageDialogOpen}
+        onClose={() => setIsImageDialogOpen(false)}
+        imageUrl={selectedImage}
+      />
+      <Dialog
+        open={isFlyerScannerOpen}
+        onClose={() => setIsFlyerScannerOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>Scan Event Flyer</DialogTitle>
+        <DialogContent>
+          <FlyerScanner
+            onEventDetected={handleEventDetected}
+            onClose={() => setIsFlyerScannerOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={isSocialHubOpen}
+        onClose={() => setIsSocialHubOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>Social Media Integration</DialogTitle>
+        <DialogContent>
+          <SocialMediaHub onEventImported={handleSocialEventImported} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsSocialHubOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog
         open={isCreateDialogOpen}
         onClose={() => setIsCreateDialogOpen(false)}
-        maxWidth="sm"
+        maxWidth="md"
         fullWidth
       >
         <DialogTitle>
@@ -273,25 +765,120 @@ const EventsPage = () => {
               <Grid item xs={12}>
                 <TextField
                   fullWidth
+                  required
                   label="Event Title"
-                  defaultValue={selectedEvent?.title}
+                  value={formData.title}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, title: e.target.value }))
+                  }
+                  error={!formData.title}
+                  helperText={!formData.title && "Title is required"}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
+                  required
                   type="date"
                   label="Date"
-                  defaultValue={selectedEvent?.date}
+                  value={formData.date}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, date: e.target.value }))
+                  }
+                  InputLabelProps={{ shrink: true }}
+                  error={!formData.date}
+                  helperText={!formData.date && "Date is required"}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  required
+                  label="Location"
+                  value={formData.location}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      location: e.target.value,
+                    }))
+                  }
+                  error={!formData.location}
+                  helperText={!formData.location && "Location is required"}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  type="time"
+                  label="Start Time"
+                  value={formData.startTime}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      startTime: e.target.value,
+                    }))
+                  }
                   InputLabelProps={{ shrink: true }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Location"
-                  defaultValue={selectedEvent?.location}
+                  type="time"
+                  label="End Time"
+                  value={formData.endTime}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      endTime: e.target.value,
+                    }))
+                  }
+                  InputLabelProps={{ shrink: true }}
                 />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Ticket Link"
+                  value={formData.ticketLink}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      ticketLink: e.target.value,
+                    }))
+                  }
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  id="event-flyer-upload"
+                  onChange={handleFlyerUpload}
+                />
+                <label htmlFor="event-flyer-upload">
+                  <Button
+                    variant="outlined"
+                    component="span"
+                    startIcon={<PhotoCameraIcon />}
+                  >
+                    Upload Flyer
+                  </Button>
+                </label>
+                {formData.imageUrl && (
+                  <Box sx={{ mt: 2 }}>
+                    <img
+                      src={formData.imageUrl}
+                      alt="Event flyer preview"
+                      style={{
+                        maxWidth: "100%",
+                        maxHeight: 200,
+                        objectFit: "contain",
+                      }}
+                    />
+                  </Box>
+                )}
               </Grid>
               <Grid item xs={12}>
                 <TextField
@@ -299,7 +886,13 @@ const EventsPage = () => {
                   label="Description"
                   multiline
                   rows={4}
-                  defaultValue={selectedEvent?.description}
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
                 />
               </Grid>
             </Grid>
@@ -312,7 +905,77 @@ const EventsPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={isDeleteConfirmOpen}
+        onClose={() => setIsDeleteConfirmOpen(false)}
+      >
+        <DialogTitle>Delete Event</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete this event? This action cannot be
+            undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsDeleteConfirmOpen(false)}>Cancel</Button>
+          <Button onClick={handleDeleteConfirm} color="error">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Share Menu */}
+      <Menu
+        anchorEl={shareAnchorEl}
+        open={Boolean(shareAnchorEl)}
+        onClose={handleShareClose}
+      >
+        <MenuItem onClick={() => handleShare("facebook")}>
+          <ListItemIcon>
+            <FacebookIcon />
+          </ListItemIcon>
+          <ListItemText>Facebook</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handleShare("twitter")}>
+          <ListItemIcon>
+            <TwitterIcon />
+          </ListItemIcon>
+          <ListItemText>Twitter</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handleShare("instagram")}>
+          <ListItemIcon>
+            <InstagramIcon />
+          </ListItemIcon>
+          <ListItemText>Instagram</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handleShare("whatsapp")}>
+          <ListItemIcon>
+            <WhatsAppIcon />
+          </ListItemIcon>
+          <ListItemText>WhatsApp</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handleShare("sms")}>
+          <ListItemIcon>
+            <MessageIcon />
+          </ListItemIcon>
+          <ListItemText>SMS</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handleShare("link")}>
+          <ListItemIcon>
+            <LinkIcon />
+          </ListItemIcon>
+          <ListItemText>Copy Link</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handleShare("qr")}>
+          <ListItemIcon>
+            <QrCodeIcon />
+          </ListItemIcon>
+          <ListItemText>QR Code</ListItemText>
+        </MenuItem>
+      </Menu>
+    </Container>
   );
 };
 

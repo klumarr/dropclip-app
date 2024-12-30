@@ -8,7 +8,6 @@ src/pages/SignUpPage.tsx - Stable registration flow
 
 # Core Components
 src/components/auth/ProtectedRoute.tsx - Critical auth protection
-src/components/layout/AppLayout.tsx - Core layout structure
 src/components/layout/MobileNavigation.tsx - Stable navigation
 
 # Configuration

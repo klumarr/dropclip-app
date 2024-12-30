@@ -83,6 +83,7 @@ export const MobileNavigation = () => {
         left: 0,
         right: 0,
         zIndex: (theme) => theme.zIndex.appBar,
+        opacity: 0.5,
       }}
     >
       <StyledBottomNavigation
