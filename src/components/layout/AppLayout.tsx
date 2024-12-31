@@ -42,8 +42,6 @@ const PlayerWrapper = styled(Box)(({ theme }) => ({
 }));
 
 export const AppLayout = ({ children }: { children: React.ReactNode }) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
 
   return (

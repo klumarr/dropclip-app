@@ -20,6 +20,11 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
+  FormControlLabel,
+  Switch,
+  FormControl,
+  InputLabel,
+  Select,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -34,6 +39,7 @@ import {
   QrCode as QrCodeIcon,
   Message as MessageIcon,
   WhatsApp as WhatsAppIcon,
+  CloudUpload as CloudUploadIcon,
 } from "@mui/icons-material";
 import {
   ScrollSection,
@@ -43,10 +49,12 @@ import {
   EventCardContent,
   ActionButtonsContainer,
   ActionButton,
+  UploadIndicator,
 } from "../components/events/EventsPageStyles";
 import FlyerScanner from "../components/events/FlyerScanner";
 import SocialMediaHub from "../components/events/SocialMediaHub";
 import ImageDialog from "../components/events/ImageDialog";
+import { QRCodeSVG } from "qrcode.react";
 
 interface Event {
   id: string;
@@ -60,6 +68,15 @@ interface Event {
   imageFile?: File;
   ticketLink?: string;
   isAutomatic?: boolean;
+  uploadConfig?: {
+    enabled: boolean;
+    startDate?: string;
+    endDate?: string;
+    startTime?: string;
+    endTime?: string;
+    maxFileSize?: number;
+    allowedTypes?: string[];
+  };
 }
 
 interface EventFormData {
@@ -72,7 +89,58 @@ interface EventFormData {
   ticketLink: string;
   imageUrl?: string;
   imageFile?: File;
+  uploadConfig: {
+    enabled: boolean;
+    startDate?: string;
+    endDate?: string;
+    startTime?: string;
+    endTime?: string;
+    maxFileSize?: number;
+    allowedTypes?: string[];
+  };
 }
+
+const QRCodeDialog = ({
+  open,
+  onClose,
+  eventUrl,
+}: {
+  open: boolean;
+  onClose: () => void;
+  eventUrl: string;
+}) => {
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>Event Upload QR Code</DialogTitle>
+      <DialogContent>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 2,
+            p: 2,
+          }}
+        >
+          <QRCodeSVG value={eventUrl} size={256} level="H" />
+          <Typography variant="body1" align="center">
+            Scan this QR code to upload content from the event
+          </Typography>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              navigator.clipboard.writeText(eventUrl);
+              alert("Link copied to clipboard!");
+            }}
+            startIcon={<LinkIcon />}
+          >
+            Copy Link
+          </Button>
+        </Box>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 const EventsPage = () => {
   const theme = useTheme();
@@ -103,6 +171,11 @@ const EventsPage = () => {
     location: "",
     description: "",
     ticketLink: "",
+    uploadConfig: {
+      enabled: false,
+      maxFileSize: 100, // 100MB default
+      allowedTypes: ["image/*", "video/*"],
+    },
   });
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
@@ -110,6 +183,8 @@ const EventsPage = () => {
   const [selectedShareEvent, setSelectedShareEvent] = useState<Event | null>(
     null
   );
+  const [isQRDialogOpen, setIsQRDialogOpen] = useState(false);
+  const [selectedQREvent, setSelectedQREvent] = useState<Event | null>(null);
 
   // Initialize with mock data
   useEffect(() => {
@@ -158,6 +233,15 @@ const EventsPage = () => {
       location: "",
       description: "",
       ticketLink: "",
+      uploadConfig: {
+        enabled: false,
+        maxFileSize: 100,
+        allowedTypes: ["image/*", "video/*"],
+        startDate: new Date().toISOString().split("T")[0],
+        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0], // 7 days from now
+      },
     });
     setIsCreateDialogOpen(true);
   };
@@ -173,6 +257,11 @@ const EventsPage = () => {
       description: event.description || "",
       ticketLink: event.ticketLink || "",
       imageUrl: event.imageUrl,
+      uploadConfig: event.uploadConfig || {
+        enabled: false,
+        maxFileSize: 100,
+        allowedTypes: ["image/*", "video/*"],
+      },
     });
     setIsCreateDialogOpen(true);
   };
@@ -392,7 +481,8 @@ const EventsPage = () => {
         alert("Link copied to clipboard!");
         break;
       case "qr":
-        // Implement QR code dialog
+        setSelectedQREvent(selectedShareEvent);
+        setIsQRDialogOpen(true);
         break;
     }
     handleShareClose();
@@ -416,6 +506,23 @@ const EventsPage = () => {
                 alt={event.title}
                 onClick={() => handleImageClick(event.imageUrl)}
               />
+            )}
+            {event.uploadConfig?.enabled && (
+              <UploadIndicator>
+                <CloudUploadIcon />
+                <Typography variant="caption">
+                  {new Date().toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }) >= (event.uploadConfig.startTime || "00:00") &&
+                  new Date().toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }) <= (event.uploadConfig.endTime || "23:59")
+                    ? "Uploads Open"
+                    : "Uploads Scheduled"}
+                </Typography>
+              </UploadIndicator>
             )}
             <EventCardContent>
               <Typography variant="h6" gutterBottom>
@@ -488,8 +595,9 @@ const EventsPage = () => {
         pt: 1,
         maxWidth: "1920px",
         mx: "auto",
-        minHeight: "100vh",
+        height: "calc(100vh - 64px)",
         position: "relative",
+        overflow: "hidden",
       }}
     >
       <Box sx={{ mb: 4 }}>
@@ -515,6 +623,23 @@ const EventsPage = () => {
                       alt={event.title}
                       onClick={() => handleImageClick(event.imageUrl)}
                     />
+                  )}
+                  {event.uploadConfig?.enabled && (
+                    <UploadIndicator>
+                      <CloudUploadIcon />
+                      <Typography variant="caption">
+                        {new Date().toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }) >= (event.uploadConfig.startTime || "00:00") &&
+                        new Date().toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }) <= (event.uploadConfig.endTime || "23:59")
+                          ? "Uploads Open"
+                          : "Uploads Scheduled"}
+                      </Typography>
+                    </UploadIndicator>
                   )}
                   <EventCardContent>
                     <Typography variant="h6" gutterBottom>
@@ -602,6 +727,23 @@ const EventsPage = () => {
                       alt={event.title}
                       onClick={() => handleImageClick(event.imageUrl)}
                     />
+                  )}
+                  {event.uploadConfig?.enabled && (
+                    <UploadIndicator>
+                      <CloudUploadIcon />
+                      <Typography variant="caption">
+                        {new Date().toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }) >= (event.uploadConfig.startTime || "00:00") &&
+                        new Date().toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }) <= (event.uploadConfig.endTime || "23:59")
+                          ? "Uploads Open"
+                          : "Uploads Scheduled"}
+                      </Typography>
+                    </UploadIndicator>
                   )}
                   <EventCardContent>
                     <Typography variant="h6" gutterBottom>
@@ -895,6 +1037,148 @@ const EventsPage = () => {
                   }
                 />
               </Grid>
+              <Grid item xs={12}>
+                <Typography variant="subtitle1" gutterBottom>
+                  Fan Upload Settings
+                </Typography>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={formData.uploadConfig.enabled}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          uploadConfig: {
+                            ...prev.uploadConfig,
+                            enabled: e.target.checked,
+                          },
+                        }))
+                      }
+                    />
+                  }
+                  label="Enable fan uploads"
+                />
+              </Grid>
+              {formData.uploadConfig.enabled && (
+                <>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      type="date"
+                      label="Upload Start Date"
+                      value={formData.uploadConfig.startDate || ""}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          uploadConfig: {
+                            ...prev.uploadConfig,
+                            startDate: e.target.value,
+                          },
+                        }))
+                      }
+                      InputLabelProps={{ shrink: true }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      type="date"
+                      label="Upload End Date"
+                      value={formData.uploadConfig.endDate || ""}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          uploadConfig: {
+                            ...prev.uploadConfig,
+                            endDate: e.target.value,
+                          },
+                        }))
+                      }
+                      InputLabelProps={{ shrink: true }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      type="time"
+                      label="Daily Upload Start Time"
+                      value={formData.uploadConfig.startTime || ""}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          uploadConfig: {
+                            ...prev.uploadConfig,
+                            startTime: e.target.value,
+                          },
+                        }))
+                      }
+                      InputLabelProps={{ shrink: true }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      type="time"
+                      label="Daily Upload End Time"
+                      value={formData.uploadConfig.endTime || ""}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          uploadConfig: {
+                            ...prev.uploadConfig,
+                            endTime: e.target.value,
+                          },
+                        }))
+                      }
+                      InputLabelProps={{ shrink: true }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      type="number"
+                      label="Max File Size (MB)"
+                      value={formData.uploadConfig.maxFileSize || ""}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          uploadConfig: {
+                            ...prev.uploadConfig,
+                            maxFileSize: Number(e.target.value),
+                          },
+                        }))
+                      }
+                      InputProps={{
+                        inputProps: { min: 1, max: 1000 },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth>
+                      <InputLabel>Allowed File Types</InputLabel>
+                      <Select
+                        multiple
+                        value={formData.uploadConfig.allowedTypes || []}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            uploadConfig: {
+                              ...prev.uploadConfig,
+                              allowedTypes: e.target.value as string[],
+                            },
+                          }))
+                        }
+                        renderValue={(selected) =>
+                          (selected as string[]).join(", ")
+                        }
+                      >
+                        <MenuItem value="image/*">Images</MenuItem>
+                        <MenuItem value="video/*">Videos</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                </>
+              )}
             </Grid>
           </Box>
         </DialogContent>
@@ -975,6 +1259,19 @@ const EventsPage = () => {
           <ListItemText>QR Code</ListItemText>
         </MenuItem>
       </Menu>
+
+      <QRCodeDialog
+        open={isQRDialogOpen}
+        onClose={() => {
+          setIsQRDialogOpen(false);
+          setSelectedQREvent(null);
+        }}
+        eventUrl={
+          selectedQREvent
+            ? `${window.location.origin}/events/${selectedQREvent.id}/upload`
+            : ""
+        }
+      />
     </Container>
   );
 };

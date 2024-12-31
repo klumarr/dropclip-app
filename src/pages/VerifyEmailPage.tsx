@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Container,
   Box,
@@ -9,14 +9,14 @@ import {
   Alert,
   CircularProgress,
   Paper,
-} from '@mui/material';
-import { authService } from '../services/auth.service';
+} from "@mui/material";
+import { confirmSignUp } from "../services/auth.service";
 
 const VerifyEmailPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email;
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -26,10 +26,10 @@ const VerifyEmailPage: React.FC = () => {
     setLoading(true);
 
     try {
-      await authService.confirmSignUp(email, code);
-      navigate('/login', { replace: true });
+      await confirmSignUp(email, code);
+      navigate("/login", { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to verify email');
+      setError(err instanceof Error ? err.message : "Failed to verify email");
     } finally {
       setLoading(false);
     }
@@ -48,19 +48,19 @@ const VerifyEmailPage: React.FC = () => {
       <Box
         sx={{
           marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
         <Paper
           elevation={3}
           sx={{
             padding: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            width: '100%',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            width: "100%",
           }}
         >
           <Typography component="h1" variant="h5">
@@ -70,11 +70,15 @@ const VerifyEmailPage: React.FC = () => {
             Please enter the verification code sent to {email}
           </Typography>
           {error && (
-            <Alert severity="error" sx={{ mt: 2, width: '100%' }}>
+            <Alert severity="error" sx={{ mt: 2, width: "100%" }}>
               {error}
             </Alert>
           )}
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, width: '100%' }}>
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{ mt: 1, width: "100%" }}
+          >
             <TextField
               margin="normal"
               required
@@ -95,7 +99,7 @@ const VerifyEmailPage: React.FC = () => {
               sx={{ mt: 3, mb: 2 }}
               disabled={loading}
             >
-              {loading ? <CircularProgress size={24} /> : 'Verify Email'}
+              {loading ? <CircularProgress size={24} /> : "Verify Email"}
             </Button>
           </Box>
         </Paper>

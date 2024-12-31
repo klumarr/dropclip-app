@@ -23,8 +23,17 @@ export const ProtectedRoute = ({
   requiredUserType,
   isPublic = false,
 }: ProtectedRouteProps) => {
-  const { isAuthenticated, isLoading, userAttributes } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
+
+  console.log("ProtectedRoute:", {
+    isAuthenticated,
+    isLoading,
+    isPublic,
+    requiredUserType,
+    userType: user?.userType,
+    path: location.pathname,
+  });
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -48,9 +57,9 @@ export const ProtectedRoute = ({
   }
 
   // Check user type if required
-  if (requiredUserType && userAttributes?.userType !== requiredUserType) {
+  if (requiredUserType && user?.userType !== requiredUserType) {
     console.log(
-      `User type ${userAttributes?.userType} does not match required type ${requiredUserType}`
+      `User type ${user?.userType} does not match required type ${requiredUserType}`
     );
     return <Navigate to="/unauthorized" replace />;
   }

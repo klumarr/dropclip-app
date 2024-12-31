@@ -6,8 +6,6 @@ import {
   Typography,
   Avatar,
   Box,
-  Menu,
-  MenuItem,
   Badge,
   Popover,
   List,
@@ -17,21 +15,17 @@ import {
   styled,
   useTheme,
 } from "@mui/material";
-import {
-  Menu as MenuIcon,
-  Notifications,
-  AccountCircle,
-} from "@mui/icons-material";
+import { Notifications } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { UserType } from "../../types/auth.types";
 
-const StyledAppBar = styled(AppBar)(({ theme }) => ({
+const StyledAppBar = styled(AppBar)({
   backgroundColor: "rgba(0, 0, 0, 0.85)",
   backdropFilter: "blur(10px)",
   borderBottom: "none",
   boxShadow: "none",
-}));
+});
 
 const UserAvatar = styled(Avatar)<{ usertype: "fan" | "creative" }>(
   ({ theme, usertype }) => ({
@@ -44,12 +38,12 @@ const UserAvatar = styled(Avatar)<{ usertype: "fan" | "creative" }>(
   })
 );
 
-const NotificationItem = styled(ListItem)(({ theme }) => ({
+const NotificationItem = styled(ListItem)({
   "&:hover": {
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     cursor: "pointer",
   },
-}));
+});
 
 interface HeaderProps {
   onMenuOpen: () => void;
@@ -58,12 +52,11 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onMenuOpen }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const theme = useTheme();
-  const { user, userAttributes, signOut } = useAuth();
+  const { user } = useAuth();
   const [notificationsAnchor, setNotificationsAnchor] =
     useState<null | HTMLElement>(null);
-  const isCreative = userAttributes?.userType === UserType.CREATIVE;
-  const userInitial = userAttributes?.name?.charAt(0) || "U";
+  const isCreative = user?.userType === UserType.CREATIVE;
+  const userInitial = user?.email?.charAt(0).toUpperCase() || "U";
   const userType = isCreative ? "creative" : "fan";
 
   // Mock notifications - replace with real data
@@ -92,15 +85,6 @@ export const Header: React.FC<HeaderProps> = ({ onMenuOpen }) => {
     setNotificationsAnchor(null);
   };
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      navigate("/login");
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
-  };
-
   // Get page title based on current route
   const getPageTitle = () => {
     const path = location.pathname;
@@ -122,7 +106,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuOpen }) => {
 
   return (
     <StyledAppBar position="fixed">
-      <Toolbar sx={{ justifyContent: "space-between" }}>
+      <Toolbar sx={{ justifyContent: "space-between", px: { xs: 2, sm: 3 } }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <IconButton
             size="large"
@@ -130,14 +114,9 @@ export const Header: React.FC<HeaderProps> = ({ onMenuOpen }) => {
             color="inherit"
             aria-label="menu"
             onClick={onMenuOpen}
-            sx={{ p: 0 }}
+            sx={{ p: 0, ml: { xs: 1, sm: 2 } }}
           >
-            <UserAvatar
-              usertype={userType}
-              src={userAttributes?.picture || undefined}
-            >
-              {!userAttributes?.picture && userInitial}
-            </UserAvatar>
+            <UserAvatar usertype={userType}>{userInitial}</UserAvatar>
           </IconButton>
           <Typography variant="h6" component="div" sx={{ ml: 2 }}>
             {getPageTitle()}
@@ -174,7 +153,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuOpen }) => {
               maxHeight: 400,
               backgroundColor: "rgba(0, 0, 0, 0.95)",
               backdropFilter: "blur(10px)",
-              border: `1px solid ${theme.palette.divider}`,
+              border: "1px solid rgba(255, 255, 255, 0.1)",
             },
           }}
         >

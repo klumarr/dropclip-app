@@ -13,6 +13,7 @@ import {
   IconButton,
   Tooltip,
   CircularProgress,
+  Grid,
 } from "@mui/material";
 import {
   Instagram as InstagramIcon,
@@ -43,7 +44,14 @@ interface SocialPlatform {
 }
 
 interface SocialMediaHubProps {
-  onEventImported: (eventData: any) => void;
+  onEventImported: (eventData: ImportedEventData) => void;
+}
+
+interface ImportedEventData {
+  title: string;
+  date: string;
+  location: string;
+  description: string;
 }
 
 const SocialMediaHub = ({ onEventImported }: SocialMediaHubProps) => {

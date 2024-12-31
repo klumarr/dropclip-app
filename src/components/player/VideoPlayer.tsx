@@ -1,9 +1,9 @@
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Box,
   IconButton,
-  Slider,
   Typography,
-  Paper,
+  Slider,
   styled,
   useTheme,
   useMediaQuery,
@@ -11,32 +11,44 @@ import {
 import {
   PlayArrow,
   Pause,
-  SkipNext,
-  SkipPrevious,
   VolumeUp,
   VolumeOff,
-  QueueMusic,
   Fullscreen,
   FullscreenExit,
   Close,
+  SkipNext,
+  SkipPrevious,
+  Repeat,
+  RepeatOne,
+  Shuffle,
 } from "@mui/icons-material";
-import { useState, useRef, useEffect } from "react";
 
-const PlayerContainer = styled(Paper)(({ theme }) => ({
+const PlayerContainer = styled(Box)(({ theme }) => ({
   position: "fixed",
   bottom: 0,
   left: 0,
   right: 0,
   backgroundColor: "rgba(24, 24, 24, 0.98)",
   backdropFilter: "blur(10px)",
-  borderTop: `1px solid ${theme.palette.divider}`,
   display: "flex",
   alignItems: "center",
   zIndex: theme.zIndex.appBar + 1,
   transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-  cursor: "pointer",
+  transform: "translate3d(0, 0, 0)",
+  willChange: "transform, height, bottom, left, right, border-radius",
+  "&.collapsing": {
+    bottom: theme.spacing(2),
+    left: theme.spacing(2),
+    right: theme.spacing(2),
+    height: 64,
+    borderRadius: theme.spacing(2),
+    backgroundColor: "rgba(24, 24, 24, 0.95)",
+  },
   [theme.breakpoints.down("md")]: {
     bottom: 56, // Height of mobile navigation
+    "&.collapsing": {
+      bottom: theme.spacing(9),
+    },
   },
 }));
 
@@ -137,13 +149,70 @@ export const VideoPlayer = ({
 }: VideoPlayerProps) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const [volume, setVolume] = useState(1);
-  const [muted, setMuted] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const touchStartY = useRef<number | null>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [touchStartX, setTouchStartX] = useState(0);
+  const [touchStartY, setTouchStartY] = useState(0);
+  const [isVerticalSwipe, setIsVerticalSwipe] = useState(false);
+  const [isCollapsing, setIsCollapsing] = useState(false);
+
+  const handleTimeUpdate = useCallback(() => {
+    if (videoRef.current && !isDragging) {
+      setCurrentTime(videoRef.current.currentTime);
+      onTimeUpdate?.(videoRef.current.currentTime);
+    }
+  }, [isDragging, onTimeUpdate]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartY(e.touches[0].clientY);
+    setTouchStartX(e.touches[0].clientX);
+    setIsVerticalSwipe(false);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartY === 0) return;
+
+    const currentY = e.touches[0].clientY;
+    const currentX = e.touches[0].clientX;
+    const deltaY = currentY - touchStartY;
+    const deltaX = currentX - touchStartX;
+
+    // Determine if this is a vertical swipe
+    if (!isVerticalSwipe && Math.abs(deltaY) > Math.abs(deltaX)) {
+      setIsVerticalSwipe(true);
+    }
+
+    // If swiping down and the distance is significant
+    if (isVerticalSwipe && deltaY > 50) {
+      handleClose();
+    }
+  };
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.addEventListener("timeupdate", handleTimeUpdate);
+    return () => video.removeEventListener("timeupdate", handleTimeUpdate);
+  }, [handleTimeUpdate]);
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener("touchmove", handleTouchMove, {
+        passive: false,
+      });
+      return () => {
+        document.removeEventListener("touchmove", handleTouchMove);
+      };
+    }
+  }, [isDragging, handleTouchMove]);
 
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
@@ -174,18 +243,18 @@ export const VideoPlayer = ({
     if (videoRef.current) {
       videoRef.current.volume = newValue;
       setVolume(newValue);
-      setMuted(newValue === 0);
+      setIsMuted(newValue === 0);
     }
   };
 
   const toggleMute = () => {
     if (videoRef.current) {
-      if (muted) {
+      if (isMuted) {
         videoRef.current.volume = volume;
-        setMuted(false);
+        setIsMuted(false);
       } else {
         videoRef.current.volume = 0;
-        setMuted(true);
+        setIsMuted(true);
       }
     }
   };
@@ -201,113 +270,30 @@ export const VideoPlayer = ({
   };
 
   const handleClose = () => {
-    if (videoRef.current) {
-      videoRef.current.pause();
-      onPlayPause();
-    }
-    onClose();
+    setIsCollapsing(true);
+    // Add a small delay to allow the animation to complete
+    setTimeout(() => {
+      setIsCollapsing(false);
+      onClose();
+    }, 300);
   };
-
-  const handleTouchStart = (e: TouchEvent) => {
-    touchStartY.current = e.touches[0].clientY;
-  };
-
-  const handleTouchMove = (e: TouchEvent) => {
-    if (!touchStartY.current) return;
-
-    const currentY = e.touches[0].clientY;
-    const diff = touchStartY.current - currentY;
-
-    // If swiping up (diff > 0) and the distance is significant
-    if (diff > 50 && !isExpanded) {
-      touchStartY.current = null;
-      setIsExpanded(true);
-    }
-    // If swiping down (diff < 0) and the distance is significant
-    else if (diff < -50 && isExpanded) {
-      touchStartY.current = null;
-      setIsExpanded(false);
-    }
-  };
-
-  const handleTouchEnd = () => {
-    touchStartY.current = null;
-  };
-
-  const handleContainerClick = (e: React.MouseEvent) => {
-    // Only expand if clicking the container itself, not buttons
-    if (
-      e.target === e.currentTarget ||
-      (e.target as HTMLElement).closest(".click-through")
-    ) {
-      setIsExpanded(!isExpanded);
-    }
-  };
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const timeUpdate = () => {
-      const progress = (video.currentTime / video.duration) * 100;
-      onTimeUpdate(video.currentTime);
-    };
-
-    const durationChange = () => {
-      onTimeUpdate(video.duration);
-    };
-
-    video.addEventListener("timeupdate", timeUpdate);
-    video.addEventListener("durationchange", durationChange);
-
-    return () => {
-      video.removeEventListener("timeupdate", timeUpdate);
-      video.removeEventListener("durationchange", durationChange);
-    };
-  }, []);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (container) {
-      container.addEventListener(
-        "touchstart",
-        handleTouchStart as EventListener
-      );
-      container.addEventListener("touchmove", handleTouchMove as EventListener);
-      container.addEventListener("touchend", handleTouchEnd as EventListener);
-
-      return () => {
-        container.removeEventListener(
-          "touchstart",
-          handleTouchStart as EventListener
-        );
-        container.removeEventListener(
-          "touchmove",
-          handleTouchMove as EventListener
-        );
-        container.removeEventListener(
-          "touchend",
-          handleTouchEnd as EventListener
-        );
-      };
-    }
-  }, [isExpanded]);
 
   if (!open) return null;
 
   return (
     <PlayerContainer
-      ref={containerRef}
-      onClick={handleContainerClick}
+      ref={progressBarRef}
+      className={isCollapsing ? "collapsing" : ""}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
       sx={{
-        height: isExpanded ? "100vh" : "64px",
-        padding: isExpanded ? 0 : "0 16px",
-        flexDirection: isExpanded ? "column" : "row",
-        gap: isExpanded ? 0 : 2,
-        transform: `translateY(${isExpanded ? 0 : "0"})`,
+        height: isFullscreen ? "100vh" : "100%",
+        padding: isFullscreen ? 0 : "0 16px",
+        flexDirection: isFullscreen ? "column" : "row",
+        gap: isFullscreen ? 0 : 2,
       }}
     >
-      {isExpanded ? (
+      {isFullscreen ? (
         <>
           <ExpandedVideoContainer>
             <video ref={videoRef} />
@@ -361,10 +347,10 @@ export const VideoPlayer = ({
 
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                   <IconButton onClick={toggleMute} size="small">
-                    {muted ? <VolumeOff /> : <VolumeUp />}
+                    {isMuted ? <VolumeOff /> : <VolumeUp />}
                   </IconButton>
                   <VolumeSlider
-                    value={muted ? 0 : volume}
+                    value={isMuted ? 0 : volume}
                     onChange={(_, value) => handleVolumeChange(value as number)}
                     min={0}
                     max={1}

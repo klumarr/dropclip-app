@@ -10,16 +10,16 @@ import {
   Event,
   CloudUpload,
   Dashboard,
-  Person,
 } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { UserType } from "../../types/auth.types";
 
 const StyledBottomNavigation = styled(BottomNavigation)(({ theme }) => ({
-  backgroundColor: theme.palette.background.paper,
-  borderTop: `1px solid ${theme.palette.divider}`,
+  backgroundColor: "transparent",
+  backdropFilter: "blur(10px)",
+  borderTop: "none",
   position: "fixed",
   bottom: 0,
   left: 0,
@@ -27,7 +27,7 @@ const StyledBottomNavigation = styled(BottomNavigation)(({ theme }) => ({
   zIndex: theme.zIndex.appBar,
   height: 60,
   "& .MuiBottomNavigationAction-root": {
-    color: theme.palette.text.secondary,
+    color: "rgba(255, 255, 255, 0.9)",
     minWidth: "auto",
     padding: "6px 0",
     "&.Mui-selected": {
@@ -35,6 +35,11 @@ const StyledBottomNavigation = styled(BottomNavigation)(({ theme }) => ({
     },
     "& .MuiBottomNavigationAction-label": {
       fontSize: "0.625rem",
+      fontWeight: 600,
+      textShadow: "0 2px 4px rgba(0,0,0,0.9)",
+    },
+    "& .MuiSvgIcon-root": {
+      filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.9))",
     },
   },
 }));
@@ -46,19 +51,23 @@ export const MobileNavigation = () => {
   const { userAttributes } = useAuth();
   const isCreative = userAttributes?.userType === UserType.CREATIVE;
 
-  const navigationItems = isCreative
-    ? [
-        { label: "Dashboard", icon: <Dashboard />, path: "/dashboard" },
-        { label: "Events", icon: <Event />, path: "/events" },
-        { label: "Search", icon: <Search />, path: "/search" },
-        { label: "Videos", icon: <VideoLibrary />, path: "/videos" },
-      ]
-    : [
-        { label: "Dashboard", icon: <Dashboard />, path: "/dashboard" },
-        { label: "Search", icon: <Search />, path: "/search" },
-        { label: "Events", icon: <Event />, path: "/events" },
-        { label: "Upload", icon: <CloudUpload />, path: "/upload" },
-      ];
+  const navigationItems = useMemo(
+    () =>
+      isCreative
+        ? [
+            { label: "Dashboard", icon: <Dashboard />, path: "/dashboard" },
+            { label: "Events", icon: <Event />, path: "/events" },
+            { label: "Search", icon: <Search />, path: "/search" },
+            { label: "Videos", icon: <VideoLibrary />, path: "/videos" },
+          ]
+        : [
+            { label: "Dashboard", icon: <Dashboard />, path: "/dashboard" },
+            { label: "Search", icon: <Search />, path: "/search" },
+            { label: "Events", icon: <Event />, path: "/events" },
+            { label: "Upload", icon: <CloudUpload />, path: "/upload" },
+          ],
+    [isCreative]
+  );
 
   useEffect(() => {
     const currentIndex = navigationItems.findIndex(
@@ -83,7 +92,8 @@ export const MobileNavigation = () => {
         left: 0,
         right: 0,
         zIndex: (theme) => theme.zIndex.appBar,
-        opacity: 0.5,
+        opacity: 0.95,
+        backgroundColor: "rgba(0, 0, 0, 0.3)",
       }}
     >
       <StyledBottomNavigation

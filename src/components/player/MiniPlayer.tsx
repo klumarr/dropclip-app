@@ -1,6 +1,6 @@
 import { Box, IconButton, Typography, styled, useTheme } from "@mui/material";
 import { PlayArrow, Pause, Close, SkipNext } from "@mui/icons-material";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 interface MiniPlayerProps {
   open: boolean;
@@ -20,21 +20,35 @@ interface MiniPlayerProps {
 
 const PlayerContainer = styled(Box)(({ theme }) => ({
   position: "fixed",
-  bottom: 0,
-  left: 0,
-  right: 0,
+  bottom: theme.spacing(2),
+  left: theme.spacing(1.5),
+  right: theme.spacing(1.5),
   height: 64,
-  backgroundColor: theme.palette.background.paper,
+  backgroundColor: "rgba(24, 24, 24, 0.95)",
   backdropFilter: "blur(10px)",
-  borderTop: `1px solid ${theme.palette.divider}`,
+  borderRadius: theme.spacing(2),
   display: "flex",
   alignItems: "center",
   padding: theme.spacing(0, 2),
   zIndex: theme.zIndex.appBar + 1,
   transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
   cursor: "pointer",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)",
+  transform: "translate3d(0, 0, 0)",
+  willChange: "transform, height, bottom, left, right, border-radius",
+  "&.expanding": {
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: "100vh",
+    borderRadius: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.98)",
+  },
   [theme.breakpoints.down("md")]: {
-    bottom: 56, // Height of mobile navigation
+    bottom: theme.spacing(9), // Height of mobile navigation + spacing
+    "&.expanding": {
+      bottom: 56, // Height of mobile navigation
+    },
   },
 }));
 
@@ -50,6 +64,11 @@ const VideoThumbnail = styled(Box)(({ theme }) => ({
     height: "100%",
     objectFit: "cover",
   },
+  ".expanding &": {
+    width: "100%",
+    height: "100%",
+    borderRadius: 0,
+  },
 }));
 
 export const MiniPlayer = ({
@@ -62,6 +81,7 @@ export const MiniPlayer = ({
   const theme = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const touchStartY = useRef<number | null>(null);
+  const [isExpanding, setIsExpanding] = useState(false);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
@@ -76,12 +96,21 @@ export const MiniPlayer = ({
     // If swiping up and the distance is significant
     if (diff > 50) {
       touchStartY.current = null;
-      onExpand();
+      handleExpand();
     }
   };
 
   const handleTouchEnd = () => {
     touchStartY.current = null;
+  };
+
+  const handleExpand = () => {
+    setIsExpanding(true);
+    // Add a small delay to allow the animation to complete
+    setTimeout(() => {
+      setIsExpanding(false);
+      onExpand();
+    }, 300);
   };
 
   const handleContainerClick = (e: React.MouseEvent) => {
@@ -90,7 +119,7 @@ export const MiniPlayer = ({
       e.target === e.currentTarget ||
       (e.target as HTMLElement).closest(".click-through")
     ) {
-      onExpand();
+      handleExpand();
     }
   };
 
@@ -103,6 +132,7 @@ export const MiniPlayer = ({
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      className={isExpanding ? "expanding" : ""}
     >
       <VideoThumbnail className="click-through">
         <video src={currentVideo.thumbnailUrl} />
@@ -115,6 +145,8 @@ export const MiniPlayer = ({
           flex: 1,
           minWidth: 0,
           ml: 2,
+          opacity: isExpanding ? 0 : 1,
+          transition: "opacity 0.2s ease",
         }}
       >
         <Typography variant="subtitle1" noWrap className="click-through">
@@ -130,7 +162,15 @@ export const MiniPlayer = ({
         </Typography>
       </Box>
 
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          opacity: isExpanding ? 0 : 1,
+          transition: "opacity 0.2s ease",
+        }}
+      >
         <IconButton onClick={onPlayPause} size="small">
           {currentVideo.isPlaying ? <Pause /> : <PlayArrow />}
         </IconButton>

@@ -12,6 +12,9 @@ import {
   useTheme,
   Avatar,
   Paper,
+  Switch,
+  Divider,
+  ListItemSecondaryAction,
 } from "@mui/material";
 import {
   Person,
@@ -21,6 +24,9 @@ import {
   Mail,
   Notifications,
   Close,
+  Logout,
+  SwapHoriz,
+  MusicNote,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
@@ -69,16 +75,21 @@ interface SideMenuProps {
 export const SideMenu: React.FC<SideMenuProps> = ({ open, onClose }) => {
   const navigate = useNavigate();
   const theme = useTheme();
-  const { userAttributes } = useAuth();
+  const { userAttributes, signOut, switchUserType } = useAuth();
   const isCreative = userAttributes?.userType === UserType.CREATIVE;
+  const hasFanAccount = isCreative && userAttributes?.linkedAccounts?.fan;
+  const hasCreativeAccount =
+    !isCreative &&
+    (userAttributes?.linkedAccounts?.creative ||
+      userAttributes?.isDormantCreative);
   const touchStartX = useRef<number | null>(null);
   const drawerRef = useRef<HTMLDivElement | null>(null);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
+  const handleTouchStart = (e: TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
   };
 
-  const handleTouchMove = (e: React.TouchEvent) => {
+  const handleTouchMove = (e: TouchEvent) => {
     if (!touchStartX.current) return;
 
     const currentX = e.touches[0].clientX;
@@ -98,17 +109,42 @@ export const SideMenu: React.FC<SideMenuProps> = ({ open, onClose }) => {
   useEffect(() => {
     const drawer = drawerRef.current;
     if (drawer) {
-      drawer.addEventListener("touchstart", handleTouchStart);
-      drawer.addEventListener("touchmove", handleTouchMove);
+      drawer.addEventListener("touchstart", handleTouchStart as EventListener);
+      drawer.addEventListener("touchmove", handleTouchMove as EventListener);
       drawer.addEventListener("touchend", handleTouchEnd);
 
       return () => {
-        drawer.removeEventListener("touchstart", handleTouchStart);
-        drawer.removeEventListener("touchmove", handleTouchMove);
+        drawer.removeEventListener(
+          "touchstart",
+          handleTouchStart as EventListener
+        );
+        drawer.removeEventListener(
+          "touchmove",
+          handleTouchMove as EventListener
+        );
         drawer.removeEventListener("touchend", handleTouchEnd);
       };
     }
   }, []);
+
+  const handleRoleSwitch = async () => {
+    try {
+      await switchUserType(isCreative ? UserType.FAN : UserType.CREATIVE);
+      onClose();
+    } catch (error) {
+      console.error("Failed to switch role:", error);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      onClose();
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
 
   const menuItems = isCreative
     ? [
@@ -193,6 +229,58 @@ export const SideMenu: React.FC<SideMenuProps> = ({ open, onClose }) => {
           </ListItem>
         ))}
       </List>
+
+      <Divider sx={{ my: 2 }} />
+
+      {(hasFanAccount || hasCreativeAccount) && (
+        <ListItem
+          button
+          onClick={handleRoleSwitch}
+          sx={{
+            py: 2,
+            "&:hover": {
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+            },
+          }}
+        >
+          <ListItemIcon sx={{ color: "white" }}>
+            {isCreative ? <Person /> : <MusicNote />}
+          </ListItemIcon>
+          <ListItemText
+            primary={`Switch to ${isCreative ? "Fan" : "Creative"} Account`}
+            secondary={
+              <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                {isCreative
+                  ? "View the app as a fan"
+                  : "Switch to your creative profile"}
+              </Typography>
+            }
+          />
+          <ListItemSecondaryAction>
+            <Switch
+              checked={isCreative}
+              onChange={handleRoleSwitch}
+              sx={{ ml: 1 }}
+            />
+          </ListItemSecondaryAction>
+        </ListItem>
+      )}
+
+      <ListItem
+        button
+        onClick={handleLogout}
+        sx={{
+          py: 2,
+          "&:hover": {
+            backgroundColor: "rgba(255, 255, 255, 0.1)",
+          },
+        }}
+      >
+        <ListItemIcon sx={{ color: "white" }}>
+          <Logout />
+        </ListItemIcon>
+        <ListItemText primary="Log Out" />
+      </ListItem>
     </Drawer>
   );
 };

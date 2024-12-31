@@ -1,46 +1,57 @@
-import { AuthUser, SignInOutput, SignUpOutput } from "@aws-amplify/auth";
-
+// Core user types for authentication and permissions
 export enum UserType {
   FAN = "FAN",
   CREATIVE = "CREATIVE",
 }
 
-export interface UserAttributes {
-  sub: string;
+// Display categories for creative profiles
+export enum CreativeCategory {
+  ARTIST = "ARTIST",
+  DJ = "DJ",
+  BAND = "BAND",
+  EVENT = "EVENT",
+  FESTIVAL = "FESTIVAL",
+  VENUE = "VENUE",
+  INFLUENCER = "INFLUENCER",
+  OTHER = "OTHER",
+}
+
+export interface SecuritySettings {
+  twoFactorEnabled: boolean;
+  emailNotifications: boolean;
+  sessionTimeout: number;
+  passwordLastChanged: Date;
+  backupCodes?: string[];
+}
+
+export interface AuthUser {
+  id: string;
   email: string;
-  email_verified: boolean;
-  name?: string;
-  picture?: string;
-  userType?: UserType;
-}
-
-export interface AuthContextType {
-  user: AuthUser | null;
-  userAttributes: UserAttributes | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  isInitialized: boolean;
-  error: Error | null;
-  signIn: (username: string, password: string) => Promise<SignInOutput>;
-  signUp: (input: SignUpInput) => Promise<SignUpOutput>;
-  signOut: () => Promise<void>;
-  updateProfile: (attributes: Record<string, string>) => Promise<void>;
-  clearError: () => void;
-}
-
-export interface SignInInput {
-  username: string;
-  password: string;
+  userType: UserType;
+  creativeCategory?: CreativeCategory;
+  customCategory?: string;
+  securitySettings: SecuritySettings;
+  isEmailVerified: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface SignUpInput {
-  username: string;
-  password: string;
   email: string;
+  password: string;
   userType: UserType;
+  creativeCategory?: CreativeCategory;
+  customCategory?: string;
 }
 
-export interface AuthErrorType extends Error {
-  code: string;
-  originalError?: unknown;
+export interface SignInInput {
+  email: string;
+  password: string;
+}
+
+export interface AuthState {
+  user: AuthUser | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: Error | null;
 }

@@ -16,6 +16,7 @@ import {
   AddBox,
   Favorite,
   Event,
+  Logout as LogoutIcon,
 } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
@@ -58,7 +59,7 @@ const StyledListItemButton = styled(ListItemButton)<{ active?: boolean }>(
 export const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
 
   const mainMenuItems = [
     { text: "Home", icon: <Home />, path: "/" },
@@ -71,6 +72,14 @@ export const Sidebar = () => {
     { text: "Liked Videos", icon: <Favorite />, path: "/liked-videos" },
     { text: "Events", icon: <Event />, path: "/events" },
   ];
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   return (
     <SidebarContainer>
@@ -117,6 +126,15 @@ export const Sidebar = () => {
           {/* Playlist list will be added here */}
         </>
       )}
+
+      <ListItem disablePadding>
+        <ListItemButton onClick={handleLogout}>
+          <ListItemIcon>
+            <LogoutIcon />
+          </ListItemIcon>
+          <ListItemText primary="Logout" />
+        </ListItemButton>
+      </ListItem>
     </SidebarContainer>
   );
 };

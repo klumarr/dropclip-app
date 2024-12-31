@@ -31,6 +31,7 @@ export const EventsRow = styled(Box)({
 export const EventCard = styled(Card)(({ theme }) => ({
   display: "inline-block",
   width: 250,
+  height: 400,
   flexShrink: 0,
   backgroundColor: "rgba(255, 255, 255, 0.05)",
   transition: "all 0.3s ease",
@@ -48,7 +49,7 @@ export const EventCard = styled(Card)(({ theme }) => ({
 
 export const EventCardMedia = styled("img")({
   width: "100%",
-  height: 300,
+  height: "100%",
   objectFit: "cover",
   display: "block",
   cursor: "pointer",
@@ -73,7 +74,7 @@ export const EventCardContent = styled(CardContent)(({ theme }) => ({
 
 export const ActionButtonsContainer = styled(Box)(({ theme }) => ({
   position: "fixed",
-  bottom: 120,
+  bottom: 160,
   left: "50%",
   transform: "translateX(-50%)",
   padding: theme.spacing(1),
@@ -82,6 +83,9 @@ export const ActionButtonsContainer = styled(Box)(({ theme }) => ({
   gap: theme.spacing(1),
   width: "auto",
   justifyContent: "center",
+  backgroundColor: "rgba(0, 0, 0, 0.5)",
+  borderRadius: 28,
+  backdropFilter: "blur(8px)",
 }));
 
 export const ActionButton = styled(Button)(({ theme }) => ({
@@ -104,5 +108,25 @@ export const ActionButton = styled(Button)(({ theme }) => ({
     "&:hover": {
       backgroundColor: theme.palette.primary.dark,
     },
+  },
+}));
+
+export const UploadIndicator = styled(Box)(({ theme }) => ({
+  position: "absolute",
+  top: theme.spacing(1),
+  right: theme.spacing(1),
+  backgroundColor: "rgba(0, 0, 0, 0.6)",
+  borderRadius: theme.spacing(1),
+  padding: theme.spacing(0.5, 1),
+  display: "flex",
+  alignItems: "center",
+  gap: theme.spacing(0.5),
+  "& .MuiSvgIcon-root": {
+    fontSize: "1rem",
+  },
+  "& .MuiTypography-root": {
+    fontSize: "0.75rem",
+    color: "#fff",
+    textShadow: "0 1px 2px rgba(0,0,0,0.6)",
   },
 }));

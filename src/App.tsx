@@ -10,19 +10,20 @@ import { VideoPlayerContainer } from "./components/player/VideoPlayerContainer";
 import { AuthProvider } from "./contexts/AuthContext";
 
 function App() {
+  console.log("App rendering");
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AuthProvider>
-        <VideoPlayerProvider>
-          <Router>
+      <Router>
+        <AuthProvider>
+          <VideoPlayerProvider>
             <AppLayout>
               <AppRoutes />
             </AppLayout>
             <VideoPlayerContainer />
-          </Router>
-        </VideoPlayerProvider>
-      </AuthProvider>
+          </VideoPlayerProvider>
+        </AuthProvider>
+      </Router>
     </ThemeProvider>
   );
 }

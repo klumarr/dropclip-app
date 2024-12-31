@@ -1,207 +1,202 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import {
-  getCurrentUser,
-  signIn,
-  signUp,
+  signIn as amplifySignIn,
+  signUp as amplifySignUp,
   signOut as amplifySignOut,
-  fetchUserAttributes as amplifyFetchUserAttributes,
+  confirmSignUp as amplifyConfirmSignUp,
+  getCurrentUser,
+  fetchUserAttributes,
+  type SignUpInput as AmplifySignUpInput,
 } from "aws-amplify/auth";
-import type { AuthUser } from "@aws-amplify/auth";
-import type {
-  AuthContextType,
-  UserAttributes,
-  SignUpInput,
+import {
+  AuthUser,
+  SecuritySettings,
+  AuthState,
   UserType,
+  CreativeCategory,
 } from "../types/auth.types";
-import { AuthError } from "../services/auth.service";
+
+interface SignUpInput {
+  email: string;
+  password: string;
+  userType: UserType;
+  creativeCategory?: CreativeCategory;
+  customCategory?: string;
+}
+
+interface AuthContextType {
+  user: AuthUser | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: Error | null;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (data: SignUpInput) => Promise<void>;
+  confirmSignUp: (email: string, code: string) => Promise<void>;
+  signOut: () => Promise<void>;
+  clearError: () => void;
+  updateSecuritySettings: (
+    settings: Partial<SecuritySettings>
+  ) => Promise<void>;
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-interface AuthState {
-  user: AuthUser | null;
-  userAttributes: UserAttributes | null;
-  isLoading: boolean;
-  error: Error | null;
-  isInitialized: boolean;
-}
-
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [state, setState] = useState<AuthState>({
     user: null,
-    userAttributes: null,
+    isAuthenticated: false,
     isLoading: true,
     error: null,
-    isInitialized: false,
   });
 
-  const setLoading = (loading: boolean) => {
-    setState((prev) => ({ ...prev, isLoading: loading }));
+  useEffect(() => {
+    checkAuthState();
+  }, []);
+
+  const checkAuthState = async () => {
+    try {
+      const user = await getCurrentUser();
+      const attributes = await fetchUserAttributes();
+      console.log("User attributes:", attributes);
+
+      setState({
+        user: {
+          id: attributes.sub || "",
+          email: attributes.email || "",
+          userType: (attributes["custom:userType"] as UserType) || UserType.FAN,
+          creativeCategory:
+            (attributes["custom:creativeCategory"] as CreativeCategory) ||
+            undefined,
+          customCategory: attributes["custom:customCategory"] || undefined,
+          securitySettings: {
+            twoFactorEnabled: attributes["custom:twoFactorEnabled"] === "true",
+            emailNotifications:
+              attributes["custom:emailNotifications"] === "true",
+            sessionTimeout: parseInt(
+              attributes["custom:sessionTimeout"] || "30",
+              10
+            ),
+            passwordLastChanged: new Date(
+              attributes["custom:passwordLastChanged"] || Date.now()
+            ),
+            backupCodes: attributes["custom:backupCodes"]?.split(",") || [],
+          },
+          isEmailVerified: attributes.email_verified === "true",
+          createdAt: new Date(attributes["custom:createdAt"] || Date.now()),
+          updatedAt: new Date(attributes["custom:updatedAt"] || Date.now()),
+        },
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+    } catch (error) {
+      console.log("No authenticated user");
+      setState({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: null,
+      });
+    }
   };
 
-  const setError = (error: Error | null) => {
-    setState((prev) => ({ ...prev, error }));
+  const handleSignIn = async (email: string, password: string) => {
+    try {
+      await amplifySignIn({ username: email, password });
+      await checkAuthState();
+    } catch (error) {
+      console.error("Sign in error:", error);
+      setState((prev) => ({ ...prev, error: error as Error }));
+      throw error;
+    }
+  };
+
+  const handleSignUp = async (data: SignUpInput) => {
+    try {
+      console.log("Signing up with data:", data);
+      const signUpData: AmplifySignUpInput = {
+        username: data.email,
+        password: data.password,
+        options: {
+          userAttributes: {
+            email: data.email,
+            "custom:userType": data.userType.toString(),
+            ...(data.creativeCategory && {
+              "custom:creativeCategory": data.creativeCategory.toString(),
+            }),
+            ...(data.customCategory && {
+              "custom:customCategory": data.customCategory,
+            }),
+            "custom:createdAt": new Date().toISOString(),
+            "custom:updatedAt": new Date().toISOString(),
+          },
+        },
+      };
+      console.log(
+        "Formatted sign up data:",
+        JSON.stringify(signUpData, null, 2)
+      );
+      await amplifySignUp(signUpData);
+    } catch (error) {
+      console.error("Sign up error:", error);
+      setState((prev) => ({ ...prev, error: error as Error }));
+      throw error;
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await amplifySignOut();
+      setState({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: null,
+      });
+    } catch (error) {
+      console.error("Sign out error:", error);
+      setState((prev) => ({ ...prev, error: error as Error }));
+      throw error;
+    }
   };
 
   const clearError = () => {
     setState((prev) => ({ ...prev, error: null }));
   };
 
-  const fetchUserAttributes = async () => {
-    try {
-      console.log("Fetching user attributes");
-      const attributes = await amplifyFetchUserAttributes();
-      setState((prev) => ({
-        ...prev,
-        userAttributes: {
-          sub: attributes.sub || "",
-          email: attributes.email || "",
-          email_verified: attributes.email_verified === "true",
-          name: attributes.name,
-          picture: attributes.picture,
-          userType: attributes["custom:userType"] as UserType,
-        },
-      }));
-      console.log("User attributes fetched successfully");
-    } catch (err) {
-      console.error("Error fetching user attributes:", err);
-      setError(
-        err instanceof Error
-          ? err
-          : new Error("Failed to fetch user attributes")
-      );
-    }
+  const updateSecuritySettings = async (
+    settings: Partial<SecuritySettings>
+  ) => {
+    // Implementation for updating security settings
+    console.log("Updating security settings:", settings);
   };
 
-  useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        console.log("Initializing authentication");
-        const currentUser = await getCurrentUser();
-        setState((prev) => ({ ...prev, user: currentUser }));
-        await fetchUserAttributes();
-      } catch (err) {
-        console.log("No user currently signed in");
-        // Not setting this as an error since it's an expected state
-      } finally {
-        setState((prev) => ({
-          ...prev,
-          isLoading: false,
-          isInitialized: true,
-        }));
-      }
-    };
-
-    initializeAuth();
-  }, []);
-
-  const handleSignIn = async (username: string, password: string) => {
-    clearError();
-    setLoading(true);
+  const handleConfirmSignUp = async (email: string, code: string) => {
     try {
-      console.log("Attempting to sign in");
-      const result = await signIn({ username, password });
-      if (result.isSignedIn) {
-        const currentUser = await getCurrentUser();
-        setState((prev) => ({ ...prev, user: currentUser }));
-        await fetchUserAttributes();
-        console.log("Sign in successful");
-      }
-      return result.nextStep;
-    } catch (err) {
-      console.error("Sign in error:", err);
-      const error =
-        err instanceof AuthError ? err : new Error("Failed to sign in");
-      setError(error);
+      await amplifyConfirmSignUp({
+        username: email,
+        confirmationCode: code,
+      });
+    } catch (error) {
+      console.error("Confirmation error:", error);
+      setState((prev) => ({ ...prev, error: error as Error }));
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
-  const handleSignUp = async (input: SignUpInput) => {
-    clearError();
-    setLoading(true);
-    try {
-      console.log("Attempting to sign up");
-      const result = await signUp(input);
-      console.log("Sign up successful");
-      return result.nextStep;
-    } catch (err) {
-      console.error("Sign up error:", err);
-      const error =
-        err instanceof AuthError ? err : new Error("Failed to sign up");
-      setError(error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
+  const value = {
+    ...state,
+    signIn: handleSignIn,
+    signUp: handleSignUp,
+    confirmSignUp: handleConfirmSignUp,
+    signOut: handleSignOut,
+    clearError,
+    updateSecuritySettings,
   };
 
-  const handleSignOut = async () => {
-    clearError();
-    setLoading(true);
-    try {
-      console.log("Attempting to sign out");
-      await amplifySignOut();
-      setState((prev) => ({
-        ...prev,
-        user: null,
-        userAttributes: null,
-      }));
-      console.log("Sign out successful");
-    } catch (err) {
-      console.error("Sign out error:", err);
-      const error =
-        err instanceof AuthError ? err : new Error("Failed to sign out");
-      setError(error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleUpdateProfile = async (attributes: Record<string, string>) => {
-    clearError();
-    setLoading(true);
-    try {
-      console.log("Attempting to update profile");
-      // Implement profile update logic here
-      setState((prev) => ({
-        ...prev,
-        user: prev.user ? { ...prev.user, ...attributes } : null,
-      }));
-      await fetchUserAttributes();
-      console.log("Profile update successful");
-    } catch (err) {
-      console.error("Profile update error:", err);
-      const error =
-        err instanceof AuthError ? err : new Error("Failed to update profile");
-      setError(error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <AuthContext.Provider
-      value={{
-        user: state.user,
-        userAttributes: state.userAttributes,
-        isLoading: state.isLoading,
-        isAuthenticated: !!state.user,
-        isInitialized: state.isInitialized,
-        error: state.error,
-        signIn: handleSignIn,
-        signUp: handleSignUp,
-        signOut: handleSignOut,
-        updateProfile: handleUpdateProfile,
-        clearError,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
