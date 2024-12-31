@@ -7,14 +7,10 @@ import {
   Grid,
   LinearProgress,
   IconButton,
-  useTheme,
 } from "@mui/material";
 import { CloudUpload, Close } from "@mui/icons-material";
-import { useAuth } from "../contexts/AuthContext";
 
 export const UploadPage = () => {
-  const theme = useTheme();
-  const { userAttributes } = useAuth();
   const [uploadProgress, setUploadProgress] = React.useState<number | null>(
     null
   );

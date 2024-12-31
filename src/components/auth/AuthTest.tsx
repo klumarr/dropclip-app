@@ -1,6 +1,7 @@
 import { Button, Box, Typography } from "@mui/material";
 import {
   signInWithRedirect,
+  signOut,
   fetchAuthSession,
 } from "../../config/aws/amplify.config";
 import { useState, useEffect } from "react";
@@ -12,24 +13,11 @@ export const AuthTest = () => {
   const checkAuth = async () => {
     try {
       const session = await fetchAuthSession();
-      console.log("Current session:", session);
       setAuthStatus(session.tokens ? "Authenticated" : "Not authenticated");
       setError(null);
     } catch (err) {
-      console.error("Auth check error:", err);
       setAuthStatus("Not authenticated");
       setError(err instanceof Error ? err.message : "Unknown error");
-    }
-  };
-
-  const handleSignIn = async () => {
-    try {
-      setAuthStatus("Signing in...");
-      await signInWithRedirect();
-    } catch (err) {
-      console.error("Sign in error:", err);
-      setError(err instanceof Error ? err.message : "Sign in failed");
-      setAuthStatus("Sign in failed");
     }
   };
 
@@ -37,29 +25,44 @@ export const AuthTest = () => {
     checkAuth();
   }, []);
 
+  const handleSignIn = async () => {
+    try {
+      await signInWithRedirect();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to sign in");
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      setAuthStatus("Not authenticated");
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to sign out");
+    }
+  };
+
   return (
     <Box sx={{ p: 2 }}>
       <Typography variant="h6" gutterBottom>
-        Auth Test Component
+        Auth Status: {authStatus}
       </Typography>
-
-      <Typography color="primary" paragraph>
-        Status: {authStatus}
-      </Typography>
-
       {error && (
-        <Typography color="error" paragraph>
+        <Typography color="error" gutterBottom>
           Error: {error}
         </Typography>
       )}
-
-      <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
-        <Button variant="contained" onClick={handleSignIn}>
-          Sign In
-        </Button>
-        <Button variant="outlined" onClick={checkAuth}>
-          Check Auth Status
-        </Button>
+      <Box sx={{ mt: 2 }}>
+        {authStatus === "Not authenticated" ? (
+          <Button variant="contained" onClick={handleSignIn}>
+            Sign In
+          </Button>
+        ) : (
+          <Button variant="contained" onClick={handleSignOut}>
+            Sign Out
+          </Button>
+        )}
       </Box>
     </Box>
   );

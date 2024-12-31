@@ -9,7 +9,6 @@ import {
   CardMedia,
   IconButton,
   Chip,
-  useTheme,
   InputAdornment,
 } from "@mui/material";
 import { Search, PlayArrow } from "@mui/icons-material";
@@ -21,6 +20,7 @@ const mockVideos = [
     title: "Summer Vibes Mix",
     creator: "DJ Summer",
     thumbnailUrl: "https://example.com/thumbnail1.jpg",
+    url: "https://example.com/video1.mp4",
     duration: "5:23",
     views: "1.2K",
     tags: ["Music", "Summer", "Mix"],
@@ -30,15 +30,14 @@ const mockVideos = [
     title: "Beach Sunset Session",
     creator: "Nature Vibes",
     thumbnailUrl: "https://example.com/thumbnail2.jpg",
+    url: "https://example.com/video2.mp4",
     duration: "3:45",
     views: "856",
     tags: ["Nature", "Relaxation"],
   },
-  // Add more mock videos as needed
 ];
 
 export const SearchPage = () => {
-  const theme = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
   const { openPlayer } = useVideoPlayer();
 
@@ -52,6 +51,7 @@ export const SearchPage = () => {
       title: video.title,
       creator: video.creator,
       thumbnailUrl: video.thumbnailUrl,
+      url: video.url,
       currentTime: 0,
       duration: 180, // Mock duration in seconds
       progress: 0,
@@ -98,7 +98,7 @@ export const SearchPage = () => {
                   height="140"
                   image={video.thumbnailUrl}
                   alt={video.title}
-                  sx={{ bgcolor: "grey.800" }} // Placeholder color
+                  sx={{ bgcolor: "grey.800" }}
                 />
                 <Box
                   sx={{

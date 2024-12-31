@@ -17,6 +17,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Paper,
 } from "@mui/material";
 import {
   Download,
@@ -25,8 +26,13 @@ import {
   Check,
   Close,
   ArrowBack,
+  Add,
+  ContentCopy,
+  Block,
 } from "@mui/icons-material";
 import { useVideoPlayer } from "../contexts/VideoPlayerContext";
+import { uploadLinkOperations } from "../services/uploadLink.service";
+import { UploadLink } from "../services/uploadLink.service";
 
 interface Upload {
   id: string;
@@ -75,8 +81,9 @@ const EventManagementPage = () => {
     approved: [],
     rejected: [],
   });
+  const [uploadLinks, setUploadLinks] = useState<UploadLink[]>([]);
+  const [isGeneratingLink, setIsGeneratingLink] = useState(false);
 
-  // Mock data for testing
   useEffect(() => {
     setEventDetails({
       id: eventId || "",
@@ -114,6 +121,61 @@ const EventManagementPage = () => {
       rejected: [],
     });
   }, [eventId]);
+
+  useEffect(() => {
+    if (eventId) {
+      loadUploadLinks();
+    }
+  }, [eventId]);
+
+  const loadUploadLinks = async () => {
+    if (!eventId) return;
+    try {
+      const links = await uploadLinkOperations.listEventLinks(eventId);
+      setUploadLinks(links);
+    } catch (error) {
+      console.error("Failed to load upload links:", error);
+    }
+  };
+
+  const handleGenerateLink = async () => {
+    if (!eventId) return;
+    setIsGeneratingLink(true);
+    try {
+      const link = await uploadLinkOperations.generateLink(
+        eventId,
+        "creative-id",
+        {
+          expirationHours: 24,
+          maxUploads: 10,
+        }
+      );
+      setUploadLinks((prev) => [...prev, link]);
+    } catch (error) {
+      console.error("Failed to generate upload link:", error);
+    } finally {
+      setIsGeneratingLink(false);
+    }
+  };
+
+  const handleCopyLink = (linkId: string) => {
+    const url = `${window.location.origin}/upload/${linkId}`;
+    navigator.clipboard.writeText(url);
+    // TODO: Show success toast
+  };
+
+  const handleDeactivateLink = async (linkId: string) => {
+    try {
+      await uploadLinkOperations.deactivateLink(linkId);
+      setUploadLinks((prev) =>
+        prev.map((link) =>
+          link.id === linkId ? { ...link, isActive: false } : link
+        )
+      );
+    } catch (error) {
+      console.error("Failed to deactivate link:", error);
+    }
+  };
 
   const handleStatusChange = (
     upload: Upload,
@@ -218,6 +280,76 @@ const EventManagementPage = () => {
         </Box>
       </CardContent>
     </Card>
+  );
+
+  const renderUploadLinks = () => (
+    <Box sx={{ mt: 4 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+        <Typography variant="h6">Upload Links</Typography>
+        <Button
+          variant="contained"
+          onClick={handleGenerateLink}
+          disabled={isGeneratingLink}
+          startIcon={<Add />}
+        >
+          Generate Link
+        </Button>
+      </Box>
+
+      {uploadLinks.length === 0 ? (
+        <Typography color="text.secondary">
+          No upload links generated yet.
+        </Typography>
+      ) : (
+        <Grid container spacing={2}>
+          {uploadLinks.map((link) => (
+            <Grid item xs={12} key={link.id}>
+              <Paper
+                sx={{
+                  p: 2,
+                  backgroundColor: "rgba(255, 255, 255, 0.05)",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <Box>
+                    <Typography variant="subtitle1" gutterBottom>
+                      Link ID: {link.id}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Expires: {new Date(link.expiresAt).toLocaleString()}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Uploads: {link.currentUploads} / {link.maxUploads}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <IconButton
+                      onClick={() => handleCopyLink(link.id)}
+                      disabled={!link.isActive}
+                    >
+                      <ContentCopy />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => handleDeactivateLink(link.id)}
+                      disabled={!link.isActive}
+                      color="error"
+                    >
+                      <Block />
+                    </IconButton>
+                  </Box>
+                </Box>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
+      )}
+    </Box>
   );
 
   if (!eventDetails) return null;
@@ -371,6 +503,8 @@ const EventManagementPage = () => {
           )}
         </DialogActions>
       </Dialog>
+
+      {renderUploadLinks()}
     </Container>
   );
 };

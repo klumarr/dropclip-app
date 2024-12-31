@@ -1,103 +1,45 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import EventsPage from "./pages/EventsPage";
+import { useAuth } from "./contexts/AuthContext";
+import SignInPage from "./pages/SignInPage.tsx";
+import SignUpPage from "./pages/SignUpPage";
+import { DashboardPage } from "./pages/DashboardPage";
 import EventManagementPage from "./pages/EventManagementPage";
 import EventUploadPage from "./pages/EventUploadPage";
-import { DashboardPage } from "./pages/DashboardPage";
-import { SearchPage } from "./pages/SearchPage";
-import { UploadPage } from "./pages/UploadPage";
-import { LoginPage } from "./pages/LoginPage";
-import SignUpPage from "./pages/SignUpPage";
-import VerifyEmailPage from "./pages/VerifyEmailPage";
-import { ProtectedRoute } from "./components/auth/ProtectedRoute";
-import { UserType } from "./types/auth.types";
+import { SettingsPage } from "./pages/SettingsPage";
+import FanUploadPage from "./pages/FanUploadPage";
+import UploadSuccessPage from "./pages/UploadSuccessPage";
+import PlaylistsPage from "./pages/PlaylistsPage";
+import DownloadCenterPage from "./pages/DownloadCenterPage";
 
 export const AppRoutes = () => {
-  console.log("AppRoutes rendering");
+  const { user } = useAuth();
+
+  if (!user) {
+    return (
+      <Routes>
+        <Route path="/signin" element={<SignInPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/upload/:linkId" element={<FanUploadPage />} />
+        <Route
+          path="/upload-success/:uploadId"
+          element={<UploadSuccessPage />}
+        />
+        <Route path="*" element={<Navigate to="/signin" replace />} />
+      </Routes>
+    );
+  }
+
   return (
     <Routes>
-      {/* Public Routes */}
-      <Route
-        path="/login"
-        element={
-          <ProtectedRoute isPublic>
-            <LoginPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/signup"
-        element={
-          <ProtectedRoute isPublic>
-            <SignUpPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/verify-email"
-        element={
-          <ProtectedRoute isPublic>
-            <VerifyEmailPage />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Protected Routes */}
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Navigate to="/dashboard" replace />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <DashboardPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/events"
-        element={
-          <ProtectedRoute>
-            <EventsPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/events/:eventId/manage"
-        element={
-          <ProtectedRoute requiredUserType={UserType.CREATIVE}>
-            <EventManagementPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/events/:eventId/upload"
-        element={
-          <ProtectedRoute requiredUserType={UserType.FAN}>
-            <EventUploadPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/search"
-        element={
-          <ProtectedRoute>
-            <SearchPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/upload"
-        element={
-          <ProtectedRoute requiredUserType={UserType.CREATIVE}>
-            <UploadPage />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/" element={<DashboardPage />} />
+      <Route path="/event/:eventId" element={<EventManagementPage />} />
+      <Route path="/event/:eventId/upload" element={<EventUploadPage />} />
+      <Route path="/settings" element={<SettingsPage />} />
+      <Route path="/playlists" element={<PlaylistsPage />} />
+      <Route path="/downloads" element={<DownloadCenterPage />} />
+      <Route path="/upload/:linkId" element={<FanUploadPage />} />
+      <Route path="/upload-success/:uploadId" element={<UploadSuccessPage />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };

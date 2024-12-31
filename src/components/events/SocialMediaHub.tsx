@@ -5,7 +5,6 @@ import {
   Typography,
   Card,
   CardContent,
-  CardActions,
   Switch,
   FormControlLabel,
   Chip,
@@ -13,7 +12,6 @@ import {
   IconButton,
   Tooltip,
   CircularProgress,
-  Grid,
 } from "@mui/material";
 import {
   Instagram as InstagramIcon,

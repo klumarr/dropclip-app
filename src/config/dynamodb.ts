@@ -7,6 +7,8 @@ export const TableNames = {
   EVENTS: `${stage}-events`,
   UPLOADS: `${stage}-uploads`,
   USERS: `${stage}-users`,
+  UPLOAD_LINKS: `${stage}-upload-links`,
+  PLAYLISTS: `${stage}-playlists`,
 } as const;
 
 // DynamoDB Client setup
@@ -55,4 +57,28 @@ export interface UserItem {
   userType: "creative" | "fan";
   createdAt: string;
   updatedAt: string;
+}
+
+export interface UploadLinkItem {
+  id: string;
+  eventId: string;
+  creativeId: string;
+  expiresAt: string;
+  maxUploads: number;
+  currentUploads: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PlaylistItem {
+  id: string;
+  userId: string;
+  name: string;
+  description?: string;
+  uploadIds: string[];
+  createdAt: string;
+  updatedAt: string;
+  isPublic: boolean;
+  thumbnailUrl?: string;
 }

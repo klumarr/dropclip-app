@@ -1,20 +1,53 @@
 import { Amplify } from "aws-amplify";
-import { cognitoUserPoolsTokenProvider } from "aws-amplify/auth/cognito";
+import {
+  signInWithRedirect,
+  signOut,
+  getCurrentUser,
+  fetchAuthSession,
+  AuthUser,
+} from "@aws-amplify/auth";
+import { cognitoUserPoolsTokenProvider } from "@aws-amplify/auth/cognito";
+import { ResourcesConfig } from "@aws-amplify/core";
 
-const awsConfig = {
+// Ensure environment variables exist
+const requiredEnvVars = {
+  userPoolId: import.meta.env.VITE_USER_POOL_ID ?? "",
+  userPoolClientId: import.meta.env.VITE_USER_POOL_CLIENT_ID ?? "",
+  cognitoDomain: import.meta.env.VITE_COGNITO_DOMAIN ?? "",
+  redirectSignIn: import.meta.env.VITE_REDIRECT_SIGN_IN ?? "",
+  redirectSignOut: import.meta.env.VITE_REDIRECT_SIGN_OUT ?? "",
+} as const;
+
+// Validate environment variables
+Object.entries(requiredEnvVars).forEach(([key, value]) => {
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${key}`);
+  }
+});
+
+const awsConfig: ResourcesConfig = {
   Auth: {
     Cognito: {
-      userPoolId: import.meta.env.VITE_USER_POOL_ID,
-      userPoolClientId: import.meta.env.VITE_USER_POOL_CLIENT_ID,
+      userPoolId: requiredEnvVars.userPoolId,
+      userPoolClientId: requiredEnvVars.userPoolClientId,
+      signUpVerificationMethod: "code",
+      loginWith: {
+        email: true,
+        phone: false,
+        username: false,
+        oauth: {
+          domain: requiredEnvVars.cognitoDomain,
+          scopes: ["openid", "email", "profile"],
+          responseType: "code",
+          redirectSignIn: [requiredEnvVars.redirectSignIn] as [string],
+          redirectSignOut: [requiredEnvVars.redirectSignOut] as [string],
+        },
+      },
     },
   },
 };
 
-console.log("Amplify Configuration:", {
-  userPoolId: import.meta.env.VITE_USER_POOL_ID,
-  userPoolClientId: import.meta.env.VITE_USER_POOL_CLIENT_ID,
-  region: import.meta.env.VITE_AWS_REGION,
-});
+console.log("Amplify Configuration:", requiredEnvVars);
 
 Amplify.configure(awsConfig);
 
@@ -34,4 +67,24 @@ cognitoUserPoolsTokenProvider.setKeyValueStorage({
   },
 });
 
-export default awsConfig;
+// Helper functions
+export const getAuthenticatedUser = async (): Promise<AuthUser | null> => {
+  try {
+    const user = await getCurrentUser();
+    return user;
+  } catch {
+    return null;
+  }
+};
+
+export const getAuthSession = async () => {
+  try {
+    const session = await fetchAuthSession();
+    return session;
+  } catch {
+    return null;
+  }
+};
+
+// Re-export auth functions with proper types
+export { signInWithRedirect, signOut, fetchAuthSession, type AuthUser };

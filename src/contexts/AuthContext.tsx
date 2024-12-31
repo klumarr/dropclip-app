@@ -7,6 +7,7 @@ import {
   getCurrentUser,
   fetchUserAttributes,
   type SignUpInput as AmplifySignUpInput,
+  updateUserAttributes,
 } from "aws-amplify/auth";
 import {
   AuthUser,
@@ -47,6 +48,7 @@ interface AuthContextType {
   switchUserType: (newType: UserType) => Promise<void>;
   toggleTwoFactor: () => Promise<void>;
   generateBackupCodes: () => Promise<string[]>;
+  updateProfile: (attributes: Record<string, string>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -261,6 +263,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const updateProfile = async (attributes: Record<string, string>) => {
+    try {
+      await updateUserAttributes({ userAttributes: attributes });
+      await checkAuthState(); // Refresh the user state
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+      setState((prev) => ({ ...prev, error: error as Error }));
+      throw error;
+    }
+  };
+
   const value = {
     ...state,
     signIn: handleSignIn,
@@ -304,6 +317,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         throw error;
       }
     },
+    updateProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
