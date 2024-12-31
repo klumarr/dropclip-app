@@ -26,6 +26,20 @@ interface SignUpInput {
 
 interface AuthContextType {
   user: AuthUser | null;
+  userAttributes: {
+    id: string;
+    email: string;
+    name: string;
+    userType: UserType;
+    creativeCategory?: CreativeCategory;
+    customCategory?: string;
+    linkedAccounts?: {
+      fan?: boolean;
+      creative?: boolean;
+    };
+    isDormantCreative?: boolean;
+    picture?: string;
+  } | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: Error | null;
@@ -37,6 +51,7 @@ interface AuthContextType {
   updateSecuritySettings: (
     settings: Partial<SecuritySettings>
   ) => Promise<void>;
+  switchUserType: (newType: UserType) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -122,6 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         options: {
           userAttributes: {
             email: data.email,
+            name: data.name,
             "custom:userType": data.userType.toString(),
             ...(data.creativeCategory && {
               "custom:creativeCategory": data.creativeCategory.toString(),
@@ -194,6 +210,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     signOut: handleSignOut,
     clearError,
     updateSecuritySettings,
+    userAttributes: state.user
+      ? {
+          id: state.user.id,
+          email: state.user.email,
+          name: state.user.name || "",
+          userType: state.user.userType,
+          creativeCategory: state.user.creativeCategory,
+          customCategory: state.user.customCategory,
+          linkedAccounts: state.user.linkedAccounts,
+          isDormantCreative: state.user.isDormantCreative,
+          picture: state.user.picture,
+        }
+      : null,
+    switchUserType: async (newType: UserType) => {
+      try {
+        // Implement user type switching logic here
+        console.log("Switching user type to:", newType);
+        // For now, just update the state
+        setState((prev) => ({
+          ...prev,
+          user: prev.user
+            ? {
+                ...prev.user,
+                userType: newType,
+              }
+            : null,
+        }));
+      } catch (error) {
+        console.error("Error switching user type:", error);
+        setState((prev) => ({ ...prev, error: error as Error }));
+        throw error;
+      }
+    },
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

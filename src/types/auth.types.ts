@@ -27,18 +27,26 @@ export interface SecuritySettings {
 export interface AuthUser {
   id: string;
   email: string;
+  name?: string;
   userType: UserType;
   creativeCategory?: CreativeCategory;
   customCategory?: string;
-  securitySettings: SecuritySettings;
+  linkedAccounts?: {
+    fan?: boolean;
+    creative?: boolean;
+  };
+  isDormantCreative?: boolean;
+  picture?: string;
   isEmailVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
+  securitySettings: SecuritySettings;
 }
 
 export interface SignUpInput {
   email: string;
   password: string;
+  name: string;
   userType: UserType;
   creativeCategory?: CreativeCategory;
   customCategory?: string;

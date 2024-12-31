@@ -125,10 +125,11 @@ export const UserTypeSelect: React.FC<UserTypeSelectProps> = ({
               color="text.secondary"
               sx={{
                 fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                display: { xs: "-webkit-box", sm: "block" },
-                WebkitLineClamp: { xs: 3, sm: "none" },
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
+                display: { xs: "block", sm: "block" },
+                minHeight: { xs: "3.6em", sm: "auto" },
+                lineHeight: { xs: "1.2em", sm: "1.5em" },
+                overflow: "visible",
+                textOverflow: "ellipsis",
               }}
             >
               Follow your favorite artists, share event videos, and be part of

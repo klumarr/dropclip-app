@@ -44,13 +44,20 @@ const PlayerWrapper = styled(Box)(({ theme }) => ({
 export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
 
+  const handleMenuOpen = () => {
+    console.log("Opening menu");
+    setIsSideMenuOpen(true);
+  };
+
+  const handleMenuClose = () => {
+    console.log("Closing menu");
+    setIsSideMenuOpen(false);
+  };
+
   return (
     <RootContainer>
-      <Header onMenuOpen={() => setIsSideMenuOpen(true)} />
-      <SideMenu
-        open={isSideMenuOpen}
-        onClose={() => setIsSideMenuOpen(false)}
-      />
+      <Header onMenuOpen={handleMenuOpen} />
+      <SideMenu open={isSideMenuOpen} onClose={handleMenuClose} />
       <MainContent>{children}</MainContent>
       <PlayerWrapper>
         <VideoPlayerContainer />

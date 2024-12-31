@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import theme from "./theme/theme";
+import { theme } from "./theme/theme";
 import { AppLayout } from "./components/layout/AppLayout";
 import { AppRoutes } from "./routes";
 import { VideoPlayerProvider } from "./contexts/VideoPlayerContext";

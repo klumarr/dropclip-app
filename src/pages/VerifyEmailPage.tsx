@@ -11,14 +11,17 @@ import {
   Paper,
 } from "@mui/material";
 import { confirmSignUp } from "../services/auth.service";
+import { useAuth } from "../contexts/AuthContext";
 
 const VerifyEmailPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email;
+  const password = location.state?.password;
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +30,12 @@ const VerifyEmailPage: React.FC = () => {
 
     try {
       await confirmSignUp(email, code);
-      navigate("/login", { replace: true });
+      if (password) {
+        await signIn(email, password);
+        navigate("/dashboard", { replace: true });
+      } else {
+        navigate("/login", { replace: true });
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to verify email");
     } finally {

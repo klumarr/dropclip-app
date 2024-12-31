@@ -8,6 +8,7 @@ interface VideoState {
   currentTime: number;
   duration: number;
   progress: number;
+  url: string;
 }
 
 interface VideoPlayerContextType {
@@ -21,6 +22,11 @@ interface VideoPlayerContextType {
   togglePlayPause: () => void;
   updateProgress: (progress: number) => void;
   updateTime: (currentTime: number) => void;
+  playVideo: (video: {
+    url: string;
+    title: string;
+    thumbnailUrl?: string;
+  }) => void;
 }
 
 const VideoPlayerContext = createContext<VideoPlayerContextType | undefined>(
@@ -86,6 +92,24 @@ export const VideoPlayerProvider: React.FC<{ children: React.ReactNode }> = ({
     [currentVideo]
   );
 
+  const playVideo = useCallback(
+    (video: { url: string; title: string; thumbnailUrl?: string }) => {
+      const newVideo: VideoState = {
+        url: video.url,
+        title: video.title,
+        creator: "Unknown", // You might want to pass this as a parameter
+        thumbnailUrl: video.thumbnailUrl || "",
+        isPlaying: true,
+        currentTime: 0,
+        duration: 0,
+        progress: 0,
+      };
+      openPlayer(newVideo);
+      expandPlayer();
+    },
+    [openPlayer, expandPlayer]
+  );
+
   const value = {
     isOpen,
     isExpanded,
@@ -97,6 +121,7 @@ export const VideoPlayerProvider: React.FC<{ children: React.ReactNode }> = ({
     togglePlayPause,
     updateProgress,
     updateTime,
+    playVideo,
   };
 
   return (

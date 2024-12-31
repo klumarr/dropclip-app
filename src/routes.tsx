@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import EventsPage from "./pages/EventsPage";
 import EventManagementPage from "./pages/EventManagementPage";
+import EventUploadPage from "./pages/EventUploadPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { SearchPage } from "./pages/SearchPage";
 import { UploadPage } from "./pages/UploadPage";
@@ -70,6 +71,14 @@ export const AppRoutes = () => {
         element={
           <ProtectedRoute requiredUserType={UserType.CREATIVE}>
             <EventManagementPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/events/:eventId/upload"
+        element={
+          <ProtectedRoute requiredUserType={UserType.FAN}>
+            <EventUploadPage />
           </ProtectedRoute>
         }
       />

@@ -15,6 +15,7 @@ import {
   Switch,
   Divider,
   ListItemSecondaryAction,
+  ListItemButton,
 } from "@mui/material";
 import {
   Person,
@@ -24,9 +25,10 @@ import {
   Mail,
   Notifications,
   Close,
-  Logout,
+  Logout as LogoutIcon,
   SwapHoriz,
   MusicNote,
+  Event,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
@@ -61,10 +63,12 @@ const UserAvatar = styled(Avatar)<{ usertype: "fan" | "creative" }>(
 
 const DrawerPaper = styled(Paper)(({ theme }) => ({
   width: 280,
-  backgroundColor: "rgba(0, 0, 0, 0.95)",
+  backgroundColor: (props: { usertype: "fan" | "creative" }) =>
+    props.usertype === "fan" ? "rgba(25, 25, 25, 0.95)" : "rgba(0, 0, 0, 0.95)",
   backdropFilter: "blur(10px)",
   borderRight: `1px solid ${theme.palette.divider}`,
-  touchAction: "pan-y pinch-zoom",
+  touchAction: "none",
+  zIndex: theme.zIndex.drawer + 1,
 }));
 
 interface SideMenuProps {
@@ -75,13 +79,8 @@ interface SideMenuProps {
 export const SideMenu: React.FC<SideMenuProps> = ({ open, onClose }) => {
   const navigate = useNavigate();
   const theme = useTheme();
-  const { userAttributes, signOut, switchUserType } = useAuth();
-  const isCreative = userAttributes?.userType === UserType.CREATIVE;
-  const hasFanAccount = isCreative && userAttributes?.linkedAccounts?.fan;
-  const hasCreativeAccount =
-    !isCreative &&
-    (userAttributes?.linkedAccounts?.creative ||
-      userAttributes?.isDormantCreative);
+  const { userAttributes, signOut, switchUserType, isAuthenticated } =
+    useAuth();
   const touchStartX = useRef<number | null>(null);
   const drawerRef = useRef<HTMLDivElement | null>(null);
 
@@ -127,6 +126,18 @@ export const SideMenu: React.FC<SideMenuProps> = ({ open, onClose }) => {
     }
   }, []);
 
+  // Return early if not authenticated
+  if (!isAuthenticated || !userAttributes) {
+    return null;
+  }
+
+  const isCreative = userAttributes.userType === UserType.CREATIVE;
+  const hasFanAccount = isCreative && userAttributes.linkedAccounts?.fan;
+  const hasCreativeAccount =
+    !isCreative &&
+    (userAttributes.linkedAccounts?.creative ||
+      userAttributes.isDormantCreative);
+
   const handleRoleSwitch = async () => {
     try {
       await switchUserType(isCreative ? UserType.FAN : UserType.CREATIVE);
@@ -161,7 +172,8 @@ export const SideMenu: React.FC<SideMenuProps> = ({ open, onClose }) => {
       ]
     : [
         { text: "Profile", icon: <Person />, path: "/profile" },
-        { text: "Account", icon: <AccountCircle />, path: "/account" },
+        { text: "My Content", icon: <CloudUpload />, path: "/my-content" },
+        { text: "Events", icon: <Event />, path: "/events" },
         {
           text: "Notifications",
           icon: <Notifications />,
@@ -169,7 +181,25 @@ export const SideMenu: React.FC<SideMenuProps> = ({ open, onClose }) => {
         },
       ];
 
-  const userInitial = userAttributes?.name?.charAt(0) || "U";
+  const footerItems = isCreative
+    ? [
+        {
+          text: "Switch to Fan Account",
+          icon: <SwapHoriz />,
+          onClick: handleRoleSwitch,
+        },
+        { text: "Logout", icon: <LogoutIcon />, onClick: handleLogout },
+      ]
+    : [
+        {
+          text: "Become a Creative",
+          icon: <MusicNote />,
+          onClick: handleRoleSwitch,
+        },
+        { text: "Logout", icon: <LogoutIcon />, onClick: handleLogout },
+      ];
+
+  const userInitial = userAttributes.name?.charAt(0) || "U";
   const userType = isCreative ? "creative" : "fan";
 
   return (
@@ -179,9 +209,14 @@ export const SideMenu: React.FC<SideMenuProps> = ({ open, onClose }) => {
       onClose={onClose}
       PaperProps={{
         component: DrawerPaper,
-        onTouchStart: handleTouchStart,
-        onTouchMove: handleTouchMove,
-        onTouchEnd: handleTouchEnd,
+        ref: drawerRef,
+        usertype: userType,
+      }}
+      sx={{
+        "& .MuiDrawer-paper": {
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+        },
+        zIndex: (theme) => theme.zIndex.drawer + 1,
       }}
     >
       <DrawerHeader>
@@ -194,15 +229,25 @@ export const SideMenu: React.FC<SideMenuProps> = ({ open, onClose }) => {
       <UserProfile>
         <UserAvatar
           usertype={userType}
-          src={userAttributes?.picture || undefined}
+          src={userAttributes.picture || undefined}
         >
-          {!userAttributes?.picture && userInitial}
+          {!userAttributes.picture &&
+            userAttributes.name?.charAt(0).toUpperCase()}
         </UserAvatar>
         <Box>
-          <Typography variant="subtitle1">
-            {userAttributes?.name || "User"}
+          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+            {userAttributes.name || "User"}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
+              fontSize: "0.75rem",
+              fontWeight: 500,
+            }}
+          >
             {isCreative ? "Creative" : "Fan"}
           </Typography>
         </Box>
@@ -210,77 +255,33 @@ export const SideMenu: React.FC<SideMenuProps> = ({ open, onClose }) => {
 
       <List>
         {menuItems.map((item) => (
-          <ListItem
-            button
-            key={item.text}
-            onClick={() => {
-              navigate(item.path);
-              onClose();
-            }}
-            sx={{
-              py: 2,
-              "&:hover": {
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
-              },
-            }}
-          >
-            <ListItemIcon sx={{ color: "white" }}>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.text} />
+          <ListItem key={item.text} disablePadding>
+            <ListItemButton
+              onClick={() => {
+                navigate(item.path);
+                onClose();
+              }}
+            >
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.text} />
+            </ListItemButton>
           </ListItem>
         ))}
       </List>
 
-      <Divider sx={{ my: 2 }} />
-
-      {(hasFanAccount || hasCreativeAccount) && (
-        <ListItem
-          button
-          onClick={handleRoleSwitch}
-          sx={{
-            py: 2,
-            "&:hover": {
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
-            },
-          }}
-        >
-          <ListItemIcon sx={{ color: "white" }}>
-            {isCreative ? <Person /> : <MusicNote />}
-          </ListItemIcon>
-          <ListItemText
-            primary={`Switch to ${isCreative ? "Fan" : "Creative"} Account`}
-            secondary={
-              <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                {isCreative
-                  ? "View the app as a fan"
-                  : "Switch to your creative profile"}
-              </Typography>
-            }
-          />
-          <ListItemSecondaryAction>
-            <Switch
-              checked={isCreative}
-              onChange={handleRoleSwitch}
-              sx={{ ml: 1 }}
-            />
-          </ListItemSecondaryAction>
-        </ListItem>
-      )}
-
-      <ListItem
-        button
-        onClick={handleLogout}
-        sx={{
-          py: 2,
-          "&:hover": {
-            backgroundColor: "rgba(255, 255, 255, 0.1)",
-          },
-        }}
-      >
-        <ListItemIcon sx={{ color: "white" }}>
-          <Logout />
-        </ListItemIcon>
-        <ListItemText primary="Log Out" />
-      </ListItem>
+      <Box sx={{ mt: "auto" }}>
+        <Divider sx={{ my: 1 }} />
+        <List>
+          {footerItems.map((item) => (
+            <ListItem key={item.text} disablePadding>
+              <ListItemButton onClick={item.onClick}>
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.text} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Box>
     </Drawer>
   );
 };

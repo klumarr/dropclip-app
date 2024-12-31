@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Container,
@@ -26,7 +26,9 @@ import {
   CloudDownload,
   Check,
   Close,
+  ArrowBack,
 } from "@mui/icons-material";
+import { useVideoPlayer } from "../contexts/VideoPlayerContext";
 
 interface Upload {
   id: string;
@@ -59,7 +61,9 @@ interface EventDetails {
 }
 
 const EventManagementPage = () => {
+  const navigate = useNavigate();
   const { eventId } = useParams<{ eventId: string }>();
+  const { playVideo } = useVideoPlayer();
   const [activeTab, setActiveTab] = useState(0);
   const [selectedUpload, setSelectedUpload] = useState<Upload | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -147,6 +151,19 @@ const EventManagementPage = () => {
     }));
   };
 
+  const handleVideoClick = (upload: Upload) => {
+    if (upload.fileType === "video") {
+      playVideo({
+        url: upload.fileUrl,
+        title: `${upload.userName}'s Upload`,
+        thumbnailUrl: upload.thumbnailUrl,
+      });
+    } else {
+      setSelectedUpload(upload);
+      setIsPreviewOpen(true);
+    }
+  };
+
   const renderUploadCard = (upload: Upload) => (
     <Card
       key={upload.id}
@@ -165,10 +182,7 @@ const EventManagementPage = () => {
           objectFit: "cover",
           cursor: "pointer",
         }}
-        onClick={() => {
-          setSelectedUpload(upload);
-          setIsPreviewOpen(true);
-        }}
+        onClick={() => handleVideoClick(upload)}
       />
       <CardContent>
         <Typography variant="subtitle1">{upload.userName}</Typography>
@@ -212,36 +226,90 @@ const EventManagementPage = () => {
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" gutterBottom>
-          {eventDetails.title}
-        </Typography>
-        <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-          {new Date(eventDetails.date).toLocaleDateString(undefined, {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
-        </Typography>
-        <Typography variant="body1" gutterBottom>
-          {eventDetails.location}
-        </Typography>
-        <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
+      <Box sx={{ position: "relative", mb: 6 }}>
+        {/* Back Navigation */}
+        <IconButton
+          onClick={() => navigate("/events")}
+          sx={{
+            position: "absolute",
+            top: 16,
+            left: 16,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            "&:hover": {
+              backgroundColor: "rgba(0, 0, 0, 0.7)",
+            },
+            zIndex: 1,
+          }}
+        >
+          <ArrowBack />
+        </IconButton>
+
+        {/* Event Flyer */}
+        <Box
+          sx={{
+            position: "relative",
+            height: 300,
+            borderRadius: 2,
+            overflow: "hidden",
+            mb: 3,
+          }}
+        >
+          <Box
+            component="img"
+            src={eventDetails.imageUrl || "/placeholder-event.jpg"}
+            alt={eventDetails.title}
+            sx={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+          <Box
+            sx={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              background: "linear-gradient(transparent, rgba(0,0,0,0.8))",
+              p: 3,
+            }}
+          >
+            <Typography variant="h5" gutterBottom>
+              {eventDetails.title}
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              {new Date(eventDetails.date).toLocaleDateString(undefined, {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {eventDetails.location}
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Stats Chips */}
+        <Box sx={{ display: "flex", gap: 1 }}>
           <Chip
             label={`${uploads.pending.length} Pending`}
             color="warning"
             variant="outlined"
+            size="small"
           />
           <Chip
             label={`${uploads.approved.length} Approved`}
             color="success"
             variant="outlined"
+            size="small"
           />
           <Chip
             label={`${uploads.rejected.length} Rejected`}
             color="error"
             variant="outlined"
+            size="small"
           />
         </Box>
       </Box>
@@ -285,21 +353,13 @@ const EventManagementPage = () => {
         maxWidth="md"
         fullWidth
       >
-        <DialogTitle>Content Preview</DialogTitle>
+        <DialogTitle>Image Preview</DialogTitle>
         <DialogContent>
-          {selectedUpload?.fileType === "video" ? (
-            <video
-              src={selectedUpload.fileUrl}
-              controls
-              style={{ width: "100%" }}
-            />
-          ) : (
-            <img
-              src={selectedUpload?.fileUrl}
-              alt="Preview"
-              style={{ width: "100%", height: "auto" }}
-            />
-          )}
+          <img
+            src={selectedUpload?.fileUrl}
+            alt="Preview"
+            style={{ width: "100%", height: "auto" }}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsPreviewOpen(false)}>Close</Button>

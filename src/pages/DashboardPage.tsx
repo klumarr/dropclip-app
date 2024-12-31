@@ -40,7 +40,7 @@ export const DashboardPage = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" gutterBottom>
-        Welcome back, {userAttributes?.name || "Creator"}!
+        Welcome back{userAttributes?.name ? `, ${userAttributes.name}` : ""}
       </Typography>
 
       {/* Stats Grid */}

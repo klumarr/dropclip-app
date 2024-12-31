@@ -52,7 +52,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onMenuOpen }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, userAttributes, isAuthenticated } = useAuth();
   const [notificationsAnchor, setNotificationsAnchor] =
     useState<null | HTMLElement>(null);
   const isCreative = user?.userType === UserType.CREATIVE;
@@ -107,32 +107,62 @@ export const Header: React.FC<HeaderProps> = ({ onMenuOpen }) => {
   return (
     <StyledAppBar position="fixed">
       <Toolbar sx={{ justifyContent: "space-between", px: { xs: 2, sm: 3 } }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            onClick={onMenuOpen}
-            sx={{ p: 0, ml: { xs: 1, sm: 2 } }}
-          >
-            <UserAvatar usertype={userType}>{userInitial}</UserAvatar>
-          </IconButton>
-          <Typography variant="h6" component="div" sx={{ ml: 2 }}>
-            {getPageTitle()}
-          </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            ml: { xs: 1, sm: 2 },
+          }}
+        >
+          {isAuthenticated ? (
+            <>
+              <IconButton
+                size="large"
+                edge="start"
+                color="inherit"
+                aria-label="menu"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMenuOpen();
+                }}
+                sx={{ p: 0 }}
+              >
+                <UserAvatar usertype={userType}>{userInitial}</UserAvatar>
+              </IconButton>
+              <Box>
+                <Typography
+                  variant="h6"
+                  component="div"
+                  sx={{ ml: isAuthenticated ? 0 : 0 }}
+                >
+                  {getPageTitle()}
+                </Typography>
+              </Box>
+            </>
+          ) : (
+            <Typography
+              variant="h6"
+              component="div"
+              sx={{ ml: isAuthenticated ? 2 : 0 }}
+            >
+              {getPageTitle()}
+            </Typography>
+          )}
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <IconButton
-            color="inherit"
-            onClick={handleNotificationsClick}
-            size="large"
-          >
-            <Badge badgeContent={notifications.length} color="error">
-              <Notifications />
-            </Badge>
-          </IconButton>
+          {isAuthenticated && (
+            <IconButton
+              color="inherit"
+              onClick={handleNotificationsClick}
+              size="large"
+            >
+              <Badge badgeContent={notifications.length} color="error">
+                <Notifications />
+              </Badge>
+            </IconButton>
+          )}
         </Box>
 
         <Popover

@@ -90,8 +90,7 @@ export const HomePage = () => {
             gutterBottom
             sx={{ mb: 4 }}
           >
-            Welcome to DropClip
-            {userAttributes?.name && `, ${userAttributes.name}`}
+            Welcome back{userAttributes?.name ? `, ${userAttributes.name}` : ""}
           </Typography>
 
           <Grid container spacing={4}>
