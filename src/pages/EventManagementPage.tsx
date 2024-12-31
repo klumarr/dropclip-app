@@ -19,10 +19,8 @@ import {
   DialogActions,
 } from "@mui/material";
 import {
-  PlayArrow,
   Download,
   Delete,
-  Share,
   CloudDownload,
   Check,
   Close,

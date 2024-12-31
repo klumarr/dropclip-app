@@ -20,15 +20,23 @@ import type { SignUpInput } from "../types/auth.types";
 import { UserTypeSelect } from "../components/auth/UserTypeSelect";
 import { signInWithRedirect } from "aws-amplify/auth";
 import { PageContainer } from "../components/layout/PageContainer";
+import { VerifyEmailForm } from "../components/auth/VerifyEmailForm";
 
 const steps = ["Choose Role", "Create Account", "Verify Email"];
 
 const SignUpPage = () => {
   console.log("SignUpPage rendering");
   const navigate = useNavigate();
-  const { signUp, confirmSignUp, error, clearError, isAuthenticated } =
-    useAuth();
+  const {
+    signUp,
+    confirmSignUp,
+    signIn,
+    clearError,
+    error: authError,
+    isAuthenticated,
+  } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
   const [activeStep, setActiveStep] = useState(0);
   const [userType, setUserType] = useState<UserType | null>(null);
   const [creativeType, setCreativeType] = useState<CreativeCategory | null>(
@@ -130,6 +138,7 @@ const SignUpPage = () => {
     const signUpData: SignUpInput = {
       email,
       password,
+      name,
       userType,
       creativeCategory: creativeType || undefined,
       customCategory:
@@ -140,6 +149,7 @@ const SignUpPage = () => {
 
     try {
       await signUp(signUpData);
+      navigate("/verify", { state: { email, password } });
       handleNext(); // Move to verification step
     } catch (error) {
       console.error("Signup error:", error);
@@ -154,24 +164,26 @@ const SignUpPage = () => {
     event.preventDefault();
     setIsLoading(true);
     clearError();
+    setError(null);
 
     try {
       await confirmSignUp(formData.email, verificationCode);
-      // Show success message
-      alert("Email verified successfully! You can now sign in.");
-      navigate("/login");
-    } catch (error) {
-      console.error("Verification error:", error);
+      // After successful verification, automatically sign in
+      await signIn(formData.email, formData.password);
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Verification error:", err);
+      setError(err instanceof Error ? err : new Error("Verification failed"));
     } finally {
       setIsLoading(false);
     }
   };
 
   const renderStepContent = (step: number) => {
-    console.log("Rendering step:", step);
+    console.log("🔍 Rendering step:", step);
     switch (step) {
       case 0:
-        console.log("Rendering UserTypeSelect with props:", {
+        console.log("🎯 Rendering Role Selection with props:", {
           selectedType: userType,
           selectedCreativeType: creativeType,
           customCreativeType,
@@ -189,168 +201,477 @@ const SignUpPage = () => {
           </Box>
         );
       case 1:
-        return (
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              label="Name"
-              name="name"
-              autoComplete="name"
-              autoFocus
-              value={formData.name}
-              onChange={handleInputChange}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              label="Email"
-              name="email"
-              autoComplete="email"
-              value={formData.email}
-              onChange={handleInputChange}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              autoComplete="new-password"
-              value={formData.password}
-              onChange={handleInputChange}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="confirmPassword"
-              label="Confirm Password"
-              type="password"
-              autoComplete="new-password"
-              value={formData.confirmPassword}
-              onChange={handleInputChange}
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              disabled={isLoading}
-            >
-              {isLoading ? <CircularProgress size={24} /> : "Sign Up"}
-            </Button>
-
-            <Divider sx={{ my: 2 }}>OR</Divider>
-
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<GoogleIcon />}
-              onClick={handleGoogleSignIn}
-              sx={{ mb: 2 }}
-            >
-              Sign up with Google
-            </Button>
-          </Box>
-        );
-      case 2:
+        console.log("🎯 Rendering Create Account Form");
         return (
           <Box
             component="form"
-            onSubmit={handleVerification}
-            sx={{ textAlign: "center", mt: 2 }}
+            onSubmit={handleSubmit}
+            sx={{
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
           >
-            <Typography variant="h6" gutterBottom>
-              Verify Your Email
-            </Typography>
-            <Typography color="text.secondary" gutterBottom>
-              Please check your email for a verification code.
-            </Typography>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              label="Verification Code"
-              value={verificationCode}
-              onChange={(e) => setVerificationCode(e.target.value)}
-              sx={{ maxWidth: 200, mx: "auto" }}
+            <Box sx={{ width: "100%", maxWidth: 400 }}>
+              <TextField
+                required
+                fullWidth
+                placeholder="Name"
+                name="name"
+                autoComplete="name"
+                autoFocus
+                value={formData.name}
+                onChange={handleInputChange}
+                variant="outlined"
+                InputProps={{
+                  sx: {
+                    height: 40,
+                    backgroundColor: "rgba(255, 255, 255, 0.05)",
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 255, 255, 0.08)",
+                    },
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "rgba(255, 255, 255, 0.1)",
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "rgba(255, 255, 255, 0.2)",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "primary.main",
+                    },
+                  },
+                }}
+                sx={{
+                  mb: 2,
+                  "& .MuiInputBase-input": {
+                    color: "white",
+                    "&::placeholder": {
+                      color: "text.secondary",
+                      opacity: 1,
+                    },
+                  },
+                }}
+              />
+              <TextField
+                required
+                fullWidth
+                placeholder="Email"
+                name="email"
+                autoComplete="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                variant="outlined"
+                InputProps={{
+                  sx: {
+                    height: 40,
+                    backgroundColor: "rgba(255, 255, 255, 0.05)",
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 255, 255, 0.08)",
+                    },
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "rgba(255, 255, 255, 0.1)",
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "rgba(255, 255, 255, 0.2)",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "primary.main",
+                    },
+                  },
+                }}
+                sx={{
+                  mb: 2,
+                  "& .MuiInputBase-input": {
+                    color: "white",
+                    "&::placeholder": {
+                      color: "text.secondary",
+                      opacity: 1,
+                    },
+                  },
+                }}
+              />
+              <TextField
+                required
+                fullWidth
+                placeholder="Password"
+                name="password"
+                type="password"
+                autoComplete="new-password"
+                value={formData.password}
+                onChange={handleInputChange}
+                variant="outlined"
+                InputProps={{
+                  sx: {
+                    height: 40,
+                    backgroundColor: "rgba(255, 255, 255, 0.05)",
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 255, 255, 0.08)",
+                    },
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "rgba(255, 255, 255, 0.1)",
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "rgba(255, 255, 255, 0.2)",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "primary.main",
+                    },
+                  },
+                }}
+                sx={{
+                  mb: 2,
+                  "& .MuiInputBase-input": {
+                    color: "white",
+                    "&::placeholder": {
+                      color: "text.secondary",
+                      opacity: 1,
+                    },
+                  },
+                }}
+              />
+              <TextField
+                required
+                fullWidth
+                placeholder="Confirm Password"
+                name="confirmPassword"
+                type="password"
+                autoComplete="new-password"
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                variant="outlined"
+                InputProps={{
+                  sx: {
+                    height: 40,
+                    backgroundColor: "rgba(255, 255, 255, 0.05)",
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 255, 255, 0.08)",
+                    },
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "rgba(255, 255, 255, 0.1)",
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "rgba(255, 255, 255, 0.2)",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "primary.main",
+                    },
+                  },
+                }}
+                sx={{
+                  mb: 2,
+                  "& .MuiInputBase-input": {
+                    color: "white",
+                    "&::placeholder": {
+                      color: "text.secondary",
+                      opacity: 1,
+                    },
+                  },
+                }}
+              />
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                disabled={isLoading}
+                sx={{
+                  height: "40px !important",
+                  background: `linear-gradient(45deg, #9c27b0, #673ab7) !important`,
+                  "&:hover": {
+                    background: `linear-gradient(45deg, #7b1fa2, #512da8) !important`,
+                  },
+                  "&.Mui-disabled": {
+                    opacity: "0.7 !important",
+                    background: "rgba(255, 255, 255, 0.12) !important",
+                  },
+                  textTransform: "none",
+                  fontSize: "0.9rem",
+                  mb: 2,
+                }}
+              >
+                {isLoading ? <CircularProgress size={20} /> : "Sign Up"}
+              </Button>
+
+              <Divider sx={{ mb: 2 }}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontSize: "0.75rem" }}
+                >
+                  OR
+                </Typography>
+              </Divider>
+
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<GoogleIcon sx={{ fontSize: 18 }} />}
+                onClick={handleGoogleSignIn}
+                sx={{
+                  height: 40,
+                  borderColor: "rgba(255, 255, 255, 0.1)",
+                  color: "white",
+                  textTransform: "none",
+                  fontSize: "0.9rem",
+                  backgroundColor: "rgba(255, 255, 255, 0.05)",
+                  "&:hover": {
+                    borderColor: "primary.main",
+                    backgroundColor: "rgba(255, 255, 255, 0.08)",
+                  },
+                }}
+              >
+                Continue with Google
+              </Button>
+            </Box>
+          </Box>
+        );
+      case 2:
+        console.log("🎯 Rendering Verify Email Form", {
+          verificationCode,
+          isLoading,
+          error,
+        });
+        return (
+          <Box
+            sx={{
+              width: "100%",
+              maxWidth: 400,
+              mx: "auto",
+              "& .MuiButton-root": {
+                height: "40px",
+                background: `linear-gradient(45deg, #9c27b0, #673ab7)`,
+                color: "white",
+                textTransform: "none",
+                fontSize: "0.9rem",
+                padding: "0 16px",
+                border: "none",
+                "&:hover": {
+                  background: `linear-gradient(45deg, #7b1fa2, #512da8)`,
+                },
+                "&.Mui-disabled": {
+                  opacity: 0.7,
+                  background: "rgba(255, 255, 255, 0.12)",
+                  color: "rgba(255, 255, 255, 0.3)",
+                },
+              },
+            }}
+          >
+            <VerifyEmailForm
+              verificationCode={verificationCode}
+              isLoading={isLoading}
+              onVerificationCodeChange={(code) => {
+                console.log("📝 Verification code changed:", code);
+                setVerificationCode(code);
+              }}
+              onSubmit={handleVerification}
+              onResendCode={() => {
+                console.log("🔄 Resend code clicked");
+                // TODO: Implement resend functionality
+              }}
             />
-            <Button
-              type="submit"
-              variant="contained"
-              sx={{ mt: 2 }}
-              disabled={isLoading || !verificationCode}
-            >
-              {isLoading ? <CircularProgress size={24} /> : "Verify"}
-            </Button>
           </Box>
         );
       default:
-        console.log("Invalid step:", step);
+        console.log("❌ Invalid step:", step);
         return null;
     }
   };
 
+  useEffect(() => {
+    console.log("🔄 Active step changed:", activeStep);
+  }, [activeStep]);
+
+  useEffect(() => {
+    console.log("📋 Form data updated:", formData);
+  }, [formData]);
+
+  useEffect(() => {
+    console.log("🔑 Verification code updated:", verificationCode);
+  }, [verificationCode]);
+
   return (
-    <PageContainer>
-      <Typography component="h1" variant="h5" align="center">
-        Sign Up for DropClip
-      </Typography>
-
-      <Stepper activeStep={activeStep} sx={{ mb: { xs: 2, sm: 4 } }}>
-        {steps.map((label) => (
-          <Step key={label}>
-            <StepLabel>{label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
-
-      {error && (
-        <Alert severity="error" onClose={clearError}>
-          {typeof error === "string"
-            ? error
-            : error.message || "An error occurred during sign up"}
-        </Alert>
-      )}
-
-      {renderStepContent(activeStep)}
-
+    <PageContainer maxWidth="sm">
       <Box
         sx={{
           display: "flex",
-          justifyContent: "space-between",
-          mt: { xs: 2, sm: 3 },
+          flexDirection: "column",
+          alignItems: "center",
+          p: { xs: 1.5, sm: 2 },
+          backgroundColor: "background.paper",
+          borderRadius: 2,
+          boxShadow: (theme) => `0 8px 32px ${theme.palette.action.hover}`,
+          backdropFilter: "blur(10px)",
+          border: "1px solid rgba(255, 255, 255, 0.1)",
+          maxWidth: 600,
+          mx: "auto",
+          width: "100%",
+          mb: { xs: 7, sm: 2 },
         }}
       >
-        <Button
-          onClick={handleBack}
-          disabled={activeStep === 0}
-          variant="outlined"
+        <Typography
+          component="h1"
+          variant="h4"
+          sx={{
+            mb: 2,
+            fontWeight: 600,
+            background: (theme) =>
+              `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+            backgroundClip: "text",
+            textFillColor: "transparent",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            fontSize: { xs: "1.25rem", sm: "1.5rem" },
+          }}
         >
-          Back
-        </Button>
-        {activeStep < steps.length - 1 && (
-          <Button
-            onClick={handleNext}
-            variant="contained"
-            disabled={
-              activeStep === 0 &&
-              (!userType || (userType === UserType.CREATIVE && !creativeType))
-            }
-          >
-            Next
-          </Button>
-        )}
-      </Box>
+          Create Your Account
+        </Typography>
 
-      <Box sx={{ textAlign: "center", mt: { xs: 1, sm: 2 } }}>
-        <Link component={RouterLink} to="/login" variant="body2">
-          Already have an account? Sign in
-        </Link>
+        <Stepper
+          activeStep={activeStep}
+          sx={{
+            width: "100%",
+            mb: 2,
+            "& .MuiStepLabel-label": {
+              color: "text.secondary",
+              fontSize: { xs: "0.7rem", sm: "0.75rem" },
+              "&.Mui-active": {
+                color: "primary.main",
+                fontWeight: 600,
+              },
+              "&.Mui-completed": {
+                color: "success.main",
+              },
+            },
+          }}
+        >
+          {steps.map((label) => (
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+
+        {(error || authError) && (
+          <Alert
+            severity="error"
+            sx={{
+              position: "fixed",
+              top: 16,
+              right: 16,
+              backgroundColor: "error.dark",
+              color: "white",
+              py: 0.5,
+              "& .MuiAlert-message": {
+                fontSize: "0.75rem",
+              },
+            }}
+          >
+            {(error || authError)?.message || "An error occurred"}
+          </Alert>
+        )}
+
+        <Box sx={{ width: "100%" }}>{renderStepContent(activeStep)}</Box>
+
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            mt: 2,
+            width: "100%",
+            maxWidth: 400,
+            mb: { xs: 1, sm: 2 },
+          }}
+        >
+          <Button
+            onClick={handleBack}
+            disabled={activeStep === 0 || isLoading}
+            size="small"
+            sx={{
+              px: 2,
+              "&.Mui-disabled": {
+                opacity: 0,
+              },
+            }}
+          >
+            Back
+          </Button>
+          {activeStep < steps.length - 1 && (
+            <Button
+              variant="contained"
+              onClick={handleNext}
+              disabled={
+                isLoading ||
+                !userType ||
+                (userType === UserType.CREATIVE && !creativeType)
+              }
+              size="small"
+              sx={{
+                px: 2,
+                background: (theme) =>
+                  `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                "&:hover": {
+                  background: (theme) =>
+                    `linear-gradient(45deg, ${theme.palette.primary.dark}, ${theme.palette.secondary.dark})`,
+                },
+              }}
+            >
+              Next
+            </Button>
+          )}
+        </Box>
+
+        {activeStep === 1 && (
+          <>
+            <Divider sx={{ width: "100%", maxWidth: 400, my: 1 }}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ fontSize: "0.75rem" }}
+              >
+                OR
+              </Typography>
+            </Divider>
+
+            <Button
+              fullWidth
+              variant="outlined"
+              startIcon={<GoogleIcon sx={{ fontSize: 18 }} />}
+              onClick={handleGoogleSignIn}
+              size="small"
+              sx={{
+                maxWidth: 400,
+                height: 36,
+                borderColor: "divider",
+                "&:hover": {
+                  borderColor: "primary.main",
+                  backgroundColor: "action.hover",
+                },
+              }}
+            >
+              Continue with Google
+            </Button>
+          </>
+        )}
+
+        <Typography
+          variant="body2"
+          sx={{ mt: 1.5, color: "text.secondary", fontSize: "0.75rem" }}
+        >
+          Already have an account?{" "}
+          <Link
+            component={RouterLink}
+            to="/login"
+            sx={{
+              color: "primary.main",
+              textDecoration: "none",
+              "&:hover": {
+                textDecoration: "underline",
+              },
+            }}
+          >
+            Sign in
+          </Link>
+        </Typography>
       </Box>
     </PageContainer>
   );

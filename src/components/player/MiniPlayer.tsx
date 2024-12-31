@@ -1,4 +1,4 @@
-import { Box, IconButton, Typography, styled, useTheme } from "@mui/material";
+import { Box, IconButton, Typography, styled } from "@mui/material";
 import { PlayArrow, Pause, Close, SkipNext } from "@mui/icons-material";
 import { useRef, useState } from "react";
 
@@ -78,7 +78,6 @@ export const MiniPlayer = ({
   onPlayPause,
   onExpand,
 }: MiniPlayerProps) => {
-  const theme = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const touchStartY = useRef<number | null>(null);
   const [isExpanding, setIsExpanding] = useState(false);

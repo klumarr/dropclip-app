@@ -1,4 +1,3 @@
-import React from "react";
 import { Box, Typography, Grid, Paper } from "@mui/material";
 import { ProfileAnalytics } from "../components/analytics/ProfileAnalytics";
 import { useAuth } from "../contexts/AuthContext";

@@ -3,7 +3,6 @@ import { Box, Typography, Tabs, Tab, Paper } from "@mui/material";
 import { AuthenticationEnhancement } from "../components/auth/AuthenticationEnhancement";
 import { ProfileAnalytics } from "../components/analytics/ProfileAnalytics";
 import { useAuth } from "../contexts/AuthContext";
-import type { SecuritySettings } from "../types/auth.types";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -69,14 +68,23 @@ export const SettingsPage = () => {
         </Tabs>
 
         <TabPanel value={activeTab} index={0}>
-          <AuthenticationEnhancement
-            userId={user.id}
-            securitySettings={user.securitySettings}
-            onToggleTwoFactor={toggleTwoFactor}
-            onUpdateSecuritySettings={updateSecuritySettings}
-            onSocialLogin={handleSocialLogin}
-            onGenerateBackupCodes={generateBackupCodes}
-          />
+          {user && (
+            <AuthenticationEnhancement
+              securitySettings={{
+                twoFactorEnabled:
+                  user.securitySettings?.twoFactorEnabled ?? false,
+                emailNotifications:
+                  user.securitySettings?.emailNotifications ?? false,
+                sessionTimeout: user.securitySettings?.sessionTimeout ?? 30,
+                passwordLastChanged:
+                  user.securitySettings?.passwordLastChanged ?? new Date(),
+              }}
+              onToggleTwoFactor={toggleTwoFactor}
+              onUpdateSecuritySettings={updateSecuritySettings}
+              onSocialLogin={handleSocialLogin}
+              onGenerateBackupCodes={generateBackupCodes}
+            />
+          )}
         </TabPanel>
 
         <TabPanel value={activeTab} index={1}>

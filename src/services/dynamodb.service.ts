@@ -7,13 +7,43 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { docClient, TableNames } from "../config/dynamodb";
 import { EventItem, UploadItem, UserItem } from "../config/dynamodb";
+import { s3Operations } from "./s3.service";
+import { cloudfrontOperations } from "./cloudfront.service";
+import { lambdaOperations } from "./lambda.service";
 
 // Event Operations
 export const eventOperations = {
-  createEvent: async (event: Omit<EventItem, "createdAt" | "updatedAt">) => {
+  createEvent: async (
+    event: Omit<EventItem, "createdAt" | "updatedAt" | "imageUrl">,
+    flyerFile?: File
+  ) => {
     const now = new Date().toISOString();
+    let imageUrl = "";
+
+    // Handle flyer upload if provided
+    if (flyerFile) {
+      const fileKey = s3Operations.generateFlyerKey(event.id, flyerFile.name);
+      const uploadUrl = await s3Operations.getUploadUrl(
+        fileKey,
+        flyerFile.type
+      );
+
+      // Upload the file
+      await fetch(uploadUrl, {
+        method: "PUT",
+        body: flyerFile,
+        headers: {
+          "Content-Type": flyerFile.type,
+        },
+      });
+
+      // Get the CloudFront URL for the flyer
+      imageUrl = cloudfrontOperations.getFileUrl(fileKey);
+    }
+
     const item: EventItem = {
       ...event,
+      imageUrl,
       createdAt: now,
       updatedAt: now,
       dateId: event.date.substring(0, 7), // YYYY-MM
@@ -84,13 +114,59 @@ export const eventOperations = {
       })
     );
   },
+
+  deleteEvent: async (id: string, creativeId: string): Promise<void> => {
+    try {
+      // Get the event first to check if it has an image
+      const event = await eventOperations.getEvent(id, creativeId);
+
+      // Delete the event from DynamoDB
+      await docClient.send(
+        new DeleteCommand({
+          TableName: TableNames.EVENTS,
+          Key: { id, creativeId },
+        })
+      );
+
+      // If event had an image, invalidate its cache
+      if (event?.imageUrl) {
+        await cloudfrontOperations.invalidateEventCache(id);
+      }
+    } catch (error) {
+      console.error(`Error deleting event ${id}:`, error);
+      throw error;
+    }
+  },
 };
 
 // Upload Operations
 export const uploadOperations = {
-  createUpload: async (upload: Omit<UploadItem, "uploadDate">) => {
+  createUpload: async (
+    upload: Omit<UploadItem, "uploadDate" | "fileUrl" | "thumbnailUrl">,
+    file: File
+  ) => {
+    const fileKey = s3Operations.generateFileKey(
+      upload.eventId,
+      upload.userId,
+      file.name
+    );
+    const uploadUrl = await s3Operations.getUploadUrl(fileKey, file.type);
+
+    // Upload the file
+    await fetch(uploadUrl, {
+      method: "PUT",
+      body: file,
+      headers: {
+        "Content-Type": file.type,
+      },
+    });
+
+    // Get the CloudFront URL for the file
+    const fileUrl = cloudfrontOperations.getFileUrl(fileKey);
+
     const item: UploadItem = {
       ...upload,
+      fileUrl,
       uploadDate: new Date().toISOString(),
       userEventId: upload.userId,
       uploadDateEventId: `${new Date().toISOString()}#${upload.eventId}`,
@@ -102,6 +178,27 @@ export const uploadOperations = {
         Item: item,
       })
     );
+
+    // Trigger video processing if it's a video file
+    if (upload.fileType === "video") {
+      try {
+        await lambdaOperations.triggerVideoProcessing({
+          uploadId: item.id,
+          eventId: item.eventId,
+          fileKey,
+        });
+      } catch (error) {
+        console.error("Failed to trigger video processing:", error);
+        // Update upload status to indicate processing failure
+        await uploadOperations.updateUploadStatus(
+          item.id,
+          item.eventId,
+          "rejected"
+        );
+        throw error;
+      }
+    }
+
     return item;
   },
 
@@ -156,6 +253,9 @@ export const uploadOperations = {
         ExpressionAttributeValues: { ":status": status },
       })
     );
+
+    // Invalidate CloudFront cache for this upload
+    await cloudfrontOperations.invalidateUploadCache(eventId, id);
   },
 };
 

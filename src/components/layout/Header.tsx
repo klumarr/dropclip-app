@@ -13,10 +13,9 @@ import {
   ListItemText,
   ListItemAvatar,
   styled,
-  useTheme,
 } from "@mui/material";
 import { Notifications } from "@mui/icons-material";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { UserType } from "../../types/auth.types";
 
@@ -50,9 +49,8 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onMenuOpen }) => {
-  const navigate = useNavigate();
   const location = useLocation();
-  const { user, userAttributes, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [notificationsAnchor, setNotificationsAnchor] =
     useState<null | HTMLElement>(null);
   const isCreative = user?.userType === UserType.CREATIVE;

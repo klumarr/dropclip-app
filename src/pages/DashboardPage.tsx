@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Box,
   Grid,
@@ -38,33 +37,36 @@ export const DashboardPage = () => {
   ];
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: isMobile ? 2 : 3 }}>
       <Typography variant="h4" gutterBottom>
         Welcome back{userAttributes?.name ? `, ${userAttributes.name}` : ""}
       </Typography>
 
       {/* Stats Grid */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Grid container spacing={isMobile ? 2 : 3} sx={{ mb: 4 }}>
         {stats.map((stat, index) => (
           <Grid item xs={12} sm={6} md={3} key={index}>
             <Paper
-              elevation={2}
               sx={{
-                p: 2,
+                p: isMobile ? 2 : 3,
                 display: "flex",
-                flexDirection: "column",
+                flexDirection: isMobile ? "row" : "column",
                 alignItems: "center",
-                bgcolor: "background.paper",
-                borderRadius: 2,
+                gap: isMobile ? 2 : 1,
               }}
             >
-              <Box sx={{ color: "primary.main", mb: 1 }}>{stat.icon}</Box>
-              <Typography variant="h5" component="div">
-                {stat.value}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {stat.label}
-              </Typography>
+              {stat.icon}
+              <Box sx={{ textAlign: isMobile ? "left" : "center" }}>
+                <Typography
+                  variant={isMobile ? "body2" : "body1"}
+                  color="text.secondary"
+                >
+                  {stat.label}
+                </Typography>
+                <Typography variant={isMobile ? "h6" : "h5"}>
+                  {stat.value}
+                </Typography>
+              </Box>
             </Paper>
           </Grid>
         ))}

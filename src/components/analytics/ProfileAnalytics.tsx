@@ -20,7 +20,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import type { UserType, CreativeCategory } from "../../types/auth.types";
+import { UserType, CreativeCategory } from "../../types/auth.types";
 
 interface ProfileAnalyticsProps {
   userId: string;
@@ -62,8 +62,7 @@ export const ProfileAnalytics: React.FC<ProfileAnalyticsProps> = ({
   creativeCategory,
 }) => {
   const [timeRange, setTimeRange] = useState<string>("30d");
-  const [analyticsData, setAnalyticsData] =
-    useState<AnalyticsData>(mockAnalyticsData);
+  const [analyticsData] = useState<AnalyticsData>(mockAnalyticsData);
   const [selectedMetric, setSelectedMetric] = useState<string>("followers");
 
   useEffect(() => {

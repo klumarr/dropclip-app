@@ -6,14 +6,16 @@ import {
   Button,
   Grid,
   Paper,
-  useTheme,
-  useMediaQuery,
   CircularProgress,
 } from "@mui/material";
 import { useAuth } from "../contexts/AuthContext";
 import { fetchUserAttributes } from "aws-amplify/auth";
-import type { UserAttributes } from "../types/auth.types";
-import { UserType } from "../types/auth.types";
+import {
+  UserAttributes,
+  TransformedUserAttributes,
+  transformUserAttributes,
+  UserType,
+} from "../types/auth.types";
 
 // Type guard to validate user attributes
 const isValidUserAttributes = (
@@ -28,28 +30,19 @@ const isValidUserAttributes = (
 
 export const HomePage = () => {
   const navigate = useNavigate();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const [isLoadingAttributes, setIsLoadingAttributes] = useState(true);
-  const [userAttributes, setUserAttributes] = useState<UserAttributes | null>(
-    null
-  );
   const { user } = useAuth();
+  const [transformedAttributes, setTransformedAttributes] =
+    useState<TransformedUserAttributes | null>(null);
 
   useEffect(() => {
     const loadUserAttributes = async () => {
       try {
-        const attributes = await fetchUserAttributes();
-        if (isValidUserAttributes(attributes)) {
-          setUserAttributes(attributes);
-        } else {
-          console.error("Invalid user attributes format:", attributes);
-          setUserAttributes(null);
+        const attrs = await fetchUserAttributes();
+        if (isValidUserAttributes(attrs)) {
+          setTransformedAttributes(transformUserAttributes(attrs));
         }
       } catch (error) {
         console.error("Error loading user attributes:", error);
-      } finally {
-        setIsLoadingAttributes(false);
       }
     };
 
@@ -76,81 +69,71 @@ export const HomePage = () => {
     },
   ];
 
+  if (!transformedAttributes) return <CircularProgress />;
+
   return (
     <Box sx={{ p: 3 }}>
-      {isLoadingAttributes ? (
-        <Box display="flex" justifyContent="center">
-          <CircularProgress />
-        </Box>
-      ) : (
-        <>
-          <Typography
-            variant={isMobile ? "h4" : "h3"}
-            component="h1"
-            gutterBottom
-            sx={{ mb: 4 }}
-          >
-            Welcome back{userAttributes?.name ? `, ${userAttributes.name}` : ""}
-          </Typography>
+      <Typography variant="h3" component="h1" gutterBottom sx={{ mb: 4 }}>
+        Welcome back
+        {transformedAttributes.name ? `, ${transformedAttributes.name}` : ""}
+      </Typography>
 
-          <Grid container spacing={4}>
-            {quickActions.map((action, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
-                <Paper
-                  elevation={3}
-                  sx={{
-                    p: 3,
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    textAlign: "center",
-                    transition: "transform 0.2s, background-color 0.2s",
-                    backgroundColor: "rgba(255, 255, 255, 0.05)",
-                    "&:hover": {
-                      transform: "translateY(-4px)",
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                    },
-                  }}
-                >
-                  <Typography variant="h5" component="h3" gutterBottom>
-                    {action.title}
-                  </Typography>
-                  <Typography
-                    variant="body1"
-                    color="text.secondary"
-                    sx={{ mb: 3, flexGrow: 1 }}
-                  >
-                    {action.description}
-                  </Typography>
-                  <Button variant="contained" onClick={action.action} fullWidth>
-                    Get Started
-                  </Button>
-                </Paper>
-              </Grid>
-            ))}
-          </Grid>
-
-          {userAttributes?.userType === UserType.CREATIVE && (
-            <Box sx={{ mt: 6, textAlign: "center" }}>
+      <Grid container spacing={4}>
+        {quickActions.map((action, index) => (
+          <Grid item xs={12} sm={6} md={4} key={index}>
+            <Paper
+              elevation={3}
+              sx={{
+                p: 3,
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                textAlign: "center",
+                transition: "transform 0.2s, background-color 0.2s",
+                backgroundColor: "rgba(255, 255, 255, 0.05)",
+                "&:hover": {
+                  transform: "translateY(-4px)",
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                },
+              }}
+            >
               <Typography variant="h5" component="h3" gutterBottom>
-                Creative Tools
+                {action.title}
               </Typography>
-              <Typography variant="body1" color="text.secondary" paragraph>
-                Access your creative dashboard to manage your content and engage
-                with your audience.
-              </Typography>
-              <Button
-                variant="outlined"
-                size="large"
-                onClick={() => navigate("/dashboard")}
-                sx={{ mt: 2 }}
+              <Typography
+                variant="body1"
+                color="text.secondary"
+                sx={{ mb: 3, flexGrow: 1 }}
               >
-                Go to Dashboard
+                {action.description}
+              </Typography>
+              <Button variant="contained" onClick={action.action} fullWidth>
+                Get Started
               </Button>
-            </Box>
-          )}
-        </>
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
+
+      {transformedAttributes.userType === UserType.CREATIVE && (
+        <Box sx={{ mt: 6, textAlign: "center" }}>
+          <Typography variant="h5" component="h3" gutterBottom>
+            Creative Tools
+          </Typography>
+          <Typography variant="body1" color="text.secondary" paragraph>
+            Access your creative dashboard to manage your content and engage
+            with your audience.
+          </Typography>
+          <Button
+            variant="outlined"
+            size="large"
+            onClick={() => navigate("/dashboard")}
+            sx={{ mt: 2 }}
+          >
+            Go to Dashboard
+          </Button>
+        </Box>
       )}
     </Box>
   );

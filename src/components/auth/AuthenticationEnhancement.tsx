@@ -21,7 +21,6 @@ import {
   Tooltip,
 } from "@mui/material";
 import {
-  Security as SecurityIcon,
   Facebook as FacebookIcon,
   Google as GoogleIcon,
   Twitter as TwitterIcon,
@@ -30,15 +29,14 @@ import {
   QrCode2 as QrCodeIcon,
 } from "@mui/icons-material";
 
-interface SecuritySettings {
+export interface SecuritySettings {
   twoFactorEnabled: boolean;
   emailNotifications: boolean;
   sessionTimeout: number;
   passwordLastChanged: Date;
 }
 
-interface AuthenticationEnhancementProps {
-  userId: string;
+export interface AuthenticationEnhancementProps {
   securitySettings: SecuritySettings;
   onToggleTwoFactor: () => Promise<void>;
   onUpdateSecuritySettings: (
@@ -51,7 +49,6 @@ interface AuthenticationEnhancementProps {
 export const AuthenticationEnhancement: React.FC<
   AuthenticationEnhancementProps
 > = ({
-  userId,
   securitySettings,
   onToggleTwoFactor,
   onUpdateSecuritySettings,

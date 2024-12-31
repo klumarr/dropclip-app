@@ -14,10 +14,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
 } from "@mui/material";
 import {
   Edit as EditIcon,
@@ -27,7 +23,7 @@ import {
   Facebook as FacebookIcon,
   YouTube as YouTubeIcon,
 } from "@mui/icons-material";
-import { CreativeType } from "../../types/auth.types";
+import { CreativeCategory } from "../../types/auth.types";
 
 interface SocialLink {
   platform: string;
@@ -37,7 +33,7 @@ interface SocialLink {
 interface CreativeProfileProps {
   name: string;
   email: string;
-  creativeType: CreativeType;
+  creativeType: CreativeCategory;
   customCreativeType?: string;
   bio?: string;
   avatar?: string;
@@ -83,7 +79,7 @@ export const CreativeProfile: React.FC<CreativeProfileProps> = ({
     }
   };
 
-  const getSocialIcon = (platform: string) => {
+  const getSocialIcon = (platform: string): React.ReactElement => {
     switch (platform.toLowerCase()) {
       case "instagram":
         return <InstagramIcon />;
@@ -94,7 +90,7 @@ export const CreativeProfile: React.FC<CreativeProfileProps> = ({
       case "youtube":
         return <YouTubeIcon />;
       default:
-        return null;
+        return <AddIcon />;
     }
   };
 
@@ -107,7 +103,7 @@ export const CreativeProfile: React.FC<CreativeProfileProps> = ({
             <Box>
               <Typography variant="h4">{name}</Typography>
               <Typography variant="body1" color="text.secondary">
-                {creativeType === CreativeType.OTHER
+                {creativeType === CreativeCategory.OTHER
                   ? customCreativeType
                   : creativeType}
               </Typography>

@@ -14,15 +14,8 @@ import {
   AuthState,
   UserType,
   CreativeCategory,
+  SignUpInput,
 } from "../types/auth.types";
-
-interface SignUpInput {
-  email: string;
-  password: string;
-  userType: UserType;
-  creativeCategory?: CreativeCategory;
-  customCategory?: string;
-}
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -52,6 +45,8 @@ interface AuthContextType {
     settings: Partial<SecuritySettings>
   ) => Promise<void>;
   switchUserType: (newType: UserType) => Promise<void>;
+  toggleTwoFactor: () => Promise<void>;
+  generateBackupCodes: () => Promise<string[]>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -72,7 +67,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const checkAuthState = async () => {
     try {
-      const user = await getCurrentUser();
+      const currentUser = await getCurrentUser();
+      console.log("Current user:", currentUser);
+
       const attributes = await fetchUserAttributes();
       console.log("User attributes:", attributes);
 
@@ -202,6 +199,68 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const toggleTwoFactor = async () => {
+    try {
+      if (!state.user) throw new Error("No authenticated user");
+
+      const newTwoFactorState = !state.user.securitySettings.twoFactorEnabled;
+      await updateSecuritySettings({
+        twoFactorEnabled: newTwoFactorState,
+      });
+
+      setState((prev) => ({
+        ...prev,
+        user: prev.user
+          ? {
+              ...prev.user,
+              securitySettings: {
+                ...prev.user.securitySettings,
+                twoFactorEnabled: newTwoFactorState,
+              },
+            }
+          : null,
+      }));
+    } catch (error) {
+      console.error("Failed to toggle 2FA:", error);
+      setState((prev) => ({ ...prev, error: error as Error }));
+      throw error;
+    }
+  };
+
+  const generateBackupCodes = async () => {
+    try {
+      if (!state.user) throw new Error("No authenticated user");
+
+      // Generate 10 random backup codes
+      const codes = Array.from({ length: 10 }, () =>
+        Math.random().toString(36).substring(2, 8).toUpperCase()
+      );
+
+      await updateSecuritySettings({
+        backupCodes: codes,
+      });
+
+      setState((prev) => ({
+        ...prev,
+        user: prev.user
+          ? {
+              ...prev.user,
+              securitySettings: {
+                ...prev.user.securitySettings,
+                backupCodes: codes,
+              },
+            }
+          : null,
+      }));
+
+      return codes;
+    } catch (error) {
+      console.error("Failed to generate backup codes:", error);
+      setState((prev) => ({ ...prev, error: error as Error }));
+      throw error;
+    }
+  };
+
   const value = {
     ...state,
     signIn: handleSignIn,
@@ -210,6 +269,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     signOut: handleSignOut,
     clearError,
     updateSecuritySettings,
+    toggleTwoFactor,
+    generateBackupCodes,
     userAttributes: state.user
       ? {
           id: state.user.id,

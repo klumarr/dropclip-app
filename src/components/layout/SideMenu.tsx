@@ -9,13 +9,10 @@ import {
   IconButton,
   Typography,
   styled,
-  useTheme,
   Avatar,
-  Paper,
-  Switch,
   Divider,
-  ListItemSecondaryAction,
   ListItemButton,
+  DrawerProps as MuiDrawerProps,
 } from "@mui/material";
 import {
   Person,
@@ -34,21 +31,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { UserType } from "../../types/auth.types";
 
-const DrawerHeader = styled(Box)(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  padding: theme.spacing(2),
-  borderBottom: `1px solid ${theme.palette.divider}`,
-}));
-
-const UserProfile = styled(Box)(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  padding: theme.spacing(3),
-  borderBottom: `1px solid ${theme.palette.divider}`,
-}));
-
 const UserAvatar = styled(Avatar)<{ usertype: "fan" | "creative" }>(
   ({ theme, usertype }) => ({
     width: 48,
@@ -61,82 +43,73 @@ const UserAvatar = styled(Avatar)<{ usertype: "fan" | "creative" }>(
   })
 );
 
-const DrawerPaper = styled(Paper)(({ theme }) => ({
-  width: 280,
-  backgroundColor: (props: { usertype: "fan" | "creative" }) =>
-    props.usertype === "fan" ? "rgba(25, 25, 25, 0.95)" : "rgba(0, 0, 0, 0.95)",
-  backdropFilter: "blur(10px)",
-  borderRight: `1px solid ${theme.palette.divider}`,
-  touchAction: "none",
-  zIndex: theme.zIndex.drawer + 1,
+const DrawerHeader = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  padding: theme.spacing(2),
+  borderBottom: `1px solid ${theme.palette.divider}`,
+}));
+
+const UserProfile = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  padding: theme.spacing(3),
+  borderBottom: `1px solid ${theme.palette.divider}`,
 }));
 
 interface SideMenuProps {
   open: boolean;
   onClose: () => void;
+  variant?: MuiDrawerProps["variant"];
 }
 
-export const SideMenu: React.FC<SideMenuProps> = ({ open, onClose }) => {
+export const SideMenu: React.FC<SideMenuProps> = ({
+  open,
+  onClose,
+  variant = "temporary",
+}) => {
   const navigate = useNavigate();
-  const theme = useTheme();
   const { userAttributes, signOut, switchUserType, isAuthenticated } =
     useAuth();
   const touchStartX = useRef<number | null>(null);
   const drawerRef = useRef<HTMLDivElement | null>(null);
 
-  const handleTouchStart = (e: TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-
-  const handleTouchMove = (e: TouchEvent) => {
-    if (!touchStartX.current) return;
-
-    const currentX = e.touches[0].clientX;
-    const diff = touchStartX.current - currentX;
-
-    // If swiping left (diff > 0) and the distance is significant
-    if (diff > 50) {
-      touchStartX.current = null;
-      onClose();
-    }
-  };
-
-  const handleTouchEnd = () => {
-    touchStartX.current = null;
-  };
-
+  // Only add touch handlers for temporary drawers
   useEffect(() => {
+    if (variant !== "temporary") return;
+
     const drawer = drawerRef.current;
-    if (drawer) {
-      drawer.addEventListener("touchstart", handleTouchStart as EventListener);
-      drawer.addEventListener("touchmove", handleTouchMove as EventListener);
-      drawer.addEventListener("touchend", handleTouchEnd);
+    if (!drawer) return;
 
-      return () => {
-        drawer.removeEventListener(
-          "touchstart",
-          handleTouchStart as EventListener
-        );
-        drawer.removeEventListener(
-          "touchmove",
-          handleTouchMove as EventListener
-        );
-        drawer.removeEventListener("touchend", handleTouchEnd);
-      };
-    }
-  }, []);
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartX.current = e.touches[0].clientX;
+    };
 
-  // Return early if not authenticated
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!touchStartX.current) return;
+      const currentX = e.touches[0].clientX;
+      const diff = touchStartX.current - currentX;
+      if (diff > 50) {
+        onClose();
+        touchStartX.current = null;
+      }
+    };
+
+    drawer.addEventListener("touchstart", handleTouchStart);
+    drawer.addEventListener("touchmove", handleTouchMove);
+
+    return () => {
+      drawer.removeEventListener("touchstart", handleTouchStart);
+      drawer.removeEventListener("touchmove", handleTouchMove);
+    };
+  }, [variant, onClose]);
+
   if (!isAuthenticated || !userAttributes) {
     return null;
   }
 
   const isCreative = userAttributes.userType === UserType.CREATIVE;
-  const hasFanAccount = isCreative && userAttributes.linkedAccounts?.fan;
-  const hasCreativeAccount =
-    !isCreative &&
-    (userAttributes.linkedAccounts?.creative ||
-      userAttributes.isDormantCreative);
 
   const handleRoleSwitch = async () => {
     try {
@@ -199,24 +172,25 @@ export const SideMenu: React.FC<SideMenuProps> = ({ open, onClose }) => {
         { text: "Logout", icon: <LogoutIcon />, onClick: handleLogout },
       ];
 
-  const userInitial = userAttributes.name?.charAt(0) || "U";
-  const userType = isCreative ? "creative" : "fan";
-
   return (
     <Drawer
+      ref={drawerRef}
       anchor="left"
       open={open}
       onClose={onClose}
-      PaperProps={{
-        component: DrawerPaper,
-        ref: drawerRef,
-        usertype: userType,
+      variant={variant}
+      ModalProps={{
+        keepMounted: true,
       }}
-      sx={{
-        "& .MuiDrawer-paper": {
-          zIndex: (theme) => theme.zIndex.drawer + 1,
+      PaperProps={{
+        sx: {
+          width: 280,
+          bgcolor: isCreative
+            ? "rgba(0, 0, 0, 0.95)"
+            : "rgba(25, 25, 25, 0.95)",
+          backdropFilter: "blur(10px)",
+          borderRight: (theme) => `1px solid ${theme.palette.divider}`,
         },
-        zIndex: (theme) => theme.zIndex.drawer + 1,
       }}
     >
       <DrawerHeader>
@@ -228,7 +202,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ open, onClose }) => {
 
       <UserProfile>
         <UserAvatar
-          usertype={userType}
+          usertype={isCreative ? "creative" : "fan"}
           src={userAttributes.picture || undefined}
         >
           {!userAttributes.picture &&
@@ -262,7 +236,9 @@ export const SideMenu: React.FC<SideMenuProps> = ({ open, onClose }) => {
                 onClose();
               }}
             >
-              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemIcon sx={{ color: "text.secondary" }}>
+                {item.icon}
+              </ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItemButton>
           </ListItem>
@@ -275,7 +251,9 @@ export const SideMenu: React.FC<SideMenuProps> = ({ open, onClose }) => {
           {footerItems.map((item) => (
             <ListItem key={item.text} disablePadding>
               <ListItemButton onClick={item.onClick}>
-                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemIcon sx={{ color: "text.secondary" }}>
+                  {item.icon}
+                </ListItemIcon>
                 <ListItemText primary={item.text} />
               </ListItemButton>
             </ListItem>

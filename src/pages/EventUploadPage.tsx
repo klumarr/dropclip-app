@@ -12,11 +12,7 @@ import {
   useTheme,
   useMediaQuery,
 } from "@mui/material";
-import {
-  CloudUpload,
-  Close as CloseIcon,
-  CheckCircle as CheckCircleIcon,
-} from "@mui/icons-material";
+import { CloudUpload, Close as CloseIcon } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 
 interface EventDetails {
@@ -139,27 +135,31 @@ const EventUploadPage = () => {
   };
 
   const handleUpload = async () => {
-    if (!selectedFiles.length) return;
-
-    setIsUploading(true);
-    setError(null);
-
     try {
-      // TODO: Implement actual upload logic
-      // Simulating upload progress
+      setIsUploading(true);
+      setError(null);
+      setSuccess(false);
+
+      // Simulated upload progress
       for (let i = 0; i <= 100; i += 10) {
-        await new Promise((resolve) => setTimeout(resolve, 200));
         setUploadProgress(i);
+        await new Promise((resolve) => setTimeout(resolve, 500));
       }
 
+      // After successful upload
       setSuccess(true);
-      // Clear files after successful upload
-      setSelectedFiles([]);
-      setUploadProgress(0);
-    } catch (err) {
-      setError("Failed to upload files. Please try again.");
-    } finally {
       setIsUploading(false);
+      setUploadProgress(0);
+      setSelectedFiles([]);
+
+      // Navigate after a short delay to show success message
+      setTimeout(() => {
+        navigate(`/events/${eventId}`);
+      }, 1500);
+    } catch (error) {
+      setError("Failed to upload files. Please try again.");
+      setIsUploading(false);
+      setSuccess(false);
     }
   };
 
@@ -191,149 +191,122 @@ const EventUploadPage = () => {
           (eventDetails.uploadConfig.endTime || "23:59")
       );
 
-  return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Typography variant="h4" gutterBottom align="center">
-        Upload Content
-      </Typography>
-      <Typography
-        variant="h6"
-        gutterBottom
-        align="center"
-        color="text.secondary"
-      >
-        {eventDetails.title}
-      </Typography>
-      <Typography
-        variant="body1"
-        align="center"
-        color="text.secondary"
-        sx={{ mb: 4 }}
-      >
-        {new Date(eventDetails.date).toLocaleDateString(undefined, {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })}
-        <br />
-        {eventDetails.location}
-      </Typography>
-
-      {!isUploadEnabled ? (
+  if (!isUploadEnabled) {
+    return (
+      <Container maxWidth="md" sx={{ py: isMobile ? 2 : 4 }}>
         <Alert severity="warning" sx={{ mb: 2 }}>
           Upload window is not currently open for this event.
+          <br />
+          Upload window: {eventDetails.uploadConfig?.startDate}{" "}
+          {eventDetails.uploadConfig?.startTime} to{" "}
+          {eventDetails.uploadConfig?.endDate}{" "}
+          {eventDetails.uploadConfig?.endTime}
         </Alert>
-      ) : (
-        <>
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
+      </Container>
+    );
+  }
 
-          {success && (
-            <Alert
-              severity="success"
-              sx={{ mb: 2 }}
-              action={
-                <IconButton
-                  aria-label="close"
-                  color="inherit"
-                  size="small"
-                  onClick={() => setSuccess(false)}
-                >
-                  <CloseIcon fontSize="inherit" />
-                </IconButton>
-              }
-            >
-              Files uploaded successfully!
-            </Alert>
-          )}
+  return (
+    <Container maxWidth="md" sx={{ py: isMobile ? 2 : 4 }}>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
 
-          <input
-            type="file"
-            id="file-input"
-            multiple
-            accept={eventDetails.uploadConfig?.allowedTypes?.join(",")}
-            onChange={handleFileSelect}
-            style={{ display: "none" }}
-          />
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          Files uploaded successfully!
+        </Alert>
+      )}
 
-          <UploadBox
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onClick={() => document.getElementById("file-input")?.click()}
-          >
-            <CloudUpload sx={{ fontSize: 48, color: "primary.main", mb: 2 }} />
-            <Typography variant="h6" gutterBottom>
-              Drag & Drop or Click to Upload
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Maximum file size: {eventDetails.uploadConfig?.maxFileSize}MB
-              <br />
-              Accepted formats: Video files
-            </Typography>
-          </UploadBox>
+      <Box sx={{ mb: isMobile ? 2 : 4 }}>
+        <Typography variant="h4" gutterBottom>
+          Upload Media
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Share your moments from {eventDetails?.title}
+        </Typography>
+      </Box>
 
-          {selectedFiles.length > 0 && (
-            <Box sx={{ mt: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Selected Files
+      <input
+        type="file"
+        id="file-input"
+        multiple
+        accept={eventDetails.uploadConfig?.allowedTypes?.join(",")}
+        onChange={handleFileSelect}
+        style={{ display: "none" }}
+      />
+
+      <UploadBox
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onClick={() => document.getElementById("file-input")?.click()}
+        sx={{ p: isMobile ? 2 : 3 }}
+      >
+        <CloudUpload sx={{ fontSize: 48, color: "primary.main", mb: 2 }} />
+        <Typography variant="h6" gutterBottom>
+          Drag & Drop or Click to Upload
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Maximum file size: {eventDetails.uploadConfig?.maxFileSize}MB
+          <br />
+          Accepted formats: Video files
+        </Typography>
+      </UploadBox>
+
+      {selectedFiles.length > 0 && (
+        <Box sx={{ mt: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Selected Files
+          </Typography>
+          {selectedFiles.map((file, index) => (
+            <FilePreview key={index}>
+              <Typography variant="body1" sx={{ flex: 1 }}>
+                {file.name}
               </Typography>
-              {selectedFiles.map((file, index) => (
-                <FilePreview key={index}>
-                  <Typography variant="body1" sx={{ flex: 1 }}>
-                    {file.name}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mx: 2 }}
-                  >
-                    {(file.size / (1024 * 1024)).toFixed(2)} MB
-                  </Typography>
-                  <IconButton
-                    size="small"
-                    onClick={() => handleRemoveFile(index)}
-                    sx={{ color: "text.secondary" }}
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                </FilePreview>
-              ))}
-
-              <Button
-                variant="contained"
-                fullWidth
-                onClick={handleUpload}
-                disabled={isUploading}
-                sx={{
-                  mt: 2,
-                  height: 48,
-                  background: `linear-gradient(45deg, #9c27b0, #673ab7)`,
-                  "&:hover": {
-                    background: `linear-gradient(45deg, #7b1fa2, #512da8)`,
-                  },
-                }}
+              <Typography variant="body2" color="text.secondary" sx={{ mx: 2 }}>
+                {(file.size / (1024 * 1024)).toFixed(2)} MB
+              </Typography>
+              <IconButton
+                size="small"
+                onClick={() => handleRemoveFile(index)}
+                sx={{ color: "text.secondary" }}
               >
-                {isUploading ? (
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <CircularProgress
-                      size={24}
-                      variant="determinate"
-                      value={uploadProgress}
-                      sx={{ mr: 1 }}
-                    />
-                    Uploading... {uploadProgress}%
-                  </Box>
-                ) : (
-                  "Upload Files"
-                )}
-              </Button>
-            </Box>
-          )}
-        </>
+                <CloseIcon />
+              </IconButton>
+            </FilePreview>
+          ))}
+
+          <Button
+            variant="contained"
+            fullWidth
+            onClick={handleUpload}
+            disabled={isUploading}
+            sx={{
+              mt: 2,
+              height: 48,
+              background: `linear-gradient(45deg, #9c27b0, #673ab7)`,
+              "&:hover": {
+                background: `linear-gradient(45deg, #7b1fa2, #512da8)`,
+              },
+            }}
+          >
+            {isUploading ? (
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <CircularProgress
+                  size={24}
+                  variant="determinate"
+                  value={uploadProgress}
+                  sx={{ mr: 1 }}
+                />
+                Uploading... {uploadProgress}%
+              </Box>
+            ) : (
+              "Upload Files"
+            )}
+          </Button>
+        </Box>
       )}
     </Container>
   );

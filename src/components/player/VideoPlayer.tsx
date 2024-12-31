@@ -1,13 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import {
-  Box,
-  IconButton,
-  Typography,
-  Slider,
-  styled,
-  useTheme,
-  useMediaQuery,
-} from "@mui/material";
+import { Box, IconButton, Typography, Slider, styled } from "@mui/material";
 import {
   PlayArrow,
   Pause,
@@ -18,9 +10,6 @@ import {
   Close,
   SkipNext,
   SkipPrevious,
-  Repeat,
-  RepeatOne,
-  Shuffle,
 } from "@mui/icons-material";
 
 const PlayerContainer = styled(Box)(({ theme }) => ({
@@ -64,7 +53,7 @@ const VideoThumbnail = styled(Box)(({ theme }) => ({
   },
 }));
 
-const ExpandedVideoContainer = styled(Box)(({ theme }) => ({
+const ExpandedVideoContainer = styled(Box)(() => ({
   position: "relative",
   width: "100%",
   backgroundColor: "#000",
@@ -147,13 +136,8 @@ export const VideoPlayer = ({
   onProgress,
   onTimeUpdate,
 }: VideoPlayerProps) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const videoRef = useRef<HTMLVideoElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -163,37 +147,20 @@ export const VideoPlayer = ({
   const [isVerticalSwipe, setIsVerticalSwipe] = useState(false);
   const [isCollapsing, setIsCollapsing] = useState(false);
 
+  const handleClose = useCallback(() => {
+    setIsCollapsing(true);
+    // Add a small delay to allow the animation to complete
+    setTimeout(() => {
+      setIsCollapsing(false);
+      onClose();
+    }, 300);
+  }, [onClose]);
+
   const handleTimeUpdate = useCallback(() => {
     if (videoRef.current && !isDragging) {
-      setCurrentTime(videoRef.current.currentTime);
       onTimeUpdate?.(videoRef.current.currentTime);
     }
   }, [isDragging, onTimeUpdate]);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStartY(e.touches[0].clientY);
-    setTouchStartX(e.touches[0].clientX);
-    setIsVerticalSwipe(false);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (touchStartY === 0) return;
-
-    const currentY = e.touches[0].clientY;
-    const currentX = e.touches[0].clientX;
-    const deltaY = currentY - touchStartY;
-    const deltaX = currentX - touchStartX;
-
-    // Determine if this is a vertical swipe
-    if (!isVerticalSwipe && Math.abs(deltaY) > Math.abs(deltaX)) {
-      setIsVerticalSwipe(true);
-    }
-
-    // If swiping down and the distance is significant
-    if (isVerticalSwipe && deltaY > 50) {
-      handleClose();
-    }
-  };
 
   useEffect(() => {
     const video = videoRef.current;
@@ -204,15 +171,50 @@ export const VideoPlayer = ({
   }, [handleTimeUpdate]);
 
   useEffect(() => {
+    const handleDocumentTouchMove = (e: TouchEvent) => {
+      if (touchStartY === 0) return;
+
+      const currentY = e.touches[0].clientY;
+      const currentX = e.touches[0].clientX;
+      const deltaY = currentY - touchStartY;
+      const deltaX = currentX - touchStartX;
+
+      // Determine if this is a vertical swipe
+      if (!isVerticalSwipe && Math.abs(deltaY) > Math.abs(deltaX)) {
+        setIsVerticalSwipe(true);
+      }
+
+      // If swiping down and the distance is significant
+      if (isVerticalSwipe && deltaY > 50) {
+        handleClose();
+      }
+    };
+
     if (isDragging) {
-      document.addEventListener("touchmove", handleTouchMove, {
-        passive: false,
+      document.addEventListener("touchmove", handleDocumentTouchMove, {
+        passive: true,
       });
       return () => {
-        document.removeEventListener("touchmove", handleTouchMove);
+        document.removeEventListener("touchmove", handleDocumentTouchMove);
       };
     }
-  }, [isDragging, handleTouchMove]);
+  }, [isDragging, touchStartX, touchStartY, isVerticalSwipe, handleClose]);
+
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent<HTMLDivElement>) => {
+      setTouchStartY(e.touches[0].clientY);
+      setTouchStartX(e.touches[0].clientX);
+      setIsVerticalSwipe(false);
+      setIsDragging(true);
+    },
+    []
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    setTouchStartY(0);
+    setTouchStartX(0);
+    setIsDragging(false);
+  }, []);
 
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
@@ -269,15 +271,6 @@ export const VideoPlayer = ({
     }
   };
 
-  const handleClose = () => {
-    setIsCollapsing(true);
-    // Add a small delay to allow the animation to complete
-    setTimeout(() => {
-      setIsCollapsing(false);
-      onClose();
-    }, 300);
-  };
-
   if (!open) return null;
 
   return (
@@ -285,7 +278,7 @@ export const VideoPlayer = ({
       ref={progressBarRef}
       className={isCollapsing ? "collapsing" : ""}
       onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
       sx={{
         height: isFullscreen ? "100vh" : "100%",
         padding: isFullscreen ? 0 : "0 16px",

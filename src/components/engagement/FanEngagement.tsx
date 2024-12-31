@@ -68,9 +68,25 @@ export const FanEngagement: React.FC<FanEngagementProps> = ({
   const [newComment, setNewComment] = useState("");
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
 
+  // Track engagement metrics for analytics
+  const logEngagement = async (
+    action: "like" | "comment" | "share",
+    videoId: string
+  ) => {
+    try {
+      // You would typically call an analytics service here
+      console.log(
+        `Engagement tracked - Creative: ${creativeId}, Video: ${videoId}, Action: ${action}`
+      );
+    } catch (error) {
+      console.error("Error logging engagement:", error);
+    }
+  };
+
   const handleLike = async (videoId: string) => {
     try {
       await onLike(videoId);
+      await logEngagement("like", videoId);
     } catch (error) {
       console.error("Error liking video:", error);
     }
@@ -80,6 +96,7 @@ export const FanEngagement: React.FC<FanEngagementProps> = ({
     if (selectedVideo && newComment.trim()) {
       try {
         await onComment(selectedVideo.id, newComment);
+        await logEngagement("comment", selectedVideo.id);
         setNewComment("");
         setCommentDialogOpen(false);
       } catch (error) {
@@ -91,6 +108,7 @@ export const FanEngagement: React.FC<FanEngagementProps> = ({
   const handleShare = async (videoId: string) => {
     try {
       await onShare(videoId);
+      await logEngagement("share", videoId);
       setShareDialogOpen(false);
     } catch (error) {
       console.error("Error sharing video:", error);

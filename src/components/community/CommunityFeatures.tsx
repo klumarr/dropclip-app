@@ -49,6 +49,7 @@ interface Post {
   likes: number;
   comments: Comment[];
   shares: number;
+  likedBy?: string[];
 }
 
 interface CommunityFeaturesProps {
@@ -97,6 +98,10 @@ export const CommunityFeatures: React.FC<CommunityFeaturesProps> = ({
     }
   };
 
+  const isLikedByCurrentUser = (post: Post) => {
+    return post.likedBy?.includes(currentUserId) ?? false;
+  };
+
   return (
     <Box sx={{ maxWidth: 800, mx: "auto", p: 3 }}>
       <Tabs
@@ -135,12 +140,14 @@ export const CommunityFeatures: React.FC<CommunityFeaturesProps> = ({
                 >
                   <Box>
                     <IconButton onClick={() => onLikePost(post.id)}>
-                      {post.likes > 0 ? (
+                      {isLikedByCurrentUser(post) ? (
                         <Badge badgeContent={post.likes} color="primary">
                           <FavoriteIcon color="primary" />
                         </Badge>
                       ) : (
-                        <FavoriteBorderIcon />
+                        <Badge badgeContent={post.likes} color="primary">
+                          <FavoriteBorderIcon />
+                        </Badge>
                       )}
                     </IconButton>
                     <IconButton onClick={() => handleCommentClick(post)}>

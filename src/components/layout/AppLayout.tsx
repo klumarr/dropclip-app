@@ -43,6 +43,8 @@ const PlayerWrapper = styled(Box)(({ theme }) => ({
 
 export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const handleMenuOpen = () => {
     console.log("Opening menu");
@@ -57,12 +59,26 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <RootContainer>
       <Header onMenuOpen={handleMenuOpen} />
-      <SideMenu open={isSideMenuOpen} onClose={handleMenuClose} />
-      <MainContent>{children}</MainContent>
+      <SideMenu
+        open={isSideMenuOpen}
+        onClose={handleMenuClose}
+        variant={isMobile ? "temporary" : "persistent"}
+      />
+      <MainContent
+        sx={{
+          marginLeft: !isMobile && isSideMenuOpen ? "240px" : 0,
+          transition: theme.transitions.create(["margin", "width"], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+          }),
+        }}
+      >
+        {children}
+      </MainContent>
       <PlayerWrapper>
         <VideoPlayerContainer />
       </PlayerWrapper>
-      <MobileNavigation />
+      {isMobile && <MobileNavigation />}
     </RootContainer>
   );
 };
