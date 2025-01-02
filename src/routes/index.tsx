@@ -1,96 +1,97 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { UserType } from "../types/auth.types";
+import { RouteGuard } from "../guards/RouteGuard";
+import { useAuth } from "../contexts/AuthContext";
+import { lazy, Suspense } from "react";
+
+// Import named exports directly
 import { DashboardPage } from "../pages/DashboardPage";
-import { ProfilePage } from "../pages/ProfilePage";
-import PlaylistsPage from "../pages/PlaylistsPage";
-import { LoginPage } from "../pages/LoginPage";
-import SignUpPage from "../pages/SignUpPage";
-import { NotFoundPage } from "../pages/NotFoundPage";
 import { SearchPage } from "../pages/SearchPage";
-import EventsPage from "../pages/EventsPage";
-import { UploadPage } from "../pages/UploadPage";
-import { ProtectedRoute } from "../components/auth/ProtectedRoute";
+import { SettingsPage } from "../pages/SettingsPage";
+
+// Lazy load components with default exports
+const EventsPage = lazy(() => import("../pages/EventsPage"));
+const PlaylistsPage = lazy(() => import("../pages/PlaylistsPage"));
+const SignInPage = lazy(() => import("../pages/SignInPage"));
+const SignUpPage = lazy(() => import("../pages/SignUpPage"));
+const VerifyEmailPage = lazy(() => import("../pages/VerifyEmailPage"));
 
 export const AppRoutes = () => {
+  const { isAuthenticated } = useAuth();
+
   return (
-    <Routes>
-      {/* Public Routes */}
-      <Route
-        path="/login"
-        element={
-          <ProtectedRoute isPublic>
-            <LoginPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/signup"
-        element={
-          <ProtectedRoute isPublic>
-            <SignUpPage />
-          </ProtectedRoute>
-        }
-      />
+    <Suspense fallback={<div>Loading...</div>}>
+      <Routes>
+        {/* Public Routes */}
+        <Route
+          path="/signin"
+          element={
+            !isAuthenticated ? <SignInPage /> : <Navigate to="/dashboard" />
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            !isAuthenticated ? <SignUpPage /> : <Navigate to="/dashboard" />
+          }
+        />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
 
-      {/* Protected Routes */}
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Navigate to="/dashboard" replace />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <DashboardPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/search"
-        element={
-          <ProtectedRoute>
-            <SearchPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/events"
-        element={
-          <ProtectedRoute>
-            <EventsPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/upload"
-        element={
-          <ProtectedRoute>
-            <UploadPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <ProfilePage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/playlists"
-        element={
-          <ProtectedRoute>
-            <PlaylistsPage />
-          </ProtectedRoute>
-        }
-      />
+        {/* Protected Routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <RouteGuard>
+              <DashboardPage />
+            </RouteGuard>
+          }
+        />
+        <Route
+          path="/events"
+          element={
+            <RouteGuard requiredUserTypes={[UserType.CREATIVE]}>
+              <EventsPage />
+            </RouteGuard>
+          }
+        />
+        <Route
+          path="/search"
+          element={
+            <RouteGuard>
+              <SearchPage />
+            </RouteGuard>
+          }
+        />
+        <Route
+          path="/playlists"
+          element={
+            <RouteGuard>
+              <PlaylistsPage />
+            </RouteGuard>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <RouteGuard>
+              <SettingsPage />
+            </RouteGuard>
+          }
+        />
 
-      {/* 404 Route */}
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+        {/* Default Routes */}
+        <Route
+          path="/"
+          element={
+            isAuthenticated ? (
+              <Navigate to="/dashboard" />
+            ) : (
+              <Navigate to="/signin" />
+            )
+          }
+        />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </Suspense>
   );
 };

@@ -12,6 +12,7 @@ import {
 import { CloudUpload } from "@mui/icons-material";
 import { uploadLinkOperations } from "../services/uploadLink.service";
 import { uploadOperations } from "../services/dynamodb.service";
+import { s3Operations } from "../services/s3.service";
 import { UploadItem } from "../config/dynamodb";
 import { nanoid } from "nanoid";
 
@@ -29,17 +30,21 @@ interface UploadState {
   progress?: number;
 }
 
-const createUploadObject = (eventId: string) => {
+const createUploadObject = (eventId: string, file: File) => {
   const now = new Date().toISOString();
   const userId = "anonymous";
+  const uploadId = nanoid();
+  const fileKey = s3Operations.generateFileKey(eventId, userId, file.name);
+
   return {
-    id: nanoid(),
+    id: uploadId,
     eventId,
     userId,
     fileType: "video" as const,
     status: "pending" as const,
     userEventId: userId,
     uploadDateEventId: `${now}#${eventId}`,
+    fileKey,
   } satisfies Omit<UploadItem, "uploadDate" | "fileUrl" | "thumbnailUrl">;
 };
 
@@ -138,7 +143,7 @@ const FanUploadPage = () => {
 
       // Create upload record with proper composite keys
       const upload = await uploadOperations.createUpload(
-        createUploadObject(link.eventId),
+        createUploadObject(link.eventId, selectedFile),
         selectedFile
       );
 

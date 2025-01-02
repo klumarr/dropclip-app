@@ -10,7 +10,7 @@ import {
   CircularProgress,
   Paper,
 } from "@mui/material";
-import { confirmSignUp } from "../services/auth.service";
+import { AuthService } from "../services/auth.service";
 import { useAuth } from "../contexts/AuthContext";
 
 const VerifyEmailPage: React.FC = () => {
@@ -29,7 +29,11 @@ const VerifyEmailPage: React.FC = () => {
     setLoading(true);
 
     try {
-      await confirmSignUp(email, code);
+      const result = await AuthService.confirmSignUp(email, code);
+      if (!result) {
+        throw new Error("Failed to verify email");
+      }
+
       if (password) {
         await signIn(email, password);
         navigate("/dashboard", { replace: true });

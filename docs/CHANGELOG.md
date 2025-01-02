@@ -251,4 +251,86 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Some TypeScript strict mode errors pending resolution
 - AWS Amplify v6 type definitions need updates
 
+## [Unreleased] - 2025-01-01
+
+### Added
+
+- Enhanced Events Management System:
+
+  - Implemented chronological sorting for events in all tabs (upcoming, past, automatic)
+  - Added navigation to event management page for past events
+  - Created gradient overlay for event cards to improve text visibility
+  - Implemented full-screen image viewing for upcoming and automatic events
+  - Integrated fan upload page functionality with event sharing
+  - Added AWS DynamoDB integration for event data persistence
+  - Implemented AWS S3 integration for image storage with public access
+  - Added QR code generation for event sharing
+
+- Event Card UI Improvements:
+
+  - Added dark gradient overlay for better text contrast
+  - Implemented sleeker and more professional card design
+  - Enhanced typography and spacing
+  - Added hover effects for better interactivity
+  - Improved mobile responsiveness
+  - Added support for event flyer images
+
+- Fan Upload Integration:
+  - Created FanUploadPage component for video submissions
+  - Implemented file type validation (MP4, MOV, M4V)
+  - Added file size restrictions (500MB limit)
+  - Integrated with AWS S3 for video storage
+  - Added upload progress tracking
+  - Implemented success/error handling
+
+### Changed
+
+- Event Management Updates:
+
+  - Switched from local storage to DynamoDB for event persistence
+  - Updated event sharing to generate fan upload page links
+  - Modified image handling to use public S3 URLs
+  - Enhanced event categorization logic
+  - Improved date and time handling
+
+- UI/UX Improvements:
+  - Redesigned event cards with gradient overlays
+  - Updated typography and spacing for better readability
+  - Enhanced mobile responsiveness
+  - Improved button placement and visibility
+  - Updated share menu with additional options
+
+### Fixed
+
+- Resolved event persistence issues with DynamoDB integration
+- Fixed image display problems in event cards
+- Corrected navigation issues for past events
+- Fixed full-screen image viewing functionality
+- Resolved mobile touch event handling
+- Fixed AWS SDK browser compatibility issues
+- Corrected share link generation
+
+### Technical Improvements
+
+- Implemented AWS SDK v3 for browser compatibility
+- Enhanced TypeScript type definitions for events
+- Improved error handling for AWS operations
+- Added proper loading states
+- Enhanced mobile responsiveness
+- Updated documentation for new features
+
+### Security
+
+- Implemented proper AWS IAM permissions for DynamoDB
+- Added secure file upload handling
+- Enhanced access control for event management
+- Improved error handling for unauthorized actions
+
+### Migration
+
+- Migrated from local storage to DynamoDB for event storage
+- Updated AWS SDK to v3 for better browser support
+- Implemented new event sharing mechanism
+- Updated image storage to use public S3 URLs
+
 Note: This changelog will be updated regularly as new features are added and issues are resolved.

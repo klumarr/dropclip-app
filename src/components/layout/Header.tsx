@@ -1,223 +1,187 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
   IconButton,
   Typography,
-  Avatar,
+  Menu,
+  MenuItem,
   Box,
+  Avatar,
   Badge,
-  Popover,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
-  styled,
+  useTheme,
 } from "@mui/material";
 import { Notifications } from "@mui/icons-material";
-import { useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { UserType } from "../../types/auth.types";
-
-const StyledAppBar = styled(AppBar)({
-  backgroundColor: "rgba(0, 0, 0, 0.85)",
-  backdropFilter: "blur(10px)",
-  borderBottom: "none",
-  boxShadow: "none",
-});
-
-const UserAvatar = styled(Avatar)<{ usertype: "fan" | "creative" }>(
-  ({ theme, usertype }) => ({
-    width: 32,
-    height: 32,
-    backgroundColor:
-      usertype === "creative"
-        ? theme.palette.secondary.main
-        : theme.palette.primary.main,
-  })
-);
-
-const NotificationItem = styled(ListItem)({
-  "&:hover": {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    cursor: "pointer",
-  },
-});
+import { useNotifications } from "../../contexts/NotificationContext";
 
 interface HeaderProps {
-  onMenuOpen: () => void;
+  onMenuClick?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onMenuOpen }) => {
-  const location = useLocation();
-  const { user, isAuthenticated } = useAuth();
-  const [notificationsAnchor, setNotificationsAnchor] =
-    useState<null | HTMLElement>(null);
-  const isCreative = user?.userType === UserType.CREATIVE;
-  const userInitial = user?.email?.charAt(0).toUpperCase() || "U";
-  const userType = isCreative ? "creative" : "fan";
+export const Header = ({ onMenuClick }: HeaderProps) => {
+  const theme = useTheme();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const { unreadCount } = useNotifications();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  // Mock notifications - replace with real data
-  const notifications = [
-    {
-      id: 1,
-      title: "New Upload",
-      message: "Creator XYZ just uploaded a new video",
-      avatar: "https://example.com/avatar1.jpg",
-      time: "2 minutes ago",
-    },
-    {
-      id: 2,
-      title: "Event Starting Soon",
-      message: "Your scheduled event starts in 30 minutes",
-      avatar: "https://example.com/avatar2.jpg",
-      time: "30 minutes ago",
-    },
-  ];
+  console.log("👤 Header:", {
+    user,
+    screenWidth: window.innerWidth,
+  });
 
-  const handleNotificationsClick = (event: React.MouseEvent<HTMLElement>) => {
-    setNotificationsAnchor(event.currentTarget);
+  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
   };
 
-  const handleNotificationsClose = () => {
-    setNotificationsAnchor(null);
+  const handleClose = () => {
+    setAnchorEl(null);
   };
 
-  // Get page title based on current route
-  const getPageTitle = () => {
-    const path = location.pathname;
-    switch (path) {
-      case "/dashboard":
-        return "Dashboard";
-      case "/events":
-        return "Events";
-      case "/search":
-        return "Search";
-      case "/videos":
-        return "Videos";
-      case "/upload":
-        return "Upload";
-      default:
-        return "DropClip";
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate("/auth/signin");
+    } catch (error) {
+      console.error("Error signing out:", error);
     }
   };
 
+  const handleProfileClick = () => {
+    handleClose();
+    navigate(
+      user?.userType === UserType.CREATIVE
+        ? "/creative/settings"
+        : "/fan/settings"
+    );
+  };
+
+  const handleNotificationsClick = () => {
+    navigate("/notifications");
+  };
+
   return (
-    <StyledAppBar position="fixed">
-      <Toolbar sx={{ justifyContent: "space-between", px: { xs: 2, sm: 3 } }}>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 2,
-            ml: { xs: 1, sm: 2 },
-          }}
-        >
-          {isAuthenticated ? (
-            <>
-              <IconButton
-                size="large"
-                edge="start"
-                color="inherit"
-                aria-label="menu"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onMenuOpen();
-                }}
-                sx={{ p: 0 }}
-              >
-                <UserAvatar usertype={userType}>{userInitial}</UserAvatar>
-              </IconButton>
-              <Box>
-                <Typography
-                  variant="h6"
-                  component="div"
-                  sx={{ ml: isAuthenticated ? 0 : 0 }}
-                >
-                  {getPageTitle()}
-                </Typography>
-              </Box>
-            </>
-          ) : (
-            <Typography
-              variant="h6"
-              component="div"
-              sx={{ ml: isAuthenticated ? 2 : 0 }}
-            >
-              {getPageTitle()}
-            </Typography>
-          )}
-        </Box>
-
+    <AppBar
+      position="sticky"
+      elevation={0}
+      sx={{
+        backgroundColor: "background.paper",
+        borderBottom: "1px solid",
+        borderColor: "divider",
+      }}
+    >
+      <Toolbar
+        sx={{
+          justifyContent: "space-between",
+          minHeight: { xs: 56, sm: 64 },
+          px: { xs: 1.5, sm: 3 },
+        }}
+      >
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          {isAuthenticated && (
-            <IconButton
-              color="inherit"
-              onClick={handleNotificationsClick}
-              size="large"
+          <IconButton
+            onClick={onMenuClick}
+            size="small"
+            sx={{
+              bgcolor: "action.selected",
+              "&:hover": {
+                bgcolor: "action.hover",
+              },
+            }}
+          >
+            <Avatar
+              sx={{
+                width: 32,
+                height: 32,
+                bgcolor: "primary.main",
+                fontSize: "0.875rem",
+              }}
             >
-              <Badge badgeContent={notifications.length} color="error">
-                <Notifications />
-              </Badge>
-            </IconButton>
-          )}
+              {user?.name?.charAt(0).toUpperCase()}
+            </Avatar>
+          </IconButton>
+          <Typography
+            variant="h6"
+            sx={{
+              fontSize: { xs: "1.125rem", sm: "1.25rem" },
+              fontWeight: 600,
+              background: (theme) =>
+                "linear-gradient(45deg, " +
+                theme.palette.primary.main +
+                ", " +
+                theme.palette.secondary.main +
+                ")",
+              backgroundClip: "text",
+              textFillColor: "transparent",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            DropClip
+          </Typography>
         </Box>
 
-        <Popover
-          open={Boolean(notificationsAnchor)}
-          anchorEl={notificationsAnchor}
-          onClose={handleNotificationsClose}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-          PaperProps={{
-            sx: {
-              width: 320,
-              maxHeight: 400,
-              backgroundColor: "rgba(0, 0, 0, 0.95)",
-              backdropFilter: "blur(10px)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-            },
-          }}
-        >
-          <List>
-            {notifications.map((notification) => (
-              <NotificationItem key={notification.id} alignItems="flex-start">
-                <ListItemAvatar>
-                  <Avatar src={notification.avatar} />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={notification.title}
-                  secondary={
-                    <React.Fragment>
-                      <Typography
-                        component="span"
-                        variant="body2"
-                        color="text.primary"
-                      >
-                        {notification.message}
-                      </Typography>
-                      <br />
-                      <Typography
-                        component="span"
-                        variant="caption"
-                        color="text.secondary"
-                      >
-                        {notification.time}
-                      </Typography>
-                    </React.Fragment>
-                  }
-                />
-              </NotificationItem>
-            ))}
-          </List>
-        </Popover>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <IconButton
+            color="inherit"
+            onClick={handleNotificationsClick}
+            sx={{ mr: 1 }}
+          >
+            <Badge badgeContent={unreadCount} color="error">
+              <Notifications />
+            </Badge>
+          </IconButton>
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorEl}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right",
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+            sx={{
+              "& .MuiPaper-root": {
+                backgroundColor: "background.paper",
+                borderRadius: 1,
+                boxShadow: (theme) => theme.shadows[3],
+                border: "1px solid",
+                borderColor: "divider",
+                mt: 1,
+              },
+            }}
+          >
+            <MenuItem
+              onClick={handleProfileClick}
+              sx={{
+                fontSize: "0.875rem",
+                py: 1,
+                px: 2,
+              }}
+            >
+              Profile
+            </MenuItem>
+            <MenuItem
+              onClick={handleSignOut}
+              sx={{
+                fontSize: "0.875rem",
+                py: 1,
+                px: 2,
+                color: "error.main",
+              }}
+            >
+              Sign Out
+            </MenuItem>
+          </Menu>
+        </Box>
       </Toolbar>
-    </StyledAppBar>
+    </AppBar>
   );
 };

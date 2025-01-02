@@ -1,39 +1,31 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-import { theme } from "./theme/theme";
-import { AppLayout } from "./components/layout/AppLayout";
-import { AppRoutes } from "./routes";
-import { VideoPlayerProvider } from "./contexts/VideoPlayerContext";
-import { VideoPlayerContainer } from "./components/player/VideoPlayerContainer";
+import { BrowserRouter, useRoutes } from "react-router-dom";
+import { ThemeProvider } from "./providers/ThemeProvider";
 import { AuthProvider } from "./contexts/AuthContext";
-import FanUploadPage from "./pages/FanUploadPage";
-import UploadSuccessPage from "./pages/UploadSuccessPage";
+import { routes } from "./config/routes.config";
+import { Suspense } from "react";
+import { LoadingScreen } from "./components/common/LoadingScreen";
+import { VideoPlayerProvider } from "./contexts/VideoPlayerContext";
+import { NotificationProvider } from "./contexts/NotificationContext";
 
-function App() {
-  console.log("App rendering");
+const AppRoutes = () => {
+  const element = useRoutes(routes);
+  return <Suspense fallback={<LoadingScreen />}>{element}</Suspense>;
+};
+
+const App = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
+    <BrowserRouter>
+      <ThemeProvider>
         <AuthProvider>
-          <VideoPlayerProvider>
-            <AppLayout>
+          <NotificationProvider>
+            <VideoPlayerProvider>
               <AppRoutes />
-            </AppLayout>
-            <VideoPlayerContainer />
-          </VideoPlayerProvider>
+            </VideoPlayerProvider>
+          </NotificationProvider>
         </AuthProvider>
-        <Routes>
-          <Route path="/upload/:linkId" element={<FanUploadPage />} />
-          <Route
-            path="/upload-success/:uploadId"
-            element={<UploadSuccessPage />}
-          />
-        </Routes>
-      </Router>
-    </ThemeProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   );
-}
+};
 
 export default App;

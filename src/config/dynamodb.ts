@@ -43,11 +43,26 @@ export interface UploadItem {
   userId: string;
   fileType: "video" | "image";
   fileUrl: string;
+  fileKey: string; // S3 key for the file
   thumbnailUrl?: string;
+  thumbnailUrls?: string[];
   status: "pending" | "processing" | "completed" | "rejected";
+  metadata?: {
+    duration?: number;
+    width?: number;
+    height?: number;
+    codec?: string;
+    bitrate?: number;
+    fps?: number;
+  };
+  variants?: Array<{
+    quality: string;
+    url: string;
+  }>;
+  error?: string;
   uploadDate: string;
-  userEventId: string; // userId (for GSI)
-  uploadDateEventId: string; // uploadDate#eventId (for GSI)
+  userEventId: string;
+  uploadDateEventId: string;
 }
 
 export interface UserItem {

@@ -1,7 +1,7 @@
 import { Box, useMediaQuery, useTheme } from "@mui/material";
 import { Header } from "./Header";
 import { SideMenu } from "./SideMenu";
-import { MobileNavigation } from "./MobileNavigation";
+import MobileNavigation from "./MobileNavigation";
 import { styled } from "@mui/material/styles";
 import { useState } from "react";
 import { VideoPlayerContainer } from "../player/VideoPlayerContainer";

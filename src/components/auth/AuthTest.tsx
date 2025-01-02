@@ -1,10 +1,6 @@
 import { Button, Box, Typography } from "@mui/material";
-import {
-  signInWithRedirect,
-  signOut,
-  fetchAuthSession,
-} from "../../config/aws/amplify.config";
 import { useState, useEffect } from "react";
+import { AuthService } from "../../services/auth.service";
 
 export const AuthTest = () => {
   const [authStatus, setAuthStatus] = useState<string>("Checking...");
@@ -12,8 +8,8 @@ export const AuthTest = () => {
 
   const checkAuth = async () => {
     try {
-      const session = await fetchAuthSession();
-      setAuthStatus(session.tokens ? "Authenticated" : "Not authenticated");
+      const isAuthenticated = await AuthService.isAuthenticated();
+      setAuthStatus(isAuthenticated ? "Authenticated" : "Not authenticated");
       setError(null);
     } catch (err) {
       setAuthStatus("Not authenticated");
@@ -27,7 +23,14 @@ export const AuthTest = () => {
 
   const handleSignIn = async () => {
     try {
-      await signInWithRedirect();
+      // This will redirect to Cognito hosted UI
+      window.location.href = `https://${
+        import.meta.env.VITE_COGNITO_DOMAIN
+      }/login?client_id=${
+        import.meta.env.VITE_COGNITO_CLIENT_ID
+      }&response_type=code&scope=email+openid+profile&redirect_uri=${
+        window.location.origin
+      }`;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to sign in");
     }
@@ -35,7 +38,7 @@ export const AuthTest = () => {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await AuthService.signOut();
       setAuthStatus("Not authenticated");
       setError(null);
     } catch (err) {

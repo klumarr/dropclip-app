@@ -6,32 +6,29 @@ export enum UserType {
 
 // AWS Amplify User Attributes type
 export interface UserAttributes {
-  sub: string;
+  id: string;
   email: string;
-  email_verified: boolean;
-  name?: string;
-  picture?: string;
-  "custom:userType"?: string;
-  "custom:creativeCategory"?: string;
-  "custom:customCategory"?: string;
-  "custom:createdAt"?: string;
-  "custom:updatedAt"?: string;
-  "custom:twoFactorEnabled"?: string;
-  "custom:emailNotifications"?: string;
-  "custom:sessionTimeout"?: string;
-  "custom:passwordLastChanged"?: string;
-  "custom:backupCodes"?: string;
+  name: string;
+  userType: UserType;
+  creativeCategory?: CreativeCategory;
+  customCategory?: string;
+  bio?: string;
+  website?: string;
+  location?: string;
+  avatarUrl?: string;
+  isEmailVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Display categories for creative profiles
 export enum CreativeCategory {
-  ARTIST = "ARTIST",
+  MUSICIAN = "MUSICIAN",
   DJ = "DJ",
   BAND = "BAND",
-  EVENT = "EVENT",
-  FESTIVAL = "FESTIVAL",
-  VENUE = "VENUE",
-  INFLUENCER = "INFLUENCER",
+  DANCER = "DANCER",
+  COMEDIAN = "COMEDIAN",
+  ARTIST = "ARTIST",
   OTHER = "OTHER",
 }
 
@@ -40,7 +37,7 @@ export interface SecuritySettings {
   emailNotifications: boolean;
   sessionTimeout: number;
   passwordLastChanged: Date;
-  backupCodes?: string[];
+  backupCodes: string[];
 }
 
 export interface AuthUser {
@@ -56,10 +53,13 @@ export interface AuthUser {
   };
   isDormantCreative?: boolean;
   picture?: string;
+  bio?: string;
+  website?: string;
+  location?: string;
+  securitySettings: SecuritySettings;
   isEmailVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
-  securitySettings: SecuritySettings;
 }
 
 export interface SignUpInput {
@@ -69,11 +69,6 @@ export interface SignUpInput {
   userType: UserType;
   creativeCategory?: CreativeCategory;
   customCategory?: string;
-}
-
-export interface SignInInput {
-  email: string;
-  password: string;
 }
 
 export interface AuthState {

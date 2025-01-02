@@ -1,240 +1,173 @@
-import React from "react";
 import {
   Box,
   Card,
   CardContent,
   Typography,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  styled,
-  useTheme,
+  Grid,
 } from "@mui/material";
-import { Person, MusicNote } from "@mui/icons-material";
+import { styled } from "@mui/material/styles";
 import { UserType, CreativeCategory } from "../../types/auth.types";
-
-const SelectCard = styled(Card)<{ selected?: boolean }>(
-  ({ theme, selected }) => ({
-    cursor: "pointer",
-    transition: "all 0.3s ease",
-    border: `2px solid ${
-      selected ? theme.palette.primary.main : "transparent"
-    }`,
-    backgroundColor: selected
-      ? theme.palette.action.selected
-      : theme.palette.background.paper,
-    "&:hover": {
-      transform: "translateY(-4px)",
-      boxShadow: theme.shadows[4],
-    },
-  })
-);
+import { FanIcon, CreativeIcon } from "../../components/icons";
 
 interface UserTypeSelectProps {
   selectedType: UserType | null;
   selectedCreativeType?: CreativeCategory;
   customCreativeType?: string;
   onSelect: (type: UserType) => void;
-  onCreativeTypeSelect?: (type: CreativeCategory) => void;
-  onCustomCreativeTypeChange?: (value: string) => void;
+  onCreativeTypeSelect: (type: CreativeCategory) => void;
+  onCustomCreativeTypeChange: (value: string) => void;
 }
 
-export const UserTypeSelect: React.FC<UserTypeSelectProps> = ({
+const StyledCard = styled(Card)(({ theme }) => ({
+  cursor: "pointer",
+  height: "100%",
+  backgroundColor: "rgba(255, 255, 255, 0.05)",
+  border: "1px solid rgba(255, 255, 255, 0.1)",
+  transition: "all 0.3s ease",
+  "&:hover": {
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    transform: "translateY(-2px)",
+  },
+  "&.selected": {
+    borderColor: theme.palette.primary.main,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+  },
+}));
+
+const IconWrapper = styled(Box)(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  marginBottom: theme.spacing(2),
+  "& svg": {
+    width: 48,
+    height: 48,
+  },
+}));
+
+export const UserTypeSelect = ({
   selectedType,
   selectedCreativeType,
-  customCreativeType,
+  customCreativeType = "",
   onSelect,
   onCreativeTypeSelect,
   onCustomCreativeTypeChange,
-}) => {
-  const theme = useTheme();
-
-  console.log("UserTypeSelect props:", {
-    selectedType,
-    selectedCreativeType,
-    customCreativeType,
-  });
+}: UserTypeSelectProps) => {
+  const handleCardClick = (type: UserType) => {
+    onSelect(type);
+  };
 
   return (
-    <Box sx={{ width: "100%", maxWidth: 600, mx: "auto" }}>
-      <Typography
-        variant="h6"
-        align="center"
-        gutterBottom
-        sx={{
-          fontSize: { xs: "1.125rem", sm: "1.25rem" },
-          mb: { xs: 1, sm: 2 },
-        }}
-      >
-        Choose Your Role
-      </Typography>
-      <Typography
-        variant="body2"
-        color="text.secondary"
-        align="center"
-        sx={{
-          mb: { xs: 2, sm: 4 },
-          fontSize: { xs: "0.875rem", sm: "1rem" },
-        }}
-      >
-        Select how you want to use DropClip. Don't worry, you can always change
-        this later.
-      </Typography>
-
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: { xs: "1fr 1fr", sm: "1fr 1fr" },
-          gap: { xs: 1.5, sm: 3 },
-        }}
-      >
-        <SelectCard
-          selected={selectedType === UserType.FAN}
-          onClick={() => onSelect(UserType.FAN)}
-        >
-          <CardContent
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              textAlign: "center",
-              p: { xs: 1.5, sm: 3 },
-            }}
+    <Box sx={{ width: "100%" }}>
+      <Grid container spacing={2}>
+        <Grid item xs={12} sm={6}>
+          <StyledCard
+            onClick={() => handleCardClick(UserType.FAN)}
+            className={selectedType === UserType.FAN ? "selected" : ""}
           >
-            <Person
-              sx={{
-                fontSize: { xs: 32, sm: 48 },
-                color: theme.palette.primary.main,
-                mb: { xs: 1, sm: 2 },
-              }}
-            />
-            <Typography
-              variant="h6"
-              gutterBottom
-              sx={{
-                fontSize: { xs: "1rem", sm: "1.25rem" },
-                mb: { xs: 0.5, sm: 1 },
-              }}
-            >
-              Fan
-            </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{
-                fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                display: { xs: "block", sm: "block" },
-                minHeight: { xs: "3.6em", sm: "auto" },
-                lineHeight: { xs: "1.2em", sm: "1.5em" },
-                overflow: "visible",
-                textOverflow: "ellipsis",
-              }}
-            >
-              Follow your favorite artists, share event videos, and be part of
-              the community.
-            </Typography>
-          </CardContent>
-        </SelectCard>
-
-        <SelectCard
-          selected={selectedType === UserType.CREATIVE}
-          onClick={() => onSelect(UserType.CREATIVE)}
-        >
-          <CardContent
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              textAlign: "center",
-              p: { xs: 1.5, sm: 3 },
-            }}
+            <CardContent>
+              <IconWrapper>
+                <FanIcon
+                  color={selectedType === UserType.FAN ? "primary" : "inherit"}
+                />
+              </IconWrapper>
+              <Typography variant="h6" gutterBottom align="center">
+                Fan
+              </Typography>
+              <Typography variant="body2" color="text.secondary" align="center">
+                Discover and connect with your favorite creatives. Get exclusive
+                access to events and content.
+              </Typography>
+            </CardContent>
+          </StyledCard>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <StyledCard
+            onClick={() => handleCardClick(UserType.CREATIVE)}
+            className={selectedType === UserType.CREATIVE ? "selected" : ""}
           >
-            <MusicNote
-              sx={{
-                fontSize: { xs: 32, sm: 48 },
-                color: theme.palette.secondary.main,
-                mb: { xs: 1, sm: 2 },
-              }}
-            />
-            <Typography
-              variant="h6"
-              gutterBottom
-              sx={{
-                fontSize: { xs: "1rem", sm: "1.25rem" },
-                mb: { xs: 0.5, sm: 1 },
-              }}
-            >
-              Creative
-            </Typography>
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{
-                fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                display: { xs: "-webkit-box", sm: "block" },
-                WebkitLineClamp: { xs: 3, sm: "none" },
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-              }}
-            >
-              Share your events, collect fan videos, and grow your audience.
-            </Typography>
-          </CardContent>
-        </SelectCard>
-      </Box>
+            <CardContent>
+              <IconWrapper>
+                <CreativeIcon
+                  color={
+                    selectedType === UserType.CREATIVE ? "primary" : "inherit"
+                  }
+                />
+              </IconWrapper>
+              <Typography variant="h6" gutterBottom align="center">
+                Creative
+              </Typography>
+              <Typography variant="body2" color="text.secondary" align="center">
+                Share your talent with the world. Create events, manage your
+                content, and grow your audience.
+              </Typography>
+            </CardContent>
+          </StyledCard>
+        </Grid>
+      </Grid>
 
-      {selectedType === UserType.CREATIVE && onCreativeTypeSelect && (
-        <Box sx={{ mt: { xs: 2, sm: 4 } }}>
-          <FormControl fullWidth size="small">
-            <InputLabel id="creative-type-label">Creative Type</InputLabel>
-            <Select
-              labelId="creative-type-label"
-              value={selectedCreativeType || ""}
-              label="Creative Type"
-              onChange={(e) =>
-                onCreativeTypeSelect(e.target.value as CreativeCategory)
-              }
-            >
-              {Object.values(CreativeCategory).map((type) => (
-                <MenuItem key={type} value={type}>
-                  {type}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          {selectedCreativeType === CreativeCategory.OTHER &&
-            onCustomCreativeTypeChange && (
-              <TextField
-                fullWidth
-                size="small"
-                label="Specify Your Creative Type"
-                value={customCreativeType || ""}
-                onChange={(e) => onCustomCreativeTypeChange(e.target.value)}
-                sx={{ mt: 2 }}
+      {selectedType === UserType.CREATIVE && (
+        <Box sx={{ mt: 3 }}>
+          <Typography variant="subtitle1" gutterBottom>
+            What type of creative are you?
+          </Typography>
+          <RadioGroup
+            value={selectedCreativeType || ""}
+            onChange={(e) =>
+              onCreativeTypeSelect(e.target.value as CreativeCategory)
+            }
+          >
+            {Object.values(CreativeCategory).map((category) => (
+              <FormControlLabel
+                key={category}
+                value={category}
+                control={<Radio />}
+                label={category === CreativeCategory.OTHER ? "Other" : category}
               />
-            )}
+            ))}
+          </RadioGroup>
+
+          {selectedCreativeType === CreativeCategory.OTHER && (
+            <TextField
+              fullWidth
+              placeholder="Specify your creative type"
+              value={customCreativeType}
+              onChange={(e) => onCustomCreativeTypeChange(e.target.value)}
+              variant="outlined"
+              size="small"
+              sx={{
+                mt: 1,
+                "& .MuiOutlinedInput-root": {
+                  backgroundColor: "rgba(255, 255, 255, 0.05)",
+                  "&:hover": {
+                    backgroundColor: "rgba(255, 255, 255, 0.08)",
+                  },
+                  "& fieldset": {
+                    borderColor: "rgba(255, 255, 255, 0.1)",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "rgba(255, 255, 255, 0.2)",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "primary.main",
+                  },
+                },
+                "& .MuiInputBase-input": {
+                  color: "white",
+                  "&::placeholder": {
+                    color: "text.secondary",
+                    opacity: 1,
+                  },
+                },
+              }}
+            />
+          )}
         </Box>
       )}
-
-      <Typography
-        variant="caption"
-        color="text.secondary"
-        align="center"
-        sx={{
-          mt: { xs: 2, sm: 3 },
-          display: "block",
-          fontSize: { xs: "0.7rem", sm: "0.75rem" },
-        }}
-      >
-        {selectedType === UserType.CREATIVE
-          ? "As a Creative, you'll also get a Fan account to engage with other artists."
-          : selectedType === UserType.FAN
-          ? "As a Fan, you can activate a Creative account later if needed."
-          : "Select a role to continue"}
-      </Typography>
     </Box>
   );
 };

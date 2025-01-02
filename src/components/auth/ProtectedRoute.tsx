@@ -3,6 +3,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { CircularProgress } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { UserType } from "../../types/auth.types";
+import { useEffect } from "react";
 
 const LoadingContainer = styled("div")(({ theme }) => ({
   display: "flex",
@@ -23,17 +24,26 @@ export const ProtectedRoute = ({
   requiredUserType,
   isPublic = false,
 }: ProtectedRouteProps) => {
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { isAuthenticated, isLoading, userAttributes } = useAuth();
   const location = useLocation();
 
-  console.log("ProtectedRoute:", {
+  useEffect(() => {
+    console.log("ProtectedRoute state:", {
+      isAuthenticated,
+      isLoading,
+      isPublic,
+      requiredUserType,
+      userType: userAttributes?.userType,
+      path: location.pathname,
+    });
+  }, [
     isAuthenticated,
     isLoading,
     isPublic,
     requiredUserType,
-    userType: user?.userType,
-    path: location.pathname,
-  });
+    userAttributes,
+    location,
+  ]);
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -50,19 +60,33 @@ export const ProtectedRoute = ({
     return <Navigate to="/dashboard" replace />;
   }
 
-  // For protected routes, redirect to login if not authenticated
+  // For protected routes, redirect to signin if not authenticated
   if (!isPublic && !isAuthenticated) {
-    console.log("User not authenticated, redirecting to login");
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    console.log("User not authenticated, redirecting to signin");
+    return (
+      <Navigate to="/signin" state={{ from: location.pathname }} replace />
+    );
   }
 
   // Check user type if required
-  if (requiredUserType && user?.userType !== requiredUserType) {
+  if (requiredUserType && userAttributes?.userType !== requiredUserType) {
     console.log(
-      `User type ${user?.userType} does not match required type ${requiredUserType}`
+      `User type mismatch - Current: ${userAttributes?.userType}, Required: ${requiredUserType}`
     );
-    return <Navigate to="/unauthorized" replace />;
+    // Instead of redirecting, we'll show an unauthorized message or redirect to a specific page
+    return (
+      <Navigate
+        to="/unauthorized"
+        replace
+        state={{
+          from: location.pathname,
+          currentUserType: userAttributes?.userType,
+          requiredUserType,
+        }}
+      />
+    );
   }
 
+  // If we get here, the user is authenticated and has the correct user type (if required)
   return <>{children}</>;
 };

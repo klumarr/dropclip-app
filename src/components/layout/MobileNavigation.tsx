@@ -1,114 +1,111 @@
+import { useEffect, useState } from "react";
 import {
-  Paper,
   BottomNavigation,
   BottomNavigationAction,
-  styled,
+  Paper,
+  useTheme,
 } from "@mui/material";
-import {
-  Search,
-  VideoLibrary,
-  Event,
-  CloudUpload,
-  Dashboard,
-} from "@mui/icons-material";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect, useMemo } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { UserType } from "../../types/auth.types";
+import { getAuthorizedNavItems } from "../../config/navigation.config";
 
-const StyledBottomNavigation = styled(BottomNavigation)(({ theme }) => ({
-  backgroundColor: "transparent",
-  backdropFilter: "blur(10px)",
-  borderTop: "none",
-  position: "fixed",
-  bottom: 0,
-  left: 0,
-  right: 0,
-  zIndex: theme.zIndex.appBar,
-  height: 60,
-  "& .MuiBottomNavigationAction-root": {
-    color: "rgba(255, 255, 255, 0.9)",
-    minWidth: "auto",
-    padding: "6px 0",
-    "&.Mui-selected": {
-      color: theme.palette.primary.main,
-    },
-    "& .MuiBottomNavigationAction-label": {
-      fontSize: "0.625rem",
-      fontWeight: 600,
-      textShadow: "0 2px 4px rgba(0,0,0,0.9)",
-    },
-    "& .MuiSvgIcon-root": {
-      filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.9))",
-    },
-  },
-}));
-
-export const MobileNavigation = () => {
-  const navigate = useNavigate();
+const MobileNavigation = () => {
+  const theme = useTheme();
   const location = useLocation();
-  const [value, setValue] = useState(0);
+  const navigate = useNavigate();
   const { userAttributes } = useAuth();
-  const isCreative = userAttributes?.userType === UserType.CREATIVE;
+  const [value, setValue] = useState(0);
 
-  const navigationItems = useMemo(
-    () =>
-      isCreative
-        ? [
-            { label: "Dashboard", icon: <Dashboard />, path: "/dashboard" },
-            { label: "Events", icon: <Event />, path: "/events" },
-            { label: "Search", icon: <Search />, path: "/search" },
-            { label: "Videos", icon: <VideoLibrary />, path: "/videos" },
-          ]
-        : [
-            { label: "Dashboard", icon: <Dashboard />, path: "/dashboard" },
-            { label: "Search", icon: <Search />, path: "/search" },
-            { label: "Events", icon: <Event />, path: "/events" },
-            { label: "Upload", icon: <CloudUpload />, path: "/upload" },
-          ],
-    [isCreative]
-  );
+  const navItems = getAuthorizedNavItems(userAttributes?.userType, "mobileNav");
 
   useEffect(() => {
-    const currentIndex = navigationItems.findIndex(
-      (item) => item.path === location.pathname
+    const currentIndex = navItems.findIndex(
+      (item) => location.pathname === item.path
     );
-    if (currentIndex !== -1) setValue(currentIndex);
-  }, [location, navigationItems]);
+    if (currentIndex !== -1) {
+      setValue(currentIndex);
+    }
+  }, [location.pathname, navItems]);
+
+  // Update system navigation bar color
+  useEffect(() => {
+    const metaThemeColor = document.querySelector(
+      'meta[name="theme-color"]'
+    ) as HTMLMetaElement;
+    if (!metaThemeColor) {
+      const meta = document.createElement("meta");
+      meta.name = "theme-color";
+      meta.content = "transparent";
+      document.head.appendChild(meta);
+    } else {
+      metaThemeColor.content = "transparent";
+    }
+  }, []);
 
   const handleNavigation = (newValue: number) => {
     setValue(newValue);
-    const path = navigationItems[newValue].path;
-    console.log(`Navigating to: ${path}`);
-    navigate(path);
+    navigate(navItems[newValue].path);
   };
 
   return (
     <Paper
-      elevation={3}
       sx={{
         position: "fixed",
         bottom: 0,
         left: 0,
         right: 0,
-        zIndex: (theme) => theme.zIndex.appBar,
-        opacity: 0.95,
-        backgroundColor: "rgba(0, 0, 0, 0.3)",
+        zIndex: theme.zIndex.appBar,
+        background:
+          "linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.4) 15%, rgba(0, 0, 0, 0.7) 40%, rgba(0, 0, 0, 0.85))",
+        backdropFilter: "none",
+        border: "none",
+        paddingTop: "32px",
+        marginTop: "-32px",
       }}
+      elevation={0}
     >
-      <StyledBottomNavigation
+      <BottomNavigation
         value={value}
         onChange={(_, newValue) => handleNavigation(newValue)}
         showLabels
+        sx={{
+          background: "transparent",
+          height: 64,
+          "& .MuiBottomNavigationAction-root": {
+            color: "rgba(255, 255, 255, 0.8)",
+            "&.Mui-selected": {
+              color: theme.palette.primary.main,
+            },
+            "& .MuiBottomNavigationAction-label": {
+              fontSize: "0.75rem",
+              fontWeight: 500,
+              "&.Mui-selected": {
+                fontSize: "0.75rem",
+              },
+            },
+            "& .MuiSvgIcon-root": {
+              fontSize: "1.5rem",
+              filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
+              transition: "transform 0.2s ease-in-out",
+            },
+            "&:hover .MuiSvgIcon-root": {
+              transform: "scale(1.1)",
+            },
+            "&.Mui-selected .MuiSvgIcon-root": {
+              transform: "scale(1.2)",
+            },
+          },
+        }}
       >
-        {navigationItems.map((item) => (
+        {navItems.map((item) => (
           <BottomNavigationAction
-            key={item.label}
+            key={item.id}
             label={item.label}
-            icon={item.icon}
+            icon={<item.icon />}
           />
         ))}
-      </StyledBottomNavigation>
+      </BottomNavigation>
     </Paper>
   );
 };
+export default MobileNavigation;

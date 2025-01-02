@@ -40,228 +40,224 @@ interface AuthResponse {
   error?: Error;
 }
 
-export const signUp = async ({
-  email,
-  password,
-  name,
-  userType,
-}: SignUpParams): Promise<AuthResponse> => {
-  try {
-    await amplifySignUp({
-      username: email,
-      password,
-      options: {
-        userAttributes: {
-          email,
-          name,
-          "custom:userType": userType,
+export const AuthService = {
+  signUp: async ({
+    email,
+    password,
+    name,
+    userType,
+  }: SignUpParams): Promise<AuthResponse> => {
+    try {
+      await amplifySignUp({
+        username: email,
+        password,
+        options: {
+          userAttributes: {
+            email,
+            name,
+            "custom:userType": userType,
+          },
         },
-      },
-    });
+      });
 
-    return {
-      success: true,
-    };
-  } catch (error) {
-    console.error("Error signing up:", error);
-    return {
-      success: false,
-      error:
-        error instanceof Error
-          ? new AuthError(error.message)
-          : new AuthError("An unknown error occurred"),
-      message:
-        error instanceof Error ? error.message : "An unknown error occurred",
-    };
-  }
-};
-
-export const signIn = async ({
-  email,
-  password,
-}: SignInParams): Promise<AuthResponse> => {
-  try {
-    const { isSignedIn } = await amplifySignIn({ username: email, password });
-    if (isSignedIn) {
-      const user = await amplifyGetCurrentUser();
       return {
         success: true,
-        user,
+      };
+    } catch (error) {
+      console.error("Error signing up:", error);
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? new AuthError(error.message)
+            : new AuthError("An unknown error occurred"),
+        message:
+          error instanceof Error ? error.message : "An unknown error occurred",
       };
     }
-    return {
-      success: false,
-      message: "Sign in failed",
-    };
-  } catch (error) {
-    console.error("Error signing in:", error);
-    return {
-      success: false,
-      error:
-        error instanceof Error
-          ? new AuthError(error.message)
-          : new AuthError("An unknown error occurred"),
-      message:
-        error instanceof Error ? error.message : "An unknown error occurred",
-    };
-  }
-};
+  },
 
-export const signOut = async (): Promise<void> => {
-  try {
-    console.log("Attempting to sign out");
-    await amplifySignOut({ global: true });
-    console.log("Sign out successful");
-    // Clear any local storage or session storage items
-    localStorage.clear();
-    sessionStorage.clear();
-    // Force reload the page to clear any cached state
-    window.location.href = "/login";
-  } catch (error) {
-    console.error("Error signing out:", error);
-    throw error instanceof Error
-      ? new AuthError(error.message)
-      : new AuthError("An unknown error occurred");
-  }
-};
-
-export const getCurrentUser = async (): Promise<AuthUser | null> => {
-  try {
-    return await amplifyGetCurrentUser();
-  } catch (error) {
-    console.error("Error getting current user:", error);
-    return null;
-  }
-};
-
-export const getCurrentUserAttributes =
-  async (): Promise<FetchUserAttributesOutput | null> => {
+  signIn: async ({ email, password }: SignInParams): Promise<AuthResponse> => {
     try {
-      const attributes = await fetchUserAttributes();
-      return attributes;
+      const { isSignedIn } = await amplifySignIn({ username: email, password });
+      if (isSignedIn) {
+        const user = await amplifyGetCurrentUser();
+        return {
+          success: true,
+          user,
+        };
+      }
+      return {
+        success: false,
+        message: "Sign in failed",
+      };
     } catch (error) {
-      console.error("Error getting user attributes:", error);
+      console.error("Error signing in:", error);
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? new AuthError(error.message)
+            : new AuthError("An unknown error occurred"),
+        message:
+          error instanceof Error ? error.message : "An unknown error occurred",
+      };
+    }
+  },
+
+  signOut: async (): Promise<void> => {
+    try {
+      console.log("Attempting to sign out");
+      await amplifySignOut({ global: true });
+      console.log("Sign out successful");
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = "/auth/sign-in";
+    } catch (error) {
+      console.error("Error signing out:", error);
+      throw error instanceof Error
+        ? new AuthError(error.message)
+        : new AuthError("An unknown error occurred");
+    }
+  },
+
+  getCurrentUser: async (): Promise<AuthUser | null> => {
+    try {
+      return await amplifyGetCurrentUser();
+    } catch (error) {
+      console.error("Error getting current user:", error);
       return null;
     }
-  };
+  },
 
-export const updateUserAttributes = async (
-  attributes: Record<string, string>
-): Promise<boolean> => {
-  try {
-    await amplifyUpdateUserAttributes({
-      userAttributes: attributes,
-    });
-    return true;
-  } catch (error) {
-    console.error("Error updating user attributes:", error);
-    return false;
-  }
-};
+  isAuthenticated: async (): Promise<boolean> => {
+    try {
+      const user = await amplifyGetCurrentUser();
+      return !!user;
+    } catch (error) {
+      console.error("Error checking authentication:", error);
+      return false;
+    }
+  },
 
-export const verifyCurrentUserAttribute = async (
-  attribute: string
-): Promise<boolean> => {
-  try {
-    // Implement attribute verification for Amplify v6
-    console.log(`Verifying attribute: ${attribute}`);
-    // TODO: Replace with actual implementation when available
-    const user = await amplifyGetCurrentUser();
-    if (!user) throw new Error("No authenticated user");
+  getCurrentUserAttributes:
+    async (): Promise<FetchUserAttributesOutput | null> => {
+      try {
+        const attributes = await fetchUserAttributes();
+        return attributes;
+      } catch (error) {
+        console.error("Error getting user attributes:", error);
+        return null;
+      }
+    },
 
-    return true;
-  } catch (error) {
-    console.error(`Error verifying attribute ${attribute}:`, error);
-    return false;
-  }
-};
+  updateUserAttributes: async (
+    attributes: Record<string, string>
+  ): Promise<boolean> => {
+    try {
+      await amplifyUpdateUserAttributes({
+        userAttributes: attributes,
+      });
+      return true;
+    } catch (error) {
+      console.error("Error updating user attributes:", error);
+      return false;
+    }
+  },
 
-export const verifyCurrentUserAttributeSubmit = async (
-  attribute: string,
-  code: string
-): Promise<boolean> => {
-  try {
-    // Implement attribute verification submission for Amplify v6
-    console.log(`Submitting verification for ${attribute} with code: ${code}`);
-    // TODO: Replace with actual implementation when available
-    const user = await amplifyGetCurrentUser();
-    if (!user) throw new Error("No authenticated user");
+  verifyCurrentUserAttribute: async (attribute: string): Promise<boolean> => {
+    try {
+      console.log(`Verifying attribute: ${attribute}`);
+      const user = await amplifyGetCurrentUser();
+      if (!user) throw new Error("No authenticated user");
+      return true;
+    } catch (error) {
+      console.error(`Error verifying attribute ${attribute}:`, error);
+      return false;
+    }
+  },
 
-    return true;
-  } catch (error) {
-    console.error(`Error submitting verification for ${attribute}:`, error);
-    return false;
-  }
-};
+  verifyCurrentUserAttributeSubmit: async (
+    attribute: string,
+    code: string
+  ): Promise<boolean> => {
+    try {
+      console.log(
+        `Submitting verification for ${attribute} with code: ${code}`
+      );
+      const user = await amplifyGetCurrentUser();
+      if (!user) throw new Error("No authenticated user");
+      return true;
+    } catch (error) {
+      console.error(`Error submitting verification for ${attribute}:`, error);
+      return false;
+    }
+  },
 
-export const changePassword = async (
-  oldPassword: string,
-  newPassword: string
-): Promise<boolean> => {
-  try {
-    await updatePassword({ oldPassword, newPassword });
-    return true;
-  } catch (error) {
-    console.error("Error changing password:", error);
-    return false;
-  }
-};
+  changePassword: async (
+    oldPassword: string,
+    newPassword: string
+  ): Promise<boolean> => {
+    try {
+      await updatePassword({ oldPassword, newPassword });
+      return true;
+    } catch (error) {
+      console.error("Error changing password:", error);
+      return false;
+    }
+  },
 
-export const forgotPassword = async (username: string): Promise<boolean> => {
-  try {
-    await resetPassword({ username });
-    return true;
-  } catch (error) {
-    console.error("Error initiating forgot password:", error);
-    return false;
-  }
-};
+  forgotPassword: async (username: string): Promise<boolean> => {
+    try {
+      await resetPassword({ username });
+      return true;
+    } catch (error) {
+      console.error("Error initiating forgot password:", error);
+      return false;
+    }
+  },
 
-export const forgotPasswordSubmit = async (
-  username: string,
-  code: string,
-  newPassword: string
-): Promise<boolean> => {
-  try {
-    await confirmResetPassword({
-      username,
-      confirmationCode: code,
-      newPassword,
-    });
-    return true;
-  } catch (error) {
-    console.error("Error submitting new password:", error);
-    return false;
-  }
-};
+  forgotPasswordSubmit: async (
+    username: string,
+    code: string,
+    newPassword: string
+  ): Promise<boolean> => {
+    try {
+      await confirmResetPassword({
+        username,
+        confirmationCode: code,
+        newPassword,
+      });
+      return true;
+    } catch (error) {
+      console.error("Error submitting new password:", error);
+      return false;
+    }
+  },
 
-export const resendSignUp = async (username: string): Promise<boolean> => {
-  try {
-    await amplifyConfirmSignUp({
-      username,
-      confirmationCode: "", // This is actually for confirming signup, not resending. We need to find the correct API
-    });
-    return true;
-  } catch (error) {
-    console.error("Error resending sign up code:", error);
-    return false;
-  }
-};
+  resendSignUp: async (username: string): Promise<boolean> => {
+    try {
+      await amplifyConfirmSignUp({
+        username,
+        confirmationCode: "",
+      });
+      return true;
+    } catch (error) {
+      console.error("Error resending sign up code:", error);
+      return false;
+    }
+  },
 
-export const confirmSignUp = async (
-  username: string,
-  code: string
-): Promise<boolean> => {
-  try {
-    await amplifyConfirmSignUp({
-      username,
-      confirmationCode: code,
-    });
-    return true;
-  } catch (error) {
-    console.error("Error confirming sign up:", error);
-    throw error instanceof Error
-      ? new AuthError(error.message)
-      : new AuthError("An unknown error occurred");
-  }
+  confirmSignUp: async (username: string, code: string): Promise<boolean> => {
+    try {
+      await amplifyConfirmSignUp({
+        username,
+        confirmationCode: code,
+      });
+      return true;
+    } catch (error) {
+      console.error("Error confirming sign up:", error);
+      return false;
+    }
+  },
 };

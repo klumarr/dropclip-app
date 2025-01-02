@@ -2,13 +2,14 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import {
   signIn as amplifySignIn,
   signUp as amplifySignUp,
-  signOut as amplifySignOut,
+  signOut,
   confirmSignUp as amplifyConfirmSignUp,
   getCurrentUser,
   fetchUserAttributes,
   type SignUpInput as AmplifySignUpInput,
-  updateUserAttributes,
+  updateUserAttributes as amplifyUpdateUserAttributes,
 } from "aws-amplify/auth";
+import { AuthService } from "../services/auth.service";
 import {
   AuthUser,
   SecuritySettings,
@@ -33,6 +34,9 @@ interface AuthContextType {
     };
     isDormantCreative?: boolean;
     picture?: string;
+    bio?: string;
+    website?: string;
+    location?: string;
   } | null;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -49,6 +53,13 @@ interface AuthContextType {
   toggleTwoFactor: () => Promise<void>;
   generateBackupCodes: () => Promise<string[]>;
   updateProfile: (attributes: Record<string, string>) => Promise<void>;
+  forgotPassword: (email: string) => Promise<void>;
+  resetPassword: (
+    email: string,
+    code: string,
+    newPassword: string
+  ) => Promise<void>;
+  updateUserAttributes: (attributes: Record<string, string>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -64,11 +75,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   });
 
   useEffect(() => {
+    console.log("Auth State Changed:", {
+      isAuthenticated: state.isAuthenticated,
+      isLoading: state.isLoading,
+      userType: state.user?.userType,
+      currentPath: window.location.pathname,
+      hasError: !!state.error,
+      timestamp: new Date().toISOString(),
+    });
+  }, [state]);
+
+  useEffect(() => {
     checkAuthState();
   }, []);
 
   const checkAuthState = async () => {
     try {
+      console.log("Checking auth state...");
       const currentUser = await getCurrentUser();
       console.log("Current user:", currentUser);
 
@@ -106,7 +129,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         error: null,
       });
     } catch (error) {
-      console.log("No authenticated user");
+      console.log("Auth check failed:", {
+        error,
+        currentPath: window.location.pathname,
+        timestamp: new Date().toISOString(),
+      });
       setState({
         user: null,
         isAuthenticated: false,
@@ -118,10 +145,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const handleSignIn = async (email: string, password: string) => {
     try {
+      console.log("Sign in attempt:", {
+        email,
+        timestamp: new Date().toISOString(),
+      });
+
+      // First check if there's an existing session
+      try {
+        const currentUser = await getCurrentUser();
+        console.log("Found existing session, signing out first");
+        await signOut();
+      } catch (err) {
+        // No existing session, proceed with sign in
+        console.log("No existing session found");
+      }
+
       await amplifySignIn({ username: email, password });
       await checkAuthState();
     } catch (error) {
-      console.error("Sign in error:", error);
+      console.error("Sign in error:", {
+        error,
+        email,
+        currentPath: window.location.pathname,
+        timestamp: new Date().toISOString(),
+      });
       setState((prev) => ({ ...prev, error: error as Error }));
       throw error;
     }
@@ -163,7 +210,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const handleSignOut = async () => {
     try {
-      await amplifySignOut();
+      await signOut();
       setState({
         user: null,
         isAuthenticated: false,
@@ -223,7 +270,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           : null,
       }));
     } catch (error) {
-      console.error("Failed to toggle 2FA:", error);
+      console.error("Two-factor toggle error:", error);
       setState((prev) => ({ ...prev, error: error as Error }));
       throw error;
     }
@@ -231,15 +278,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const generateBackupCodes = async () => {
     try {
+      // Implementation for generating backup codes
+      const codes = Array.from({ length: 10 }, () =>
+        Math.random().toString(36).substr(2, 8)
+      );
+      return codes;
+    } catch (error) {
+      console.error("Backup codes generation error:", error);
+      setState((prev) => ({ ...prev, error: error as Error }));
+      throw error;
+    }
+  };
+
+  const switchUserType = async (newType: UserType) => {
+    try {
       if (!state.user) throw new Error("No authenticated user");
 
-      // Generate 10 random backup codes
-      const codes = Array.from({ length: 10 }, () =>
-        Math.random().toString(36).substring(2, 8).toUpperCase()
-      );
-
-      await updateSecuritySettings({
-        backupCodes: codes,
+      await amplifyUpdateUserAttributes({
+        userAttributes: {
+          "custom:userType": newType,
+        },
       });
 
       setState((prev) => ({
@@ -247,17 +305,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         user: prev.user
           ? {
               ...prev.user,
-              securitySettings: {
-                ...prev.user.securitySettings,
-                backupCodes: codes,
-              },
+              userType: newType,
             }
           : null,
       }));
-
-      return codes;
     } catch (error) {
-      console.error("Failed to generate backup codes:", error);
+      console.error("User type switch error:", error);
       setState((prev) => ({ ...prev, error: error as Error }));
       throw error;
     }
@@ -265,25 +318,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const updateProfile = async (attributes: Record<string, string>) => {
     try {
-      await updateUserAttributes({ userAttributes: attributes });
-      await checkAuthState(); // Refresh the user state
+      await amplifyUpdateUserAttributes({
+        userAttributes: attributes,
+      });
+      await checkAuthState();
     } catch (error) {
-      console.error("Failed to update profile:", error);
+      console.error("Profile update error:", error);
+      setState((prev) => ({ ...prev, error: error as Error }));
+      throw error;
+    }
+  };
+
+  const handleForgotPassword = async (email: string) => {
+    try {
+      await AuthService.forgotPassword(email);
+    } catch (error) {
+      console.error("Forgot password error:", error);
+      setState((prev) => ({ ...prev, error: error as Error }));
+      throw error;
+    }
+  };
+
+  const handleResetPassword = async (
+    email: string,
+    code: string,
+    newPassword: string
+  ) => {
+    try {
+      await AuthService.forgotPasswordSubmit(email, code, newPassword);
+    } catch (error) {
+      console.error("Reset password error:", error);
+      setState((prev) => ({ ...prev, error: error as Error }));
+      throw error;
+    }
+  };
+
+  const updateUserAttributes = async (attributes: Record<string, string>) => {
+    try {
+      await amplifyUpdateUserAttributes({
+        userAttributes: attributes,
+      });
+      await checkAuthState();
+    } catch (error) {
+      console.error("User attributes update error:", error);
       setState((prev) => ({ ...prev, error: error as Error }));
       throw error;
     }
   };
 
   const value = {
-    ...state,
-    signIn: handleSignIn,
-    signUp: handleSignUp,
-    confirmSignUp: handleConfirmSignUp,
-    signOut: handleSignOut,
-    clearError,
-    updateSecuritySettings,
-    toggleTwoFactor,
-    generateBackupCodes,
+    user: state.user,
     userAttributes: state.user
       ? {
           id: state.user.id,
@@ -292,32 +376,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           userType: state.user.userType,
           creativeCategory: state.user.creativeCategory,
           customCategory: state.user.customCategory,
-          linkedAccounts: state.user.linkedAccounts,
-          isDormantCreative: state.user.isDormantCreative,
           picture: state.user.picture,
+          bio: state.user.bio,
+          website: state.user.website,
+          location: state.user.location,
         }
       : null,
-    switchUserType: async (newType: UserType) => {
-      try {
-        // Implement user type switching logic here
-        console.log("Switching user type to:", newType);
-        // For now, just update the state
-        setState((prev) => ({
-          ...prev,
-          user: prev.user
-            ? {
-                ...prev.user,
-                userType: newType,
-              }
-            : null,
-        }));
-      } catch (error) {
-        console.error("Error switching user type:", error);
-        setState((prev) => ({ ...prev, error: error as Error }));
-        throw error;
-      }
-    },
+    isAuthenticated: state.isAuthenticated,
+    isLoading: state.isLoading,
+    error: state.error,
+    signIn: handleSignIn,
+    signUp: handleSignUp,
+    confirmSignUp: handleConfirmSignUp,
+    signOut: handleSignOut,
+    clearError,
+    updateSecuritySettings,
+    switchUserType,
+    toggleTwoFactor,
+    generateBackupCodes,
     updateProfile,
+    forgotPassword: handleForgotPassword,
+    resetPassword: handleResetPassword,
+    updateUserAttributes,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

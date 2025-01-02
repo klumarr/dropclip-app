@@ -1,5 +1,6 @@
 import { uploadOperations } from "./dynamodb.service";
 import { playlistOperations } from "./playlist.service";
+import { videoOperations, ProcessingOptions } from "./video.service";
 import { UploadItem } from "../config/dynamodb";
 
 interface BatchUploadResult {
@@ -89,6 +90,8 @@ export const batchOperations = {
       options?: Record<string, any>;
     }>
   ): Promise<BatchUploadResult> => {
+    console.log(`Processing uploads for event ${eventId}:`, uploadIds);
+
     const result: BatchUploadResult = {
       successful: [],
       failed: [],
@@ -102,46 +105,33 @@ export const batchOperations = {
           throw new Error(`Upload ${uploadId} not found in event ${eventId}`);
         }
 
-        for (const operation of operations) {
-          switch (operation.type) {
-            case "transcode":
-              // Implement transcoding logic with event context
-              await uploadOperations.updateUploadStatus(
-                uploadId,
-                eventId,
-                "processing"
-              );
-              // TODO: Add transcoding implementation
-              break;
-            case "thumbnail":
-              // Implement thumbnail generation with event context
-              await uploadOperations.updateUploadStatus(
-                uploadId,
-                eventId,
-                "processing"
-              );
-              // TODO: Add thumbnail generation implementation
-              break;
-            case "metadata":
-              // Implement metadata extraction with event context
-              await uploadOperations.updateUploadStatus(
-                uploadId,
-                eventId,
-                "processing"
-              );
-              // TODO: Add metadata extraction implementation
-              break;
-          }
-        }
+        // Convert batch operations to ProcessingOptions
+        const processingOptions: ProcessingOptions = {
+          generateThumbnails: operations.some((op) => op.type === "thumbnail"),
+          thumbnailCount:
+            operations.find((op) => op.type === "thumbnail")?.options?.count ??
+            3,
+          extractMetadata: operations.some((op) => op.type === "metadata"),
+          qualities: operations.find((op) => op.type === "transcode")?.options
+            ?.qualities,
+        };
 
-        // Update status to completed after all operations
-        await uploadOperations.updateUploadStatus(
+        // Start video processing
+        const processingResult = await videoOperations.startProcessing(
           uploadId,
           eventId,
-          "completed"
+          upload.fileKey,
+          processingOptions
         );
+
+        if (processingResult.status === "failed") {
+          throw new Error(processingResult.error || "Processing failed");
+        }
+
         result.successful.push(uploadId);
       } catch (error) {
+        console.error(`Failed to process upload ${uploadId}:`, error);
+
         // Update status to rejected if processing fails
         await uploadOperations
           .updateUploadStatus(uploadId, eventId, "rejected")
