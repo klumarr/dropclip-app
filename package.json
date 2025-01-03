@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:lambda": "tsc -p tsconfig.lambda.json",
+    "deploy:lambda": "npm run build:lambda && aws lambda update-function-code --function-name getCreativeEvents --zip-file fileb://dist/lambda/events/getCreativeEvents.js",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "prepare": "husky install"
@@ -16,6 +18,7 @@
     "@aws-sdk/client-lambda": "^3.716.0",
     "@aws-sdk/client-s3": "^3.717.0",
     "@aws-sdk/lib-dynamodb": "^3.716.0",
+    "@aws-sdk/lib-storage": "^3.721.0",
     "@aws-sdk/s3-request-presigner": "^3.717.0",
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
@@ -25,16 +28,22 @@
     "@mui/system": "^5.15.3",
     "@types/qrcode.react": "^1.0.5",
     "aws-amplify": "^6.11.0",
+    "aws-sdk": "^2.1692.0",
+    "buffer": "^6.0.3",
+    "process": "^0.11.10",
     "qrcode.react": "^4.2.0",
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.21.1",
     "recharts": "^2.10.3",
-    "tesseract.js": "^4.1.1"
+    "stream-browserify": "^3.0.0",
+    "tesseract.js": "^4.1.1",
+    "util": "^0.12.5"
   },
   "devDependencies": {
-    "@types/node": "^20.10.6",
+    "@types/aws-lambda": "^8.10.133",
+    "@types/node": "^20.17.11",
     "@types/react": "^18.2.47",
     "@types/react-beautiful-dnd": "^13.1.8",
     "@types/react-dom": "^18.2.18",

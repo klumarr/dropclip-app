@@ -1,0 +1,36 @@
+{
+  "version": "2.0",
+  "routeKey": "GET /events/creative",
+  "rawPath": "/dev/events/creative",
+  "rawQueryString": "",
+  "headers": {
+    "Authorization": "Bearer test-token",
+    "Content-Type": "application/json"
+  },
+  "requestContext": {
+    "accountId": "123456789012",
+    "apiId": "4t6y6pteaa",
+    "authorizer": {
+      "claims": {
+        "sub": "205cb9ac-9081-705d-7537-d9ba77c374af",
+        "iss": "https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw",
+        "token_use": "access"
+      }
+    },
+    "domainName": "4t6y6pteaa.execute-api.eu-north-1.amazonaws.com",
+    "domainPrefix": "4t6y6pteaa",
+    "http": {
+      "method": "GET",
+      "path": "/dev/events/creative",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "127.0.0.1",
+      "userAgent": "Custom User Agent String"
+    },
+    "requestId": "test-request-id",
+    "routeKey": "GET /events/creative",
+    "stage": "dev",
+    "time": "03/Jan/2025:04:04:17 +0000",
+    "timeEpoch": 1735875857
+  },
+  "isBase64Encoded": false
+}

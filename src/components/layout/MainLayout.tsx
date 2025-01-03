@@ -31,7 +31,7 @@ const MainLayout = () => {
         backgroundColor: "background.default",
       }}
     >
-      <Header onMenuClick={handleSidebarToggle} />
+      <Header onMenuOpen={handleSidebarToggle} />
 
       <Box
         sx={{

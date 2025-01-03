@@ -30,7 +30,7 @@ export const ProfilePage = () => {
         const parsedAttributes: UserAttributes = {
           sub: attributes.sub || "",
           email: attributes.email || "",
-          email_verified: attributes.email_verified === "true",
+          email_verified: String(attributes.email_verified),
           name: attributes.name,
           picture: attributes.picture,
         };
@@ -64,7 +64,7 @@ export const ProfilePage = () => {
       const parsedAttributes: UserAttributes = {
         sub: attributes.sub || "",
         email: attributes.email || "",
-        email_verified: attributes.email_verified === "true",
+        email_verified: String(attributes.email_verified),
         name: attributes.name,
         picture: attributes.picture,
       };

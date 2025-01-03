@@ -11,8 +11,6 @@ import {
   MenuItem,
   Button,
   Chip,
-  useTheme,
-  useMediaQuery,
 } from "@mui/material";
 import {
   MoreVert,
@@ -37,8 +35,6 @@ interface Video {
 }
 
 const VideosPage: React.FC = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);

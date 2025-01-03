@@ -1,8 +1,15 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
-  Typography,
+  CircularProgress,
+  Container,
+  useTheme,
+  useMediaQuery,
+  Tabs,
+  Tab,
   Grid,
+  Alert,
+  Typography,
   Card,
   CardContent,
   CardMedia,
@@ -10,13 +17,10 @@ import {
   IconButton,
   Menu,
   MenuItem,
-  Tab,
-  Tabs,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  Alert,
   LinearProgress,
   ListItemIcon,
   FormLabel,
@@ -35,9 +39,35 @@ import {
   VideoFile,
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
-import { s3Operations } from "../../services/s3.service";
 import { useAuth } from "../../contexts/AuthContext";
+import EventCard from "../../components/events/EventCard";
+import {
+  ScrollSection,
+  EventsRow,
+} from "../../components/events/EventsPageStyles";
+import { eventOperations, Event } from "../../services/events.service";
+import { s3Operations } from "../../services/s3.service";
 import { contentOperations } from "../../services/content.service";
+
+// Fan-specific event type that extends the base Event type
+interface FanEventType extends Event {
+  status: "upcoming" | "past";
+  thumbnailUrl: string;
+  time: string;
+  attendees: number;
+  isInterested: boolean;
+  uploadConfig: {
+    enabled: boolean;
+    allowedTypes: string[];
+    maxFileSize: number;
+  };
+}
+
+interface CategorizedEvents {
+  upcoming: FanEventType[];
+  past: FanEventType[];
+  automatic: FanEventType[];
+}
 
 // Styled components for upload functionality
 const UploadContainer = styled(Box)(({ theme }) => ({
@@ -60,34 +90,23 @@ const FilePreviewContainer = styled(Box)(({ theme }) => ({
   gap: theme.spacing(1),
 }));
 
-interface FanEvent {
-  id: string;
-  title: string;
-  description: string;
-  thumbnailUrl: string;
-  date: string;
-  time: string;
-  location: string;
-  organizer: string;
-  attendees: number;
-  isInterested: boolean;
-  status: "upcoming" | "past";
-  uploadConfig: {
-    enabled: boolean;
-    allowedTypes: string[];
-    maxFileSize: number;
-  };
-}
-
-const EventsPage: React.FC = () => {
+const EventsPageFan: React.FC = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { user } = useAuth();
 
-  // State for events and tabs
+  const [events, setEvents] = useState<CategorizedEvents>({
+    upcoming: [],
+    past: [],
+    automatic: [],
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState(0);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedEvent, setSelectedEvent] = useState<FanEvent | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<FanEventType | null>(null);
 
-  // State for upload functionality
+  // Upload state
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadProgress, setUploadProgress] = useState<{
@@ -96,27 +115,64 @@ const EventsPage: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
-  // Mock data - replace with actual API call
-  const events: FanEvent[] = [
-    {
-      id: "1",
-      title: "Summer Music Festival",
-      description: "Annual electronic music festival featuring top DJs",
-      thumbnailUrl: "https://via.placeholder.com/320x180",
-      date: "2024-07-15",
-      time: "14:00",
-      location: "Central Park, New York",
-      organizer: "Event Productions Inc.",
-      attendees: 1500,
-      isInterested: false,
-      status: "upcoming",
-      uploadConfig: {
-        enabled: true,
-        allowedTypes: ["image/*", "video/*"],
-        maxFileSize: 100 * 1024 * 1024, // 100MB
-      },
-    },
-  ];
+  const fetchEvents = async () => {
+    if (!user) return;
+
+    try {
+      setIsLoading(true);
+      const eventsData = await eventOperations.getFanEvents();
+
+      const now = new Date();
+      const categorizedEvents = eventsData.reduce<CategorizedEvents>(
+        (acc, event) => {
+          const eventDate = new Date(event.date);
+          const fanEvent: FanEventType = {
+            ...event,
+            status: eventDate >= now ? "upcoming" : "past",
+            thumbnailUrl: event.imageUrl || "",
+            time: event.startTime || "",
+            attendees: event.attendees || 0,
+            isInterested: event.isInterested || false,
+            uploadConfig: event.uploadConfig || {
+              enabled: false,
+              allowedTypes: ["image/*", "video/*"],
+              maxFileSize: 100 * 1024 * 1024,
+            },
+          };
+
+          if (event.isAutomatic) {
+            acc.automatic.push(fanEvent);
+          } else if (eventDate >= now) {
+            acc.upcoming.push(fanEvent);
+          } else {
+            acc.past.push(fanEvent);
+          }
+          return acc;
+        },
+        { upcoming: [], past: [], automatic: [] }
+      );
+
+      // Sort each category
+      const sortByDate = (a: FanEventType, b: FanEventType) => {
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      };
+
+      categorizedEvents.upcoming.sort(sortByDate);
+      categorizedEvents.past.sort(sortByDate);
+      categorizedEvents.automatic.sort(sortByDate);
+
+      setEvents(categorizedEvents);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      setError("Failed to fetch events");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+  }, [user]);
 
   const handleFileSelect = (files: FileList | null) => {
     if (!files) return;
@@ -125,7 +181,7 @@ const EventsPage: React.FC = () => {
   };
 
   const handleUpload = async () => {
-    if (!selectedEvent || !selectedFiles.length) return;
+    if (!selectedEvent || !selectedFiles.length || !user) return;
 
     setIsUploading(true);
     setUploadError(null);
@@ -145,7 +201,7 @@ const EventsPage: React.FC = () => {
         // Create content record
         await contentOperations.createContent({
           eventId: selectedEvent.id,
-          userId: user?.id || "",
+          userId: user.id,
           fileUrl: key,
           type: file.type,
         });
@@ -184,6 +240,26 @@ const EventsPage: React.FC = () => {
     }
   };
 
+  const handleEditEvent = async (event: FanEventType) => {
+    try {
+      await eventOperations.updateEvent(event.id, event);
+      fetchEvents();
+    } catch (error) {
+      console.error("Error updating event:", error);
+      setError("Failed to update event");
+    }
+  };
+
+  const handleDeleteEvent = async (event: FanEventType) => {
+    try {
+      await eventOperations.deleteEvent(event.id);
+      fetchEvents();
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      setError("Failed to delete event");
+    }
+  };
+
   return (
     <Box>
       <Grid container spacing={3}>
@@ -198,96 +274,106 @@ const EventsPage: React.FC = () => {
           </Tabs>
         </Grid>
 
-        <Grid item xs={12}>
-          <Grid container spacing={2}>
-            {events
-              .filter((event) =>
-                activeTab === 0
-                  ? event.status === "upcoming"
-                  : event.status === "past"
-              )
-              .map((event) => (
-                <Grid item xs={12} sm={6} md={4} key={event.id}>
-                  <Card>
-                    <CardMedia
-                      component="img"
-                      height="180"
-                      image={event.thumbnailUrl}
-                      alt={event.title}
-                    />
-                    <CardContent>
-                      <Typography variant="h6" gutterBottom>
-                        {event.title}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        gutterBottom
-                      >
-                        {event.description}
-                      </Typography>
-                      <Box sx={{ mt: 2 }}>
-                        <Grid container spacing={1}>
-                          <Grid item xs={12}>
-                            <Box display="flex" alignItems="center" gap={1}>
-                              <Event fontSize="small" />
-                              <Typography variant="body2">
-                                {new Date(event.date).toLocaleDateString()} at{" "}
-                                {event.time}
-                              </Typography>
-                            </Box>
-                          </Grid>
-                          <Grid item xs={12}>
-                            <Box display="flex" alignItems="center" gap={1}>
-                              <LocationOn fontSize="small" />
-                              <Typography variant="body2">
-                                {event.location}
-                              </Typography>
-                            </Box>
-                          </Grid>
-                          <Grid item xs={12}>
-                            <Box display="flex" alignItems="center" gap={1}>
-                              <People fontSize="small" />
-                              <Typography variant="body2">
-                                {event.attendees} attendees
-                              </Typography>
-                            </Box>
-                          </Grid>
-                        </Grid>
-                      </Box>
-                    </CardContent>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        p: 1,
-                        borderTop: 1,
-                        borderColor: "divider",
-                      }}
-                    >
-                      <IconButton
-                        onClick={() => {
-                          setSelectedEvent(event);
-                          setIsUploadDialogOpen(true);
-                        }}
-                        disabled={!event.uploadConfig.enabled}
-                      >
-                        <CloudUpload />
-                      </IconButton>
-                      <IconButton
-                        onClick={(e) => {
-                          setSelectedEvent(event);
-                          setAnchorEl(e.currentTarget);
-                        }}
-                      >
-                        <MoreVert />
-                      </IconButton>
-                    </Box>
-                  </Card>
-                </Grid>
-              ))}
+        {error && (
+          <Grid item xs={12}>
+            <Alert severity="error">{error}</Alert>
           </Grid>
-        </Grid>
+        )}
+
+        {isLoading ? (
+          <Grid item xs={12}>
+            <Box display="flex" justifyContent="center" p={4}>
+              <CircularProgress />
+            </Box>
+          </Grid>
+        ) : (
+          <Grid item xs={12}>
+            <Grid container spacing={2}>
+              {(activeTab === 0 ? events.upcoming : events.past).map(
+                (event) => (
+                  <Grid item xs={12} sm={6} md={4} key={event.id}>
+                    <Card>
+                      <CardMedia
+                        component="img"
+                        height="180"
+                        image={event.thumbnailUrl}
+                        alt={event.title}
+                      />
+                      <CardContent>
+                        <Typography variant="h6" gutterBottom>
+                          {event.title}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          gutterBottom
+                        >
+                          {event.description}
+                        </Typography>
+                        <Box sx={{ mt: 2 }}>
+                          <Grid container spacing={1}>
+                            <Grid item xs={12}>
+                              <Box display="flex" alignItems="center" gap={1}>
+                                <Event fontSize="small" />
+                                <Typography variant="body2">
+                                  {new Date(event.date).toLocaleDateString()} at{" "}
+                                  {event.time}
+                                </Typography>
+                              </Box>
+                            </Grid>
+                            <Grid item xs={12}>
+                              <Box display="flex" alignItems="center" gap={1}>
+                                <LocationOn fontSize="small" />
+                                <Typography variant="body2">
+                                  {event.location}
+                                </Typography>
+                              </Box>
+                            </Grid>
+                            <Grid item xs={12}>
+                              <Box display="flex" alignItems="center" gap={1}>
+                                <People fontSize="small" />
+                                <Typography variant="body2">
+                                  {event.attendees} attendees
+                                </Typography>
+                              </Box>
+                            </Grid>
+                          </Grid>
+                        </Box>
+                      </CardContent>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          p: 1,
+                          borderTop: 1,
+                          borderColor: "divider",
+                        }}
+                      >
+                        <IconButton
+                          onClick={() => {
+                            setSelectedEvent(event);
+                            setIsUploadDialogOpen(true);
+                          }}
+                          disabled={!event.uploadConfig.enabled}
+                        >
+                          <CloudUpload />
+                        </IconButton>
+                        <IconButton
+                          onClick={(e) => {
+                            setSelectedEvent(event);
+                            setAnchorEl(e.currentTarget);
+                          }}
+                        >
+                          <MoreVert />
+                        </IconButton>
+                      </Box>
+                    </Card>
+                  </Grid>
+                )
+              )}
+            </Grid>
+          </Grid>
+        )}
       </Grid>
 
       {/* Upload Dialog */}
@@ -452,5 +538,4 @@ const EventsPage: React.FC = () => {
   );
 };
 
-export { EventsPage };
-export default EventsPage;
+export default EventsPageFan;

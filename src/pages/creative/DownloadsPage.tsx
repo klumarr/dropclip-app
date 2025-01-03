@@ -10,8 +10,6 @@ import {
   Button,
   Menu,
   MenuItem,
-  useTheme,
-  useMediaQuery,
 } from "@mui/material";
 import {
   MoreVert,
@@ -32,8 +30,6 @@ interface DownloadItem {
 }
 
 const DownloadsPage = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
 

@@ -7,7 +7,6 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  useTheme,
 } from "@mui/material";
 import {
   Dashboard,
@@ -28,7 +27,6 @@ interface SideNavigationProps {
 }
 
 export const SideNavigation = ({ isOpen, onClose }: SideNavigationProps) => {
-  const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();

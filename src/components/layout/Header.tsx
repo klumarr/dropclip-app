@@ -10,19 +10,17 @@ import {
   Box,
   Avatar,
   Badge,
-  useTheme,
 } from "@mui/material";
 import { Notifications } from "@mui/icons-material";
 import { useAuth } from "../../contexts/AuthContext";
 import { UserType } from "../../types/auth.types";
 import { useNotifications } from "../../contexts/NotificationContext";
 
-interface HeaderProps {
-  onMenuClick?: () => void;
+export interface HeaderProps {
+  onMenuOpen?: () => void;
 }
 
-export const Header = ({ onMenuClick }: HeaderProps) => {
-  const theme = useTheme();
+export const Header: React.FC<HeaderProps> = ({ onMenuOpen }) => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { unreadCount } = useNotifications();
@@ -32,10 +30,6 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
     user,
     screenWidth: window.innerWidth,
   });
-
-  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -82,7 +76,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <IconButton
-            onClick={onMenuClick}
+            onClick={onMenuOpen}
             size="small"
             sx={{
               bgcolor: "action.selected",
@@ -95,8 +89,17 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
               sx={{
                 width: 32,
                 height: 32,
-                bgcolor: "primary.main",
                 fontSize: "0.875rem",
+                background: (theme) =>
+                  `linear-gradient(45deg, ${
+                    user?.userType === UserType.CREATIVE
+                      ? theme.palette.primary.main
+                      : theme.palette.secondary.main
+                  }, ${
+                    user?.userType === UserType.CREATIVE
+                      ? theme.palette.secondary.main
+                      : theme.palette.primary.main
+                  })`,
               }}
             >
               {user?.name?.charAt(0).toUpperCase()}

@@ -90,17 +90,6 @@ export const ProfileAnalytics: React.FC<ProfileAnalyticsProps> = ({
     return num.toString();
   };
 
-  const getMetricLabel = () => {
-    switch (creativeCategory) {
-      case CreativeCategory.EVENT:
-      case CreativeCategory.FESTIVAL:
-      case CreativeCategory.VENUE:
-        return "Attendees";
-      default:
-        return "Followers";
-    }
-  };
-
   return (
     <Box>
       <Box
@@ -131,7 +120,7 @@ export const ProfileAnalytics: React.FC<ProfileAnalyticsProps> = ({
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
-                {getMetricLabel()}
+                Attendees
               </Typography>
               <Typography variant="h4">
                 {formatNumber(analyticsData.followers)}
@@ -143,11 +132,7 @@ export const ProfileAnalytics: React.FC<ProfileAnalyticsProps> = ({
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
-                {creativeCategory === CreativeCategory.EVENT ||
-                creativeCategory === CreativeCategory.FESTIVAL ||
-                creativeCategory === CreativeCategory.VENUE
-                  ? "Events"
-                  : "Videos"}
+                Videos
               </Typography>
               <Typography variant="h4">
                 {formatNumber(analyticsData.videos)}
@@ -159,11 +144,7 @@ export const ProfileAnalytics: React.FC<ProfileAnalyticsProps> = ({
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
-                {creativeCategory === CreativeCategory.EVENT ||
-                creativeCategory === CreativeCategory.FESTIVAL ||
-                creativeCategory === CreativeCategory.VENUE
-                  ? "Venues"
-                  : "Events"}
+                Events
               </Typography>
               <Typography variant="h4">
                 {formatNumber(analyticsData.events)}
@@ -203,8 +184,8 @@ export const ProfileAnalytics: React.FC<ProfileAnalyticsProps> = ({
                 onChange={handleMetricChange}
                 label="Metric"
               >
-                <MenuItem value="followers">{getMetricLabel()}</MenuItem>
-                <MenuItem value="views">Views</MenuItem>
+                <MenuItem value="followers">Attendees</MenuItem>
+                <MenuItem value="views">Video Views</MenuItem>
                 <MenuItem value="engagement">Engagement</MenuItem>
               </Select>
             </FormControl>

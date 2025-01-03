@@ -4,31 +4,34 @@ export enum UserType {
   CREATIVE = "CREATIVE",
 }
 
-// AWS Amplify User Attributes type
+// AWS Cognito User Attributes type
 export interface UserAttributes {
-  id: string;
+  sub: string;
   email: string;
-  name: string;
-  userType: UserType;
-  creativeCategory?: CreativeCategory;
-  customCategory?: string;
-  bio?: string;
-  website?: string;
-  location?: string;
-  avatarUrl?: string;
-  isEmailVerified: boolean;
-  createdAt: string;
-  updatedAt: string;
+  email_verified: string;
+  name?: string;
+  picture?: string;
+  "custom:userType"?: string;
+  "custom:creativeCategory"?: string;
+  "custom:customCategory"?: string;
+  "custom:createdAt"?: string;
+  "custom:updatedAt"?: string;
+  "custom:twoFactorEnabled"?: string;
+  "custom:emailNotifications"?: string;
+  "custom:sessionTimeout"?: string;
+  "custom:passwordLastChanged"?: string;
+  "custom:backupCodes"?: string;
+  [key: string]: string | undefined; // Allow for other custom attributes
 }
 
 // Display categories for creative profiles
 export enum CreativeCategory {
-  MUSICIAN = "MUSICIAN",
-  DJ = "DJ",
-  BAND = "BAND",
-  DANCER = "DANCER",
-  COMEDIAN = "COMEDIAN",
+  EVENT = "EVENT",
+  FESTIVAL = "FESTIVAL",
+  VENUE = "VENUE",
   ARTIST = "ARTIST",
+  DJ = "DJ",
+  PRODUCER = "PRODUCER",
   OTHER = "OTHER",
 }
 
@@ -104,7 +107,7 @@ export const transformUserAttributes = (
   return {
     sub: attrs.sub,
     email: attrs.email,
-    emailVerified: attrs.email_verified,
+    emailVerified: attrs.email_verified === "true",
     name: attrs.name,
     picture: attrs.picture,
     userType: attrs["custom:userType"] as UserType,

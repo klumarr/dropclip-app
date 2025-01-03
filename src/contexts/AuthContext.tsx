@@ -152,7 +152,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       // First check if there's an existing session
       try {
-        const currentUser = await getCurrentUser();
+        await getCurrentUser();
         console.log("Found existing session, signing out first");
         await signOut();
       } catch (err) {
@@ -210,6 +210,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const handleSignOut = async () => {
     try {
+      setState((prev) => ({ ...prev, isLoading: true }));
       await signOut();
       setState({
         user: null,
@@ -218,8 +219,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         error: null,
       });
     } catch (error) {
-      console.error("Sign out error:", error);
-      setState((prev) => ({ ...prev, error: error as Error }));
+      console.error("Error signing out:", error);
+      setState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: error as Error,
+      }));
       throw error;
     }
   };

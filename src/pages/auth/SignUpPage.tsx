@@ -33,7 +33,6 @@ const SignUpPage = () => {
     signIn,
     clearError,
     error: authError,
-    isAuthenticated,
   } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);

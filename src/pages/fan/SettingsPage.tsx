@@ -12,14 +12,10 @@ import {
   Alert,
   CircularProgress,
   Grid,
-  useTheme,
-  useMediaQuery,
 } from "@mui/material";
 import { useAuth } from "../../contexts/AuthContext";
 
 const SettingsPage = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { userAttributes, updateProfile, error, clearError } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");

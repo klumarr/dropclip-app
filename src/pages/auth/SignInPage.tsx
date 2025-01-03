@@ -41,7 +41,7 @@ const SignInPage: React.FC = () => {
 
       // First check if there's an existing session
       try {
-        const currentUser = await getCurrentUser();
+        await getCurrentUser();
         console.log("Found existing session, signing out first");
         await signOut();
       } catch (err) {

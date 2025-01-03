@@ -16,7 +16,7 @@ const EventsPage = lazy(() => import("../pages/creative/EventsPageCreative"));
 const AnalyticsPage = lazy(() => import("../pages/creative/AnalyticsPage"));
 const SettingsPage = lazy(() => import("../pages/creative/SettingsPage"));
 const SearchPage = lazy(() => import("../pages/fan/SearchPage"));
-const FanEventsPage = lazy(() => import("../pages/fan/EventsPage"));
+const EventsPageFan = lazy(() => import("../pages/fan/EventsPageFan"));
 
 export const routes = [
   {
@@ -96,7 +96,7 @@ export const routes = [
       },
       {
         path: "events",
-        element: <FanEventsPage />,
+        element: <EventsPageFan />,
       },
     ],
   },

@@ -15,8 +15,6 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  useTheme,
-  useMediaQuery,
 } from "@mui/material";
 import {
   MoreVert,
@@ -39,8 +37,6 @@ interface Playlist {
 }
 
 const PlaylistsPage = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedPlaylist, setSelectedPlaylist] = useState<string | null>(null);

@@ -1,5 +1,101 @@
 # Changelog
 
+## [1.2.0] - 2025-01-03
+
+### Added
+
+- Implemented API Gateway integration for creative events:
+
+  - Created Lambda function for fetching creative events
+  - Added DynamoDB scan operation with user filtering
+  - Implemented proper CORS configuration
+  - Added comprehensive error handling and logging
+  - Configured CloudWatch monitoring
+
+- Enhanced Events Page functionality:
+  - Added creative events fetching capability
+  - Implemented user-specific event filtering
+  - Added proper loading states
+  - Enhanced error handling
+  - Improved mobile responsiveness
+
+### Security
+
+- Enhanced API security:
+  - Implemented Cognito authorizer for API Gateway
+  - Added proper IAM roles and permissions
+  - Configured secure CORS settings
+  - Added JWT token validation
+  - Enhanced error handling for unauthorized access
+
+### Fixed
+
+- Resolved API Gateway authorization issues:
+  - Fixed Lambda function permissions
+  - Corrected CORS configuration
+  - Resolved token validation
+  - Fixed DynamoDB access issues
+  - Enhanced error responses
+
+### Technical Improvements
+
+- Enhanced Lambda function implementation:
+  - Added comprehensive logging
+  - Improved error handling
+  - Added proper TypeScript configurations
+  - Enhanced DynamoDB integration
+  - Improved response formatting
+
+## [1.1.0] - 2025-01-03
+
+### Changed
+
+- Consolidated AWS configuration management into a single source of truth in `main.tsx`
+  - Removed multiple scattered configuration files to prevent conflicts
+  - Merged Cognito and API Gateway configurations
+  - Added proper OAuth configuration with environment variable fallbacks
+  - Improved configuration type safety with TypeScript
+
+### Removed
+
+- Deleted redundant configuration files:
+  - `src/config/aws/amplify.config.ts`
+  - `src/config/aws/cognito.config.ts`
+  - `src/config/aws/api.config.ts`
+  - Removed unnecessary CSS imports and configurations
+
+### Added
+
+- Implemented new API Gateway integration for events
+  - Added Lambda function for fetching creative events
+  - Set up proper CORS configuration
+  - Added DynamoDB table permissions
+  - Configured Cognito authorizer for secure access
+
+### Security
+
+- Enhanced AWS credentials management
+  - Moved from direct DynamoDB access to API Gateway
+  - Implemented proper IAM roles and permissions
+  - Added Cognito authentication for API endpoints
+  - Secured environment variables with proper fallbacks
+
+### Fixed
+
+- Resolved authentication configuration conflicts
+  - Fixed duplicate Amplify initialization issues
+  - Corrected API name configuration
+  - Resolved CORS issues with API Gateway
+  - Fixed environment variable handling
+
+### Technical Debt
+
+- Cleaned up AWS configuration structure
+  - Centralized configuration in `main.tsx`
+  - Improved type definitions
+  - Added better error handling
+  - Enhanced debugging capabilities with detailed logging
+
 All notable changes to the DropClip project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
@@ -259,9 +355,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   - Implemented chronological sorting for events in all tabs (upcoming, past, automatic)
   - Added navigation to event management page for past events
-  - Created gradient overlay for event cards to improve text visibility
   - Implemented full-screen image viewing for upcoming and automatic events
-  - Integrated fan upload page functionality with event sharing
   - Added AWS DynamoDB integration for event data persistence
   - Implemented AWS S3 integration for image storage with public access
   - Added QR code generation for event sharing
@@ -332,5 +426,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated AWS SDK to v3 for better browser support
 - Implemented new event sharing mechanism
 - Updated image storage to use public S3 URLs
-
-Note: This changelog will be updated regularly as new features are added and issues are resolved.

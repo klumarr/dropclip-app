@@ -1,156 +1,52 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
-  Typography,
-  IconButton,
   Button,
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
-  TextField,
+  DialogContent,
+  DialogTitle,
   Grid,
-  Tab,
-  Tabs,
+  TextField,
+  Typography,
+  CircularProgress,
+  Backdrop,
+  Snackbar,
+  Alert,
   Container,
   useTheme,
   useMediaQuery,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
-  FormControlLabel,
-  Switch,
+  LinearProgress,
 } from "@mui/material";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  PhotoCamera as PhotoCameraIcon,
-  Share as ShareIcon,
-  Facebook as FacebookIcon,
-  Twitter as TwitterIcon,
-  Instagram as InstagramIcon,
-  Link as LinkIcon,
-  QrCode as QrCodeIcon,
-  Message as MessageIcon,
-  WhatsApp as WhatsAppIcon,
-  CloudUpload as CloudUploadIcon,
-} from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
-import { QRCodeSVG } from "qrcode.react";
-import { styled } from "@mui/material/styles";
+  DynamoDBDocumentClient,
+  PutCommand,
+  DeleteCommand,
+  QueryCommand,
+} from "@aws-sdk/lib-dynamodb";
+import { useAuth } from "../../contexts/AuthContext";
+import { s3Operations } from "../../services/s3.service";
 
-// Styled Components
-const ScrollSection = styled(Box)({
-  overflowX: "auto",
-  overflowY: "hidden",
-  whiteSpace: "nowrap",
-  padding: "8px 0",
-  "&::-webkit-scrollbar": {
-    height: "6px",
-  },
-  "&::-webkit-scrollbar-track": {
-    background: "#f1f1f1",
-  },
-  "&::-webkit-scrollbar-thumb": {
-    background: "#888",
-    borderRadius: "3px",
-  },
-});
+// Constants
+const EVENTS_TABLE_NAME = process.env.REACT_APP_EVENTS_TABLE_NAME || "events";
 
-const EventsRow = styled(Box)({
-  display: "inline-flex",
-  gap: "12px",
-  padding: "0 12px",
-});
-
-const EventCard = styled(Box)(({ theme }) => ({
-  width: "280px",
-  backgroundColor: theme.palette.background.paper,
-  borderRadius: "8px",
-  boxShadow: theme.shadows[1],
-  overflow: "hidden",
-  display: "inline-block",
-  verticalAlign: "top",
-  transition: "transform 0.2s, box-shadow 0.2s",
-  cursor: "pointer",
-  "&:hover": {
-    transform: "translateY(-4px)",
-    boxShadow: theme.shadows[4],
-  },
-}));
-
-const EventCardMedia = styled("img")({
-  width: "100%",
-  height: "156px",
-  objectFit: "cover",
-});
-
-const EventCardContent = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(1.5),
-}));
-
-const ActionButtonsContainer = styled(Box)(({ theme }) => ({
-  position: "fixed",
-  bottom: 160,
-  left: "50%",
-  transform: "translateX(-50%)",
-  display: "flex",
-  gap: theme.spacing(1),
-  backgroundColor: "rgba(0, 0, 0, 0.5)",
-  padding: theme.spacing(1, 2),
-  borderRadius: 28,
-  backdropFilter: "blur(8px)",
-  boxShadow: theme.shadows[3],
-  zIndex: 1000,
-  [theme.breakpoints.down("sm")]: {
-    width: "calc(100% - 32px)",
-    justifyContent: "space-between",
-  },
-}));
-
-const ActionButton = styled(Button)(({ theme }) => ({
-  minWidth: "80px",
-  [theme.breakpoints.down("sm")]: {
-    flex: 1,
-  },
-}));
-
-const UploadIndicator = styled(Box)(({ theme }) => ({
-  position: "absolute",
-  top: theme.spacing(1),
-  right: theme.spacing(1),
-  backgroundColor: "rgba(0, 0, 0, 0.6)",
-  color: "#fff",
-  padding: theme.spacing(0.5, 1),
-  borderRadius: theme.shape.borderRadius,
-  display: "flex",
-  alignItems: "center",
-  gap: theme.spacing(0.5),
-}));
+// Initialize DynamoDB client
+const client = new DynamoDBClient({});
+const docClient = DynamoDBDocumentClient.from(client);
 
 interface Event {
   id: string;
+  user_id: string;
   title: string;
   date: string;
-  startTime?: string;
-  endTime?: string;
+  startTime: string;
+  endTime: string;
   location: string;
   description: string;
   imageUrl?: string;
-  imageFile?: File;
-  ticketLink?: string;
-  isAutomatic?: boolean;
-  uploadConfig?: {
-    enabled: boolean;
-    startDate?: string;
-    endDate?: string;
-    startTime?: string;
-    endTime?: string;
-    maxFileSize?: number;
-    allowedTypes?: string[];
-  };
+  ticketLink: string;
+  created_at: string;
 }
 
 interface EventFormData {
@@ -160,83 +56,32 @@ interface EventFormData {
   endTime: string;
   location: string;
   description: string;
-  ticketLink: string;
   imageUrl?: string;
   imageFile?: File;
-  uploadConfig: {
-    enabled: boolean;
-    startDate?: string;
-    endDate?: string;
-    startTime?: string;
-    endTime?: string;
-    maxFileSize?: number;
-    allowedTypes?: string[];
-  };
+  ticketLink: string;
 }
 
-const QRCodeDialog = ({
-  open,
-  onClose,
-  eventUrl,
-}: {
-  open: boolean;
-  onClose: () => void;
-  eventUrl: string;
-}) => {
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Event Upload QR Code</DialogTitle>
-      <DialogContent>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 2,
-            p: 2,
-          }}
-        >
-          <QRCodeSVG value={eventUrl} size={256} level="H" />
-          <Typography variant="body1" align="center">
-            Scan this QR code to upload content from the event
-          </Typography>
-          <Button
-            variant="outlined"
-            onClick={() => {
-              navigator.clipboard.writeText(eventUrl);
-              alert("Link copied to clipboard!");
-            }}
-            startIcon={<LinkIcon />}
-          >
-            Copy Link
-          </Button>
-        </Box>
-      </DialogContent>
-    </Dialog>
-  );
-};
-
-const EventsPage = () => {
+export default function EventsPage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const navigate = useNavigate();
+  const { user } = useAuth();
 
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [activeTab, setActiveTab] = useState(0);
-  const [isFlyerScannerOpen, setIsFlyerScannerOpen] = useState(false);
-  const [isSocialHubOpen, setIsSocialHubOpen] = useState(false);
-  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | undefined>();
-  const [events, setEvents] = useState<{
-    upcoming: Event[];
-    past: Event[];
-    automatic: Event[];
-  }>({
+  // State declarations
+  const [events, setEvents] = useState<{ upcoming: Event[]; past: Event[] }>({
     upcoming: [],
     past: [],
-    automatic: [],
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | undefined>();
   const [formData, setFormData] = useState<EventFormData>({
     title: "",
     date: new Date().toISOString().split("T")[0],
@@ -244,24 +89,59 @@ const EventsPage = () => {
     endTime: "",
     location: "",
     description: "",
+    imageUrl: "",
     ticketLink: "",
-    uploadConfig: {
-      enabled: false,
-      maxFileSize: 100,
-      allowedTypes: ["image/*", "video/*"],
-    },
   });
-  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-  const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
-  const [shareAnchorEl, setShareAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedShareEvent, setSelectedShareEvent] = useState<Event | null>(
-    null
-  );
-  const [isQRDialogOpen, setIsQRDialogOpen] = useState(false);
-  const [selectedQREvent, setSelectedQREvent] = useState<Event | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleCreateEvent = () => {
-    setSelectedEvent(null);
+  useEffect(() => {
+    if (user) {
+      fetchEvents();
+    }
+  }, [user]);
+
+  const fetchEvents = async () => {
+    if (!user) return;
+
+    try {
+      setIsLoading(true);
+      const response = await docClient.send(
+        new QueryCommand({
+          TableName: EVENTS_TABLE_NAME,
+          KeyConditionExpression: "user_id = :userId",
+          ExpressionAttributeValues: {
+            ":userId": user.id,
+          },
+        })
+      );
+
+      const fetchedEvents = response.Items as Event[];
+      const now = new Date();
+
+      const categorizedEvents = fetchedEvents.reduce(
+        (acc, event) => {
+          const eventDate = new Date(event.date);
+          if (eventDate > now) {
+            acc.upcoming.push(event);
+          } else {
+            acc.past.push(event);
+          }
+          return acc;
+        },
+        { upcoming: [] as Event[], past: [] as Event[] }
+      );
+
+      setEvents(categorizedEvents);
+    } catch (err) {
+      console.error("Error fetching events:", err);
+      setError("Failed to load events. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const resetForm = () => {
     setFormData({
       title: "",
       date: new Date().toISOString().split("T")[0],
@@ -269,60 +149,157 @@ const EventsPage = () => {
       endTime: "",
       location: "",
       description: "",
+      imageUrl: "",
       ticketLink: "",
-      uploadConfig: {
-        enabled: false,
-        maxFileSize: 100,
-        allowedTypes: ["image/*", "video/*"],
-        startDate: new Date().toISOString().split("T")[0],
-        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-          .toISOString()
-          .split("T")[0],
-      },
     });
-    setIsCreateDialogOpen(true);
+    setFormErrors({});
   };
 
-  const handleEditEvent = (event: Event) => {
-    setSelectedEvent(event);
-    setFormData({
-      title: event.title || "",
-      date: event.date || new Date().toISOString().split("T")[0],
-      startTime: event.startTime || "",
-      endTime: event.endTime || "",
-      location: event.location || "",
-      description: event.description || "",
-      ticketLink: event.ticketLink || "",
-      imageUrl: event.imageUrl,
-      uploadConfig: event.uploadConfig || {
-        enabled: false,
-        maxFileSize: 100,
-        allowedTypes: ["image/*", "video/*"],
-      },
-    });
-    setIsCreateDialogOpen(true);
-  };
-
-  const handleDeleteEvent = (eventToDelete: Event) => {
-    setEvents((prev) => {
-      const category = prev.upcoming.find((e) => e.id === eventToDelete.id)
-        ? "upcoming"
-        : prev.past.find((e) => e.id === eventToDelete.id)
-        ? "past"
-        : "automatic";
-
-      return {
-        ...prev,
-        [category]: prev[category].filter((e) => e.id !== eventToDelete.id),
-      };
-    });
-  };
-
-  const handleImageClick = (imageUrl: string | undefined) => {
-    if (imageUrl) {
-      setSelectedImage(imageUrl);
-      setIsImageDialogOpen(true);
+  const handleSaveEvent = async () => {
+    if (!user) {
+      setError("Please sign in to create or edit events.");
+      return;
     }
+
+    // Validate form
+    const errors: Record<string, string> = {};
+    if (!formData.title) errors.title = "Title is required";
+    if (!formData.date) errors.date = "Date is required";
+    if (!formData.location) errors.location = "Location is required";
+    if (formData.description.length > 500) {
+      errors.description = "Description must be less than 500 characters";
+    }
+    if (formData.ticketLink && !formData.ticketLink.startsWith("http")) {
+      errors.ticketLink = "Ticket link must be a valid URL";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    // Store current events for rollback
+    const eventsSnapshot = { ...events };
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      let imageUrl;
+      if (formData.imageFile) {
+        const key = `events/${user.id}/${Date.now()}_${
+          formData.imageFile.name
+        }`;
+        await s3Operations.uploadFile(formData.imageFile, key);
+        imageUrl = await s3Operations.getFileUrl(key);
+      }
+
+      const eventDate = new Date(formData.date);
+      const now = new Date();
+      const category = eventDate > now ? "upcoming" : "past";
+
+      const newEvent: Event = {
+        id: selectedEvent?.id || Date.now().toString(),
+        user_id: user.id,
+        title: formData.title,
+        date: formData.date,
+        startTime: formData.startTime,
+        endTime: formData.endTime,
+        location: formData.location,
+        description: formData.description,
+        imageUrl,
+        ticketLink: formData.ticketLink,
+        created_at: new Date().toISOString(),
+      };
+
+      // Optimistic update
+      setEvents((prev) => {
+        if (selectedEvent) {
+          return {
+            ...prev,
+            [category]: prev[category].map((e) =>
+              e.id === selectedEvent.id ? newEvent : e
+            ),
+          };
+        } else {
+          return {
+            ...prev,
+            [category]: [...prev[category], newEvent],
+          };
+        }
+      });
+
+      await docClient.send(
+        new PutCommand({
+          TableName: EVENTS_TABLE_NAME,
+          Item: newEvent,
+        })
+      );
+
+      setSuccessMessage(
+        selectedEvent
+          ? "Event updated successfully"
+          : "Event created successfully"
+      );
+      setIsCreateDialogOpen(false);
+      setSelectedEvent(null);
+      resetForm();
+    } catch (err) {
+      console.error("Error saving event:", err);
+      setError(
+        selectedEvent
+          ? "Failed to update event. Please try again."
+          : "Failed to create event. Please try again."
+      );
+      // Revert optimistic update
+      setEvents(eventsSnapshot);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteEvent = async () => {
+    if (!user || !eventToDelete) return;
+
+    // Store current events for rollback
+    const eventsSnapshot = { ...events };
+
+    try {
+      setIsDeleting(true);
+      setError(null);
+
+      // Optimistic update
+      setEvents((prev) => ({
+        upcoming: prev.upcoming.filter((e) => e.id !== eventToDelete.id),
+        past: prev.past.filter((e) => e.id !== eventToDelete.id),
+      }));
+
+      await docClient.send(
+        new DeleteCommand({
+          TableName: EVENTS_TABLE_NAME,
+          Key: {
+            user_id: user.id,
+            id: eventToDelete.id,
+          },
+        })
+      );
+
+      setSuccessMessage("Event deleted successfully");
+      setEventToDelete(null);
+      setIsDeleteDialogOpen(false);
+    } catch (err) {
+      console.error("Error deleting event:", err);
+      setError("Failed to delete event. Please try again.");
+      // Revert optimistic update
+      setEvents(eventsSnapshot);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleImageClick = (imageUrl: string) => {
+    setSelectedImage(imageUrl);
+    setIsImageDialogOpen(true);
   };
 
   const handleFlyerUpload = async (
@@ -331,379 +308,212 @@ const EventsPage = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    try {
-      // Create object URL for preview
-      const imageUrl = URL.createObjectURL(file);
+    if (!user) {
+      setError("Please sign in to upload images.");
+      return;
+    }
 
-      // TODO: Replace with actual OCR service call
-      // Mock event data extraction for now
-      const mockEventData: Partial<Event> = {
-        title: "Event from Flyer",
-        date: new Date().toISOString().split("T")[0],
-        location: "Extracted Location",
-        description: "Event details extracted from flyer",
+    // Validate file type and size
+    const validTypes = ["image/jpeg", "image/png", "image/gif"];
+    if (!validTypes.includes(file.type)) {
+      setError("Please upload a valid image file (JPEG, PNG, or GIF)");
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      setError("File size must be less than 5MB");
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      setUploadProgress(0);
+      const key = `events/${user.id}/${Date.now()}_${file.name}`;
+
+      // Upload with progress tracking
+      await s3Operations.uploadFile(file, key, (progress) => {
+        setUploadProgress(Math.round(progress));
+      });
+
+      const imageUrl = await s3Operations.getFileUrl(key);
+      setFormData((prev) => ({
+        ...prev,
         imageUrl,
         imageFile: file,
-        isAutomatic: true,
-      };
+      }));
 
-      // Process the extracted event data
-      handleEventDetected(mockEventData);
-    } catch (error) {
-      console.error("Error processing flyer:", error);
-      // TODO: Show error message to user
+      setSuccessMessage("Image uploaded successfully");
+    } catch (err) {
+      console.error("Error uploading image:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to upload image. Please try again."
+      );
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
     }
   };
-
-  const handleEventDetected = (eventData: Partial<Event>) => {
-    const newEvent: Event = {
-      id: Date.now().toString(),
-      title: eventData.title || "Untitled Event",
-      date: eventData.date || new Date().toISOString().split("T")[0],
-      startTime: eventData.startTime,
-      endTime: eventData.endTime,
-      location: eventData.location || "Location TBD",
-      description: eventData.description || "",
-      imageUrl: eventData.imageUrl,
-      imageFile: eventData.imageFile,
-      ticketLink: eventData.ticketLink,
-      isAutomatic: true,
-    };
-
-    setEvents((prev) => ({
-      ...prev,
-      automatic: [...prev.automatic, newEvent],
-    }));
-
-    setIsFlyerScannerOpen(false);
-  };
-
-  const handleSocialEventImported = (eventData: any) => {
-    const newEvent: Event = {
-      id: Date.now().toString(),
-      title: eventData.title,
-      date: new Date(eventData.date).toISOString().split("T")[0],
-      location: eventData.location,
-      description: eventData.description,
-      isAutomatic: true,
-    };
-
-    setEvents((prev) => ({
-      ...prev,
-      automatic: [...prev.automatic, newEvent],
-    }));
-  };
-
-  const handleDeleteConfirm = () => {
-    if (eventToDelete) {
-      handleDeleteEvent(eventToDelete);
-      setEventToDelete(null);
-      setIsDeleteConfirmOpen(false);
-    }
-  };
-
-  const handleApproveAutoEvent = (event: Event) => {
-    const eventDate = new Date(event.date);
-    const now = new Date();
-    const category = eventDate > now ? "upcoming" : "past";
-
-    setEvents((prev) => ({
-      ...prev,
-      [category]: [...prev[category], { ...event, isAutomatic: false }],
-      automatic: prev.automatic.filter((e) => e.id !== event.id),
-    }));
-  };
-
-  const renderEventCard = (event: Event, isAutomatic: boolean = false) => (
-    <EventCard key={event.id}>
-      {event.imageUrl && (
-        <EventCardMedia
-          src={event.imageUrl}
-          alt={event.title}
-          onClick={() => handleImageClick(event.imageUrl)}
-        />
-      )}
-      {event.uploadConfig?.enabled && (
-        <UploadIndicator>
-          <CloudUploadIcon />
-          <Typography variant="caption">
-            {new Date().toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            }) >= (event.uploadConfig.startTime || "00:00") &&
-            new Date().toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            }) <= (event.uploadConfig.endTime || "23:59")
-              ? "Uploads Open"
-              : "Uploads Scheduled"}
-          </Typography>
-        </UploadIndicator>
-      )}
-      <EventCardContent>
-        <Typography variant="h6" gutterBottom>
-          {event.title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" gutterBottom>
-          {event.description}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {new Date(event.date).toLocaleDateString()}
-          {event.startTime && ` at ${event.startTime}`}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {event.location}
-        </Typography>
-        <Box
-          sx={{ mt: 2, display: "flex", justifyContent: "flex-end", gap: 1 }}
-        >
-          {isAutomatic ? (
-            <>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={() => handleApproveAutoEvent(event)}
-              >
-                Approve
-              </Button>
-              <IconButton
-                size="small"
-                onClick={() => {
-                  setEventToDelete(event);
-                  setIsDeleteConfirmOpen(true);
-                }}
-              >
-                <DeleteIcon />
-              </IconButton>
-            </>
-          ) : (
-            <>
-              <IconButton
-                size="small"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedShareEvent(event);
-                  setShareAnchorEl(e.currentTarget);
-                }}
-              >
-                <ShareIcon />
-              </IconButton>
-              <IconButton
-                size="small"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedQREvent(event);
-                  setIsQRDialogOpen(true);
-                }}
-              >
-                <QrCodeIcon />
-              </IconButton>
-              <IconButton
-                size="small"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleEditEvent(event);
-                }}
-              >
-                <EditIcon />
-              </IconButton>
-              <IconButton
-                size="small"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setEventToDelete(event);
-                  setIsDeleteConfirmOpen(true);
-                }}
-              >
-                <DeleteIcon />
-              </IconButton>
-            </>
-          )}
-        </Box>
-      </EventCardContent>
-    </EventCard>
-  );
 
   return (
-    <Container
-      maxWidth={false}
-      sx={{
-        p: { xs: 1, sm: 2 },
-        pb: { xs: 20, sm: 20 },
-        pt: { xs: 1, sm: 1 },
-        maxWidth: "1920px",
-        mx: "auto",
-        height: "auto",
-        minHeight: "calc(100vh - 224px)",
-        position: "relative",
-        overflow: "auto",
-      }}
-    >
-      <Box sx={{ mb: { xs: 2, sm: 4 } }}>
-        <Tabs
-          value={activeTab}
-          onChange={(_, newValue) => setActiveTab(newValue)}
-          sx={{ mb: { xs: 1, sm: 2 } }}
-          variant={isMobile ? "fullWidth" : "standard"}
-        >
-          <Tab label="Upcoming" />
-          <Tab label="Past" />
-          <Tab label="Automatic" />
-        </Tabs>
+    <Container maxWidth="lg">
+      {/* Loading State */}
+      <Backdrop open={isLoading} sx={{ zIndex: 9999 }}>
+        <CircularProgress />
+      </Backdrop>
 
-        {activeTab === 0 && (
-          <ScrollSection>
-            <EventsRow>
-              {events.upcoming.map((event) => renderEventCard(event))}
-            </EventsRow>
-          </ScrollSection>
-        )}
+      {/* Notifications */}
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
+        onClose={() => setError(null)}
+      >
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      </Snackbar>
 
-        {activeTab === 1 && (
-          <ScrollSection>
-            <EventsRow>
-              {events.past.map((event) => renderEventCard(event))}
-            </EventsRow>
-          </ScrollSection>
-        )}
+      <Snackbar
+        open={!!successMessage}
+        autoHideDuration={6000}
+        onClose={() => setSuccessMessage(null)}
+      >
+        <Alert severity="success" onClose={() => setSuccessMessage(null)}>
+          {successMessage}
+        </Alert>
+      </Snackbar>
 
-        {activeTab === 2 && (
-          <ScrollSection>
-            <EventsRow>
-              {events.automatic.map((event) => renderEventCard(event, true))}
-            </EventsRow>
-          </ScrollSection>
-        )}
-
-        <ActionButtonsContainer>
-          <ActionButton
-            variant="outlined"
-            startIcon={<ShareIcon />}
-            onClick={() => setIsSocialHubOpen(true)}
-            size="small"
-          >
-            Social
-          </ActionButton>
-          <ActionButton
-            variant="outlined"
-            startIcon={<PhotoCameraIcon />}
-            onClick={() => setIsFlyerScannerOpen(true)}
-            size="small"
-          >
-            Scan
-          </ActionButton>
-          <ActionButton
+      {/* Main Content */}
+      <Box sx={{ py: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 4 }}>
+          <Typography variant="h4">Events</Typography>
+          <Button
             variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleCreateEvent}
-            size="small"
+            onClick={() => setIsCreateDialogOpen(true)}
           >
-            Create
-          </ActionButton>
-        </ActionButtonsContainer>
+            Create Event
+          </Button>
+        </Box>
+
+        {/* Upcoming Events */}
+        <Typography variant="h5" gutterBottom>
+          Upcoming Events
+        </Typography>
+        <Grid container spacing={isMobile ? 2 : 3}>
+          {events.upcoming.map((event) => (
+            <Grid item xs={12} sm={6} md={4} key={event.id}>
+              <Box
+                sx={{
+                  p: 2,
+                  border: "1px solid",
+                  borderColor: "divider",
+                  borderRadius: 1,
+                }}
+              >
+                {event.imageUrl && (
+                  <Box
+                    component="img"
+                    src={event.imageUrl}
+                    alt={event.title}
+                    sx={{
+                      width: "100%",
+                      height: 200,
+                      objectFit: "cover",
+                      cursor: "pointer",
+                      mb: 2,
+                    }}
+                    onClick={() => handleImageClick(event.imageUrl!)}
+                  />
+                )}
+                <Typography variant="h6">{event.title}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {event.date} • {event.startTime} - {event.endTime}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {event.location}
+                </Typography>
+                <Box sx={{ mt: 2 }}>
+                  <Button
+                    size="small"
+                    onClick={() => {
+                      setSelectedEvent(event);
+                      setFormData({
+                        ...event,
+                        imageFile: undefined,
+                      });
+                      setIsCreateDialogOpen(true);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    size="small"
+                    color="error"
+                    onClick={() => {
+                      setEventToDelete(event);
+                      setIsDeleteDialogOpen(true);
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </Box>
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
+
+        {/* Past Events */}
+        <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
+          Past Events
+        </Typography>
+        <Grid container spacing={isMobile ? 2 : 3}>
+          {events.past.map((event) => (
+            <Grid item xs={12} sm={6} md={4} key={event.id}>
+              <Box
+                sx={{
+                  p: 2,
+                  border: "1px solid",
+                  borderColor: "divider",
+                  borderRadius: 1,
+                  opacity: 0.7,
+                }}
+              >
+                {event.imageUrl && (
+                  <Box
+                    component="img"
+                    src={event.imageUrl}
+                    alt={event.title}
+                    sx={{
+                      width: "100%",
+                      height: 200,
+                      objectFit: "cover",
+                      cursor: "pointer",
+                      mb: 2,
+                    }}
+                    onClick={() => handleImageClick(event.imageUrl!)}
+                  />
+                )}
+                <Typography variant="h6">{event.title}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {event.date} • {event.startTime} - {event.endTime}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {event.location}
+                </Typography>
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
       </Box>
 
-      {/* Dialogs */}
-      <Dialog
-        open={isImageDialogOpen}
-        onClose={() => setIsImageDialogOpen(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogContent>
-          {selectedImage && (
-            <img
-              src={selectedImage}
-              alt="Event"
-              style={{ width: "100%", height: "auto" }}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-
-      <Dialog
-        open={isFlyerScannerOpen}
-        onClose={() => setIsFlyerScannerOpen(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>Scan Event Flyer</DialogTitle>
-        <DialogContent>
-          <Box sx={{ p: 2 }}>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFlyerUpload}
-              style={{ display: "none" }}
-              id="flyer-upload"
-            />
-            <label htmlFor="flyer-upload">
-              <Button
-                variant="contained"
-                component="span"
-                startIcon={<PhotoCameraIcon />}
-              >
-                Upload Flyer
-              </Button>
-            </label>
-          </Box>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog
-        open={isSocialHubOpen}
-        onClose={() => setIsSocialHubOpen(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>Import from Social Media</DialogTitle>
-        <DialogContent>
-          <Box sx={{ p: 2 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={4}>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  startIcon={<FacebookIcon />}
-                  onClick={() => {
-                    // Implement Facebook import
-                  }}
-                >
-                  Facebook
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  startIcon={<InstagramIcon />}
-                  onClick={() => {
-                    // Implement Instagram import
-                  }}
-                >
-                  Instagram
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  startIcon={<TwitterIcon />}
-                  onClick={() => {
-                    // Implement Twitter import
-                  }}
-                >
-                  Twitter
-                </Button>
-              </Grid>
-            </Grid>
-          </Box>
-        </DialogContent>
-      </Dialog>
-
+      {/* Create/Edit Dialog */}
       <Dialog
         open={isCreateDialogOpen}
-        onClose={() => setIsCreateDialogOpen(false)}
+        onClose={() =>
+          !isLoading && !isUploading && setIsCreateDialogOpen(false)
+        }
         maxWidth="md"
         fullWidth
       >
@@ -716,18 +526,19 @@ const EventsPage = () => {
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  required
                   label="Event Title"
                   value={formData.title}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, title: e.target.value }))
                   }
+                  error={!!formErrors.title}
+                  helperText={formErrors.title}
+                  disabled={isLoading}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  required
                   type="date"
                   label="Date"
                   value={formData.date}
@@ -735,12 +546,14 @@ const EventsPage = () => {
                     setFormData((prev) => ({ ...prev, date: e.target.value }))
                   }
                   InputLabelProps={{ shrink: true }}
+                  error={!!formErrors.date}
+                  helperText={formErrors.date}
+                  disabled={isLoading}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  required
                   label="Location"
                   value={formData.location}
                   onChange={(e) =>
@@ -749,6 +562,9 @@ const EventsPage = () => {
                       location: e.target.value,
                     }))
                   }
+                  error={!!formErrors.location}
+                  helperText={formErrors.location}
+                  disabled={isLoading}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -764,6 +580,7 @@ const EventsPage = () => {
                     }))
                   }
                   InputLabelProps={{ shrink: true }}
+                  disabled={isLoading}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -779,6 +596,7 @@ const EventsPage = () => {
                     }))
                   }
                   InputLabelProps={{ shrink: true }}
+                  disabled={isLoading}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -794,6 +612,9 @@ const EventsPage = () => {
                       description: e.target.value,
                     }))
                   }
+                  error={!!formErrors.description}
+                  helperText={formErrors.description}
+                  disabled={isLoading}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -807,265 +628,84 @@ const EventsPage = () => {
                       ticketLink: e.target.value,
                     }))
                   }
+                  error={!!formErrors.ticketLink}
+                  helperText={formErrors.ticketLink}
+                  disabled={isLoading}
                 />
               </Grid>
               <Grid item xs={12}>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={formData.uploadConfig.enabled}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          uploadConfig: {
-                            ...prev.uploadConfig,
-                            enabled: e.target.checked,
-                          },
-                        }))
-                      }
+                <Box sx={{ width: "100%" }}>
+                  <Button
+                    component="label"
+                    variant="outlined"
+                    fullWidth
+                    disabled={isLoading || isUploading}
+                    startIcon={
+                      isUploading ? <CircularProgress size={20} /> : undefined
+                    }
+                  >
+                    {isUploading
+                      ? `Uploading... ${uploadProgress}%`
+                      : "Upload Event Image"}
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/jpeg,image/png,image/gif"
+                      onChange={handleFlyerUpload}
+                      disabled={isUploading}
                     />
-                  }
-                  label="Enable Content Uploads"
-                />
-              </Grid>
-              {formData.uploadConfig.enabled && (
-                <>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      type="date"
-                      label="Upload Start Date"
-                      value={formData.uploadConfig.startDate}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          uploadConfig: {
-                            ...prev.uploadConfig,
-                            startDate: e.target.value,
-                          },
-                        }))
-                      }
-                      InputLabelProps={{ shrink: true }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      type="date"
-                      label="Upload End Date"
-                      value={formData.uploadConfig.endDate}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          uploadConfig: {
-                            ...prev.uploadConfig,
-                            endDate: e.target.value,
-                          },
-                        }))
-                      }
-                      InputLabelProps={{ shrink: true }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      type="time"
-                      label="Upload Start Time"
-                      value={formData.uploadConfig.startTime}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          uploadConfig: {
-                            ...prev.uploadConfig,
-                            startTime: e.target.value,
-                          },
-                        }))
-                      }
-                      InputLabelProps={{ shrink: true }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      type="time"
-                      label="Upload End Time"
-                      value={formData.uploadConfig.endTime}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          uploadConfig: {
-                            ...prev.uploadConfig,
-                            endTime: e.target.value,
-                          },
-                        }))
-                      }
-                      InputLabelProps={{ shrink: true }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      type="number"
-                      label="Max File Size (MB)"
-                      value={formData.uploadConfig.maxFileSize}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          uploadConfig: {
-                            ...prev.uploadConfig,
-                            maxFileSize: Number(e.target.value),
-                          },
-                        }))
-                      }
-                    />
-                  </Grid>
-                </>
-              )}
-              <Grid item xs={12}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFlyerUpload}
-                    style={{ display: "none" }}
-                    id="event-flyer-upload"
-                  />
-                  <label htmlFor="event-flyer-upload">
-                    <Button
-                      variant="outlined"
-                      component="span"
-                      startIcon={<PhotoCameraIcon />}
-                    >
-                      Upload Event Flyer
-                    </Button>
-                  </label>
-                  {formData.imageUrl && (
-                    <Box sx={{ position: "relative" }}>
-                      <img
-                        src={formData.imageUrl}
-                        alt="Event flyer preview"
-                        style={{
-                          width: 100,
-                          height: 100,
-                          objectFit: "cover",
-                          borderRadius: 4,
-                        }}
+                  </Button>
+                  {uploadProgress > 0 && uploadProgress < 100 && (
+                    <Box sx={{ width: "100%", mt: 1 }}>
+                      <LinearProgress
+                        variant="determinate"
+                        value={uploadProgress}
                       />
-                      <IconButton
-                        size="small"
-                        onClick={() =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            imageUrl: undefined,
-                            imageFile: undefined,
-                          }))
-                        }
-                        sx={{
-                          position: "absolute",
-                          top: -8,
-                          right: -8,
-                          bgcolor: "background.paper",
-                        }}
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
                     </Box>
                   )}
+                  {formData.imageUrl && (
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ mt: 1, display: "block" }}
+                    >
+                      Image uploaded successfully
+                    </Typography>
+                  )}
                 </Box>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Image URL"
-                  value={formData.imageUrl}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      imageUrl: e.target.value,
-                    }))
-                  }
-                />
               </Grid>
             </Grid>
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setIsCreateDialogOpen(false)}>Cancel</Button>
+          <Button
+            onClick={() => setIsCreateDialogOpen(false)}
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
           <Button
             variant="contained"
-            onClick={() => {
-              const eventDate = new Date(formData.date);
-              const now = new Date();
-              const category = eventDate > now ? "upcoming" : "past";
-
-              const newEvent: Event = {
-                id: selectedEvent?.id || Date.now().toString(),
-                title: formData.title,
-                date: formData.date,
-                startTime: formData.startTime,
-                endTime: formData.endTime,
-                location: formData.location,
-                description: formData.description,
-                imageUrl: formData.imageUrl,
-                imageFile: formData.imageFile,
-                ticketLink: formData.ticketLink,
-                uploadConfig: formData.uploadConfig,
-              };
-
-              setEvents((prev) => {
-                if (selectedEvent) {
-                  // Update existing event
-                  const currentCategory = prev.upcoming.find(
-                    (e) => e.id === selectedEvent.id
-                  )
-                    ? "upcoming"
-                    : prev.past.find((e) => e.id === selectedEvent.id)
-                    ? "past"
-                    : "automatic";
-
-                  return {
-                    ...prev,
-                    [currentCategory]: prev[currentCategory].map((e) =>
-                      e.id === selectedEvent.id ? newEvent : e
-                    ),
-                  };
-                } else {
-                  // Add new event
-                  return {
-                    ...prev,
-                    [category]: [...prev[category], newEvent],
-                  };
-                }
-              });
-
-              setIsCreateDialogOpen(false);
-              setSelectedEvent(null);
-              setFormData({
-                title: "",
-                date: new Date().toISOString().split("T")[0],
-                startTime: "",
-                endTime: "",
-                location: "",
-                description: "",
-                ticketLink: "",
-                uploadConfig: {
-                  enabled: false,
-                  maxFileSize: 100,
-                  allowedTypes: ["image/*", "video/*"],
-                },
-              });
-            }}
+            onClick={handleSaveEvent}
+            disabled={isLoading}
           >
-            {selectedEvent ? "Save Changes" : "Create Event"}
+            {isLoading
+              ? selectedEvent
+                ? "Saving..."
+                : "Creating..."
+              : selectedEvent
+              ? "Save Changes"
+              : "Create Event"}
           </Button>
         </DialogActions>
       </Dialog>
 
+      {/* Delete Confirmation Dialog */}
       <Dialog
-        open={isDeleteConfirmOpen}
-        onClose={() => setIsDeleteConfirmOpen(false)}
+        open={isDeleteDialogOpen}
+        onClose={() => !isDeleting && setIsDeleteDialogOpen(false)}
       >
-        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogTitle>Delete Event</DialogTitle>
         <DialogContent>
           <Typography>
             Are you sure you want to delete this event? This action cannot be
@@ -1073,62 +713,48 @@ const EventsPage = () => {
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setIsDeleteConfirmOpen(false)}>Cancel</Button>
-          <Button onClick={handleDeleteConfirm} color="error">
-            Delete
+          <Button
+            onClick={() => setIsDeleteDialogOpen(false)}
+            disabled={isDeleting}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDeleteEvent}
+            color="error"
+            disabled={isDeleting}
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
           </Button>
         </DialogActions>
       </Dialog>
 
-      <Menu
-        anchorEl={shareAnchorEl}
-        open={Boolean(shareAnchorEl)}
-        onClose={() => setShareAnchorEl(null)}
+      {/* Image Preview Dialog */}
+      <Dialog
+        open={isImageDialogOpen}
+        onClose={() => setIsImageDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
       >
-        <MenuItem onClick={() => setShareAnchorEl(null)}>
-          <ListItemIcon>
-            <FacebookIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Share on Facebook</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={() => setShareAnchorEl(null)}>
-          <ListItemIcon>
-            <TwitterIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Share on Twitter</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={() => setShareAnchorEl(null)}>
-          <ListItemIcon>
-            <InstagramIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Share on Instagram</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={() => setShareAnchorEl(null)}>
-          <ListItemIcon>
-            <WhatsAppIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Share on WhatsApp</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={() => setShareAnchorEl(null)}>
-          <ListItemIcon>
-            <MessageIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Share via Message</ListItemText>
-        </MenuItem>
-      </Menu>
-
-      {selectedQREvent && (
-        <QRCodeDialog
-          open={isQRDialogOpen}
-          onClose={() => {
-            setIsQRDialogOpen(false);
-            setSelectedQREvent(null);
-          }}
-          eventUrl={`https://dropclip.app/events/${selectedQREvent.id}`}
-        />
-      )}
+        <DialogContent>
+          {selectedImage && (
+            <Box
+              component="img"
+              src={selectedImage}
+              alt="Event"
+              sx={{
+                width: "100%",
+                height: "auto",
+                maxHeight: "80vh",
+                objectFit: "contain",
+              }}
+            />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsImageDialogOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
-};
-
-export default EventsPage;
+}

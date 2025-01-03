@@ -1,117 +1,82 @@
+import React from "react";
 import {
   Box,
-  Card,
-  CardContent,
+  Button,
   Typography,
-  Radio,
   RadioGroup,
   FormControlLabel,
+  Radio,
   TextField,
-  Grid,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import { UserType, CreativeCategory } from "../../types/auth.types";
-import { FanIcon, CreativeIcon } from "../../components/icons";
+import { CreativeIcon, FanIcon } from "../../components/icons";
 
 interface UserTypeSelectProps {
   selectedType: UserType | null;
   selectedCreativeType?: CreativeCategory;
-  customCreativeType?: string;
+  customCreativeType: string;
   onSelect: (type: UserType) => void;
   onCreativeTypeSelect: (type: CreativeCategory) => void;
   onCustomCreativeTypeChange: (value: string) => void;
 }
 
-const StyledCard = styled(Card)(({ theme }) => ({
-  cursor: "pointer",
-  height: "100%",
-  backgroundColor: "rgba(255, 255, 255, 0.05)",
-  border: "1px solid rgba(255, 255, 255, 0.1)",
-  transition: "all 0.3s ease",
-  "&:hover": {
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-    transform: "translateY(-2px)",
-  },
-  "&.selected": {
-    borderColor: theme.palette.primary.main,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-  },
-}));
-
-const IconWrapper = styled(Box)(({ theme }) => ({
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  marginBottom: theme.spacing(2),
-  "& svg": {
-    width: 48,
-    height: 48,
-  },
-}));
-
-export const UserTypeSelect = ({
+export const UserTypeSelect: React.FC<UserTypeSelectProps> = ({
   selectedType,
   selectedCreativeType,
-  customCreativeType = "",
+  customCreativeType,
   onSelect,
   onCreativeTypeSelect,
   onCustomCreativeTypeChange,
-}: UserTypeSelectProps) => {
-  const handleCardClick = (type: UserType) => {
-    onSelect(type);
-  };
-
+}) => {
   return (
-    <Box sx={{ width: "100%" }}>
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
-          <StyledCard
-            onClick={() => handleCardClick(UserType.FAN)}
-            className={selectedType === UserType.FAN ? "selected" : ""}
-          >
-            <CardContent>
-              <IconWrapper>
-                <FanIcon
-                  color={selectedType === UserType.FAN ? "primary" : "inherit"}
-                />
-              </IconWrapper>
-              <Typography variant="h6" gutterBottom align="center">
-                Fan
-              </Typography>
-              <Typography variant="body2" color="text.secondary" align="center">
-                Discover and connect with your favorite creatives. Get exclusive
-                access to events and content.
-              </Typography>
-            </CardContent>
-          </StyledCard>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <StyledCard
-            onClick={() => handleCardClick(UserType.CREATIVE)}
-            className={selectedType === UserType.CREATIVE ? "selected" : ""}
-          >
-            <CardContent>
-              <IconWrapper>
-                <CreativeIcon
-                  color={
-                    selectedType === UserType.CREATIVE ? "primary" : "inherit"
-                  }
-                />
-              </IconWrapper>
-              <Typography variant="h6" gutterBottom align="center">
-                Creative
-              </Typography>
-              <Typography variant="body2" color="text.secondary" align="center">
-                Share your talent with the world. Create events, manage your
-                content, and grow your audience.
-              </Typography>
-            </CardContent>
-          </StyledCard>
-        </Grid>
-      </Grid>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+        alignItems: "center",
+      }}
+    >
+      <Typography variant="h5" gutterBottom>
+        Choose your account type
+      </Typography>
+
+      <Button
+        variant="outlined"
+        onClick={() => onSelect(UserType.CREATIVE)}
+        startIcon={<CreativeIcon />}
+        sx={{
+          width: "100%",
+          justifyContent: "flex-start",
+          p: 2,
+          backgroundColor:
+            selectedType === UserType.CREATIVE
+              ? "rgba(255, 255, 255, 0.08)"
+              : "transparent",
+        }}
+      >
+        Creative
+      </Button>
+
+      <Button
+        variant="outlined"
+        onClick={() => onSelect(UserType.FAN)}
+        startIcon={<FanIcon />}
+        sx={{
+          width: "100%",
+          justifyContent: "flex-start",
+          p: 2,
+          backgroundColor:
+            selectedType === UserType.FAN
+              ? "rgba(255, 255, 255, 0.08)"
+              : "transparent",
+        }}
+      >
+        Fan
+      </Button>
 
       {selectedType === UserType.CREATIVE && (
-        <Box sx={{ mt: 3 }}>
+        <Box sx={{ width: "100%", mt: 2 }}>
           <Typography variant="subtitle1" gutterBottom>
             What type of creative are you?
           </Typography>
@@ -171,3 +136,5 @@ export const UserTypeSelect = ({
     </Box>
   );
 };
+
+export default UserTypeSelect;

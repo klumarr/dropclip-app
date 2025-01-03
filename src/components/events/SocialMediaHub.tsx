@@ -10,7 +10,6 @@ import {
   ListItemSecondaryAction,
   IconButton,
   Divider,
-  useTheme,
 } from "@mui/material";
 import {
   Facebook,
@@ -27,17 +26,17 @@ interface SocialMediaHubProps {
 const mockEvents = [
   {
     id: "1",
-    platform: "instagram",
-    title: "Live Performance",
-    date: new Date("2024-03-15"),
-    location: "Jazz Club Downtown",
+    platform: "facebook",
+    title: "Summer Music Festival",
+    date: new Date("2024-06-15"),
+    location: "Central Park",
   },
   {
     id: "2",
-    platform: "facebook",
-    title: "Album Release Party",
-    date: new Date("2024-04-01"),
-    location: "Music Hall",
+    platform: "instagram",
+    title: "Art Exhibition",
+    date: new Date("2024-04-10"),
+    location: "City Gallery",
   },
   {
     id: "3",
@@ -49,7 +48,6 @@ const mockEvents = [
 ];
 
 const SocialMediaHub = ({ onEventImported }: SocialMediaHubProps) => {
-  const theme = useTheme();
   const [importedEvents, setImportedEvents] = useState<string[]>([]);
 
   const handleImport = (event: any) => {

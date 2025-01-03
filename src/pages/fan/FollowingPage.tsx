@@ -75,7 +75,7 @@ const FollowingPage = () => {
     // Add more mock updates here
   ];
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+  const handleTabChange = (_: React.SyntheticEvent, newValue: string) => {
     setActiveTab(newValue);
   };
 

@@ -1,10 +1,15 @@
 import { Box, useMediaQuery, useTheme } from "@mui/material";
 import { Header } from "./Header";
-import { SideMenu } from "./SideMenu";
 import MobileNavigation from "./MobileNavigation";
 import { styled } from "@mui/material/styles";
-import { useState } from "react";
 import { VideoPlayerContainer } from "../player/VideoPlayerContainer";
+
+const RootContainer = styled(Box)({
+  display: "flex",
+  height: "100vh",
+  overflow: "hidden",
+  position: "relative",
+});
 
 const MainContent = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -23,13 +28,6 @@ const MainContent = styled(Box)(({ theme }) => ({
   },
 }));
 
-const RootContainer = styled(Box)({
-  display: "flex",
-  height: "100vh",
-  overflow: "hidden",
-  position: "relative",
-});
-
 const PlayerWrapper = styled(Box)(({ theme }) => ({
   position: "fixed",
   bottom: theme.spacing(0),
@@ -42,43 +40,23 @@ const PlayerWrapper = styled(Box)(({ theme }) => ({
 }));
 
 export const AppLayout = ({ children }: { children: React.ReactNode }) => {
-  const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const handleMenuOpen = () => {
     console.log("Opening menu");
-    setIsSideMenuOpen(true);
-  };
-
-  const handleMenuClose = () => {
-    console.log("Closing menu");
-    setIsSideMenuOpen(false);
   };
 
   return (
     <RootContainer>
-      <Header onMenuOpen={handleMenuOpen} />
-      <SideMenu
-        open={isSideMenuOpen}
-        onClose={handleMenuClose}
-        variant={isMobile ? "temporary" : "persistent"}
-      />
-      <MainContent
-        sx={{
-          marginLeft: !isMobile && isSideMenuOpen ? "240px" : 0,
-          transition: theme.transitions.create(["margin", "width"], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-          }),
-        }}
-      >
-        {children}
-      </MainContent>
+      <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+        <Header onMenuOpen={handleMenuOpen} />
+        <MainContent component="main">{children}</MainContent>
+        {isMobile && <MobileNavigation />}
+      </Box>
       <PlayerWrapper>
         <VideoPlayerContainer />
       </PlayerWrapper>
-      {isMobile && <MobileNavigation />}
     </RootContainer>
   );
 };

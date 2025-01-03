@@ -7,6 +7,19 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      stream: "stream-browserify",
+      buffer: "buffer",
+      util: "util",
+    },
+  },
+  define: {
+    global: {},
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      define: {
+        global: "globalThis",
+      },
     },
   },
   server: {
