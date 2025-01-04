@@ -1,6 +1,10 @@
 import React from "react";
 import { Box, Typography, IconButton } from "@mui/material";
-import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
+import {
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Share as ShareIcon,
+} from "@mui/icons-material";
 import {
   EventCard as StyledEventCard,
   EventCardMedia,
@@ -18,12 +22,18 @@ interface Event {
   imageUrl?: string;
   ticketLink?: string;
   isAutomatic?: boolean;
+  uploadConfig?: {
+    enabled: boolean;
+    allowedTypes: string[];
+    maxFileSize: number;
+  };
 }
 
 interface EventCardProps {
   event: Event;
   onEdit: () => void;
   onDelete: () => void;
+  onShare: (e: React.MouseEvent<HTMLElement>) => void;
   isPast?: boolean;
 }
 
@@ -31,8 +41,17 @@ const EventCard: React.FC<EventCardProps> = ({
   event,
   onEdit,
   onDelete,
+  onShare,
   isPast = false,
 }) => {
+  const handleClick = (
+    e: React.MouseEvent<HTMLElement>,
+    action: (e: React.MouseEvent<HTMLElement>) => void
+  ) => {
+    e.stopPropagation();
+    action(e);
+  };
+
   return (
     <StyledEventCard
       sx={{
@@ -62,13 +81,41 @@ const EventCard: React.FC<EventCardProps> = ({
         <Typography variant="body2" color="text.secondary" gutterBottom>
           {event.location}
         </Typography>
-        <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
-          <IconButton size="small" onClick={onEdit}>
-            <EditIcon />
-          </IconButton>
-          <IconButton size="small" onClick={onDelete}>
-            <DeleteIcon />
-          </IconButton>
+        {event.description && (
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            {event.description}
+          </Typography>
+        )}
+        <Box
+          sx={{
+            display: "flex",
+            gap: 1,
+            mt: 2,
+            justifyContent: "space-between",
+          }}
+        >
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <IconButton
+              size="small"
+              onClick={(e) => handleClick(e, () => onEdit())}
+            >
+              <EditIcon />
+            </IconButton>
+            <IconButton
+              size="small"
+              onClick={(e) => handleClick(e, () => onDelete())}
+            >
+              <DeleteIcon />
+            </IconButton>
+            <IconButton size="small" onClick={(e) => handleClick(e, onShare)}>
+              <ShareIcon />
+            </IconButton>
+          </Box>
+          {event.uploadConfig?.enabled && (
+            <Typography variant="caption" color="text.secondary">
+              Uploads Enabled
+            </Typography>
+          )}
         </Box>
       </EventCardContent>
     </StyledEventCard>

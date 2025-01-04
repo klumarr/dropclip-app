@@ -9,7 +9,13 @@
  */
 
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import {
+  DynamoDBDocumentClient,
+  ScanCommand,
+  UpdateCommand,
+  DeleteCommand,
+  GetCommand,
+} from "@aws-sdk/lib-dynamodb";
 
 const EVENTS_TABLE_NAME = process.env.EVENTS_TABLE_NAME || "dropclip-events";
 
@@ -40,8 +46,11 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "http://localhost:5174",
   "Access-Control-Allow-Headers":
     "Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token",
-  "Access-Control-Allow-Methods": "GET,OPTIONS",
+  "Access-Control-Allow-Methods": "GET,PUT,DELETE,OPTIONS",
   "Access-Control-Allow-Credentials": "true",
+  "Access-Control-Max-Age": "3600",
+  "Access-Control-Expose-Headers":
+    "Date,Authorization,X-Api-Key,X-Amz-Date,X-Amz-Security-Token,X-Amz-User-Agent,Content-Type,Content-Length",
   "Content-Type": "application/json",
 };
 
@@ -65,17 +74,14 @@ const decodeJWT = (authHeader) => {
 };
 
 const getUserIdFromEvent = (event) => {
-  // Log the full event for debugging
   console.log("Full event for debugging:", JSON.stringify(event, null, 2));
 
-  // Try to get user ID from Cognito authorizer first
   const cognitoSub = event.requestContext?.authorizer?.claims?.sub;
   if (cognitoSub) {
     console.log("Found user ID in Cognito claims:", cognitoSub);
     return cognitoSub;
   }
 
-  // Try to decode JWT from Authorization header
   const authHeader = event.headers?.Authorization;
   if (authHeader) {
     const decodedToken = decodeJWT(authHeader);
@@ -85,7 +91,6 @@ const getUserIdFromEvent = (event) => {
     }
   }
 
-  // Try fallback options
   const fallbackId =
     event.headers?.["x-user-id"] ||
     event.requestContext?.authorizer?.userId ||
@@ -93,6 +98,68 @@ const getUserIdFromEvent = (event) => {
 
   console.log("Fallback user ID:", fallbackId);
   return fallbackId;
+};
+
+const verifyEventOwnership = async (eventId, userId) => {
+  try {
+    console.log("🔍 Ownership verification started:", { eventId, userId });
+
+    // First try to get the event with just the id to check if it exists
+    const getByIdCommand = new GetCommand({
+      TableName: EVENTS_TABLE_NAME,
+      Key: { id: eventId },
+    });
+
+    const eventResult = await docClient.send(getByIdCommand);
+    console.log("📦 Event lookup result:", {
+      found: !!eventResult.Item,
+      eventId,
+      eventUserId: eventResult.Item?.user_id,
+      requestingUserId: userId,
+      item: eventResult.Item,
+    });
+
+    if (!eventResult.Item) {
+      console.log("❌ Event not found:", eventId);
+      return false;
+    }
+
+    // Check if the user_id matches
+    const isOwner = eventResult.Item.user_id === userId;
+    console.log("🔐 Ownership check:", {
+      isOwner,
+      eventUserId: eventResult.Item.user_id,
+      requestingUserId: userId,
+    });
+
+    return isOwner;
+  } catch (error) {
+    console.error("❌ Error verifying event ownership:", error);
+    return false;
+  }
+};
+
+const verifyAuthorization = (event) => {
+  console.log("🔒 Verifying authorization:", {
+    claims: event.requestContext?.authorizer?.claims,
+    scopes: event.requestContext?.authorizer?.claims?.scope,
+    requiredScope: "aws.cognito.signin.user.admin",
+  });
+
+  // Check if we have the required scope
+  const scopes =
+    event.requestContext?.authorizer?.claims?.scope?.split(" ") || [];
+  const hasRequiredScope = scopes.includes("aws.cognito.signin.user.admin");
+
+  if (!hasRequiredScope) {
+    console.log("❌ Missing required scope:", {
+      availableScopes: scopes,
+      requiredScope: "aws.cognito.signin.user.admin",
+    });
+    return false;
+  }
+
+  return true;
 };
 
 export const handler = async (event) => {
@@ -106,7 +173,6 @@ export const handler = async (event) => {
       httpMethod: event?.httpMethod,
     });
 
-    // Handle OPTIONS request for CORS preflight
     if (event.httpMethod === "OPTIONS") {
       console.log("Handling OPTIONS request");
       return {
@@ -116,7 +182,6 @@ export const handler = async (event) => {
       };
     }
 
-    // Get user ID using the helper function
     const userId = getUserIdFromEvent(event);
 
     console.log("Auth debug:", {
@@ -145,7 +210,194 @@ export const handler = async (event) => {
       };
     }
 
-    // Test DynamoDB permissions first
+    // Handle different HTTP methods
+    if (event.httpMethod === "PUT" || event.httpMethod === "DELETE") {
+      console.log("🛠️ Processing PUT/DELETE request:", {
+        method: event.httpMethod,
+        pathParameters: event.pathParameters,
+        userId: userId,
+        authorizerClaims: event.requestContext?.authorizer?.claims,
+        authHeader: event.headers?.Authorization?.substring(0, 20) + "...",
+      });
+
+      // First verify authorization
+      if (!verifyAuthorization(event)) {
+        return {
+          statusCode: 403,
+          headers: corsHeaders,
+          body: JSON.stringify({
+            message:
+              "Forbidden - Missing required scope aws.cognito.signin.user.admin",
+          }),
+        };
+      }
+
+      const eventId = event.pathParameters?.eventId;
+      if (!eventId) {
+        console.log("❌ No event ID in path parameters");
+        return {
+          statusCode: 400,
+          headers: corsHeaders,
+          body: JSON.stringify({ message: "Event ID is required" }),
+        };
+      }
+
+      // Then verify ownership
+      console.log("🔑 Starting ownership verification for:", {
+        eventId,
+        userId,
+        headers: event.headers,
+        claims: event.requestContext?.authorizer?.claims,
+      });
+
+      const isOwner = await verifyEventOwnership(eventId, userId);
+
+      console.log("✅ Ownership verification result:", {
+        isOwner,
+        eventId,
+        userId,
+      });
+
+      if (!isOwner) {
+        return {
+          statusCode: 403,
+          headers: corsHeaders,
+          body: JSON.stringify({
+            message: "Forbidden - You don't own this event",
+          }),
+        };
+      }
+
+      if (event.httpMethod === "PUT") {
+        try {
+          console.log("📝 PUT request details:", {
+            eventId,
+            userId,
+            requestContext: event.requestContext,
+            claims: event.requestContext?.authorizer?.claims,
+            headers: event.headers,
+          });
+
+          const updateData = JSON.parse(event.body);
+          console.log("📦 Update data:", updateData);
+
+          // First, get the existing event to preserve user_id
+          const getCommand = new GetCommand({
+            TableName: EVENTS_TABLE_NAME,
+            Key: { id: eventId },
+          });
+
+          const existingEvent = await docClient.send(getCommand);
+          console.log("📋 Existing event:", existingEvent.Item);
+
+          if (!existingEvent.Item) {
+            return {
+              statusCode: 404,
+              headers: corsHeaders,
+              body: JSON.stringify({
+                message: "Event not found",
+              }),
+            };
+          }
+
+          // Filter out key attributes and unchanged values
+          const filteredUpdateData = Object.fromEntries(
+            Object.entries(updateData).filter(
+              ([key]) =>
+                key !== "id" && key !== "user_id" && key !== "_metadata"
+            )
+          );
+
+          // Create update expression and attribute values
+          const updateExpression = [];
+          const expressionAttributeValues = {};
+          const expressionAttributeNames = {};
+
+          Object.entries(filteredUpdateData).forEach(([key, value]) => {
+            updateExpression.push(`#${key} = :${key}`);
+            expressionAttributeValues[`:${key}`] = value;
+            expressionAttributeNames[`#${key}`] = key;
+          });
+
+          // Only proceed if there are attributes to update
+          if (updateExpression.length === 0) {
+            return {
+              statusCode: 400,
+              headers: corsHeaders,
+              body: JSON.stringify({
+                message: "No valid attributes to update",
+              }),
+            };
+          }
+
+          console.log("🔧 Update command:", {
+            updateExpression: `SET ${updateExpression.join(", ")}`,
+            expressionAttributeValues,
+            expressionAttributeNames,
+          });
+
+          const command = new UpdateCommand({
+            TableName: EVENTS_TABLE_NAME,
+            Key: {
+              id: eventId,
+              user_id: existingEvent.Item.user_id,
+            },
+            UpdateExpression: `SET ${updateExpression.join(", ")}`,
+            ExpressionAttributeValues: expressionAttributeValues,
+            ExpressionAttributeNames: expressionAttributeNames,
+            ReturnValues: "ALL_NEW",
+          });
+
+          console.log("🔄 Executing update with key:", command.input.Key);
+
+          const result = await docClient.send(command);
+          console.log("✅ Update result:", result);
+
+          return {
+            statusCode: 200,
+            headers: corsHeaders,
+            body: JSON.stringify({
+              message: "Event updated successfully",
+              event: result.Attributes,
+            }),
+          };
+        } catch (error) {
+          console.error("❌ Error in PUT request:", error);
+          return {
+            statusCode: 500,
+            headers: corsHeaders,
+            body: JSON.stringify({
+              message: "Error updating event",
+              error: error.message || "Unknown error",
+            }),
+          };
+        }
+      }
+
+      if (event.httpMethod === "DELETE") {
+        const command = new DeleteCommand({
+          TableName: EVENTS_TABLE_NAME,
+          Key: {
+            id: eventId,
+            user_id: userId,
+          },
+          ReturnValues: "ALL_OLD",
+        });
+
+        await docClient.send(command);
+
+        return {
+          statusCode: 200,
+          headers: corsHeaders,
+          body: JSON.stringify({
+            message: "Event deleted successfully",
+            eventId,
+          }),
+        };
+      }
+    }
+
+    // Original GET logic
     try {
       console.log("Testing DynamoDB permissions...");
       const testCommand = new ScanCommand({
@@ -168,7 +420,6 @@ export const handler = async (event) => {
       };
     }
 
-    // Fetch events from DynamoDB
     console.log("Creating DynamoDB command for user:", userId);
     const command = new ScanCommand({
       TableName: EVENTS_TABLE_NAME,
@@ -183,46 +434,27 @@ export const handler = async (event) => {
     const result = await docClient.send(command);
     console.log("DynamoDB result:", JSON.stringify(result, null, 2));
 
-    try {
-      // Ensure events are serializable
-      const events = (result?.Items || []).map((item) => ({
-        ...item,
-        _metadata: undefined, // Remove any internal DynamoDB metadata
-      }));
+    const events = (result?.Items || []).map((item) => ({
+      ...item,
+      _metadata: undefined,
+    }));
 
-      // Format response for API Gateway
-      const responseBody = JSON.stringify({
-        events,
-        message: "Events retrieved successfully",
-      });
+    const responseBody = JSON.stringify({
+      events,
+      message: "Events retrieved successfully",
+    });
 
-      // Test that the response can be parsed back
-      JSON.parse(responseBody);
+    JSON.parse(responseBody);
 
-      const response = {
-        statusCode: 200,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json",
-        },
-        body: responseBody,
-        isBase64Encoded: false,
-      };
+    const response = {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: responseBody,
+      isBase64Encoded: false,
+    };
 
-      console.log("Sending response:", JSON.stringify(response, null, 2));
-      return response;
-    } catch (serializationError) {
-      console.error("Error serializing response:", serializationError);
-      return {
-        statusCode: 500,
-        headers: corsHeaders,
-        body: JSON.stringify({
-          message: "Error formatting response",
-          error: serializationError?.message || "Unknown serialization error",
-        }),
-        isBase64Encoded: false,
-      };
-    }
+    console.log("Sending response:", JSON.stringify(response, null, 2));
+    return response;
   } catch (error) {
     console.error("Error in Lambda handler:", error);
     console.error("Error details:", {
