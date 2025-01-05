@@ -82,6 +82,7 @@ const SignInPage: React.FC = () => {
         display: "flex",
         flexDirection: "column",
         gap: 2,
+        width: "100%",
       }}
     >
       <Typography variant="h4" component="h1" gutterBottom align="center">

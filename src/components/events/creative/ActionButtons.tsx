@@ -64,7 +64,16 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
           },
         },
         "& .MuiSpeedDialAction-staticTooltip": {
+          whiteSpace: "nowrap",
+          backgroundColor: "transparent",
           display: open ? "flex" : "none",
+        },
+        "& .MuiSpeedDialAction-staticTooltipLabel": {
+          backgroundColor: "rgba(0, 0, 0, 0.8)",
+          padding: "4px 8px",
+          borderRadius: "4px",
+          fontSize: "0.875rem",
+          whiteSpace: "nowrap",
         },
         "& .MuiSpeedDialAction-fab": {
           opacity: open ? 1 : 0,
@@ -74,6 +83,10 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
             duration: theme.transitions.duration.shortest,
           })}`,
           transform: open ? "scale(1)" : "scale(0)",
+          backgroundColor: theme.palette.background.paper,
+          "&:hover": {
+            backgroundColor: theme.palette.action.hover,
+          },
         },
       }}
       icon={<SpeedDialIcon openIcon={<CloseIcon />} />}

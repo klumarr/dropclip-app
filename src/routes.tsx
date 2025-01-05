@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
-import SignInPage from "./pages/SignInPage.tsx";
+import SignInPage from "./pages/auth/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import EventManagementPage from "./pages/EventManagementPage";

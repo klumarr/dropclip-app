@@ -44,26 +44,104 @@ try {
 // CORS headers for all responses
 const getAllowedOrigins = () => {
   const origins = [
+    // Development origins
     "http://localhost:5174",
     "https://localhost:5174",
-    "https://*.ngrok-free.app"  // This will match any ngrok subdomain
+
+    // Local network origins
+    "http://192.168.*",
+    "https://192.168.*",
+    "http://172.16.*",
+    "https://172.16.*",
+    "http://10.*",
+    "https://10.*",
+
+    // Tunnel services
+    "https://*.ngrok-free.app",
+    "https://*.localhost.run",
+    "http://*.localhost.run",
+    "https://*.lhr.life",
+    "http://*.lhr.life",
   ];
   return origins;
 };
 
-const corsHeaders = (origin: string) => ({
-  "Access-Control-Allow-Origin": getAllowedOrigins().some(allowed => 
-    allowed.includes("*") ? origin.endsWith(allowed.replace("*", "")) : origin === allowed
-  ) ? origin : "http://localhost:5174",
-  "Access-Control-Allow-Headers":
-    "Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token",
-  "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,OPTIONS",
-  "Access-Control-Allow-Credentials": "true",
-  "Access-Control-Max-Age": "3600",
-  "Access-Control-Expose-Headers":
-    "Date,Authorization,X-Api-Key,X-Amz-Date,X-Amz-Security-Token,X-Amz-User-Agent,Content-Type,Content-Length",
-  "Content-Type": "application/json",
-});
+const isOriginAllowed = (origin) => {
+  if (!origin) {
+    console.log("❌ No origin provided");
+    return false;
+  }
+
+  console.log("🔍 Checking origin:", origin);
+
+  // Check if origin matches any of our patterns
+  for (const pattern of getAllowedOrigins()) {
+    console.log(`\n📝 Testing pattern: ${pattern}`);
+
+    // If pattern has no wildcard, do exact match
+    if (!pattern.includes("*")) {
+      const matches = origin === pattern;
+      console.log(`   Exact match test: ${matches}`);
+      if (matches) return true;
+      continue;
+    }
+
+    // Convert the pattern to a regex
+    // First escape all special regex characters except *
+    const escapedPattern = pattern.replace(/[.+?^${}()|[\]\\]/g, "\\$&");
+    // Then replace * with .* to match any characters
+    const regexPattern = escapedPattern.replace(/\*/g, ".*");
+    const regex = new RegExp(`^${regexPattern}$`);
+
+    console.log(`   Regex pattern: ${regex}`);
+    const matches = regex.test(origin);
+    console.log(`   Regex match: ${matches}`);
+
+    if (matches) {
+      console.log("✅ Found matching pattern!");
+      return true;
+    }
+  }
+
+  console.log("❌ No matching pattern found");
+  return false;
+};
+
+const corsHeaders = (origin) => {
+  // If no origin provided, use localhost as fallback
+  if (!origin) {
+    console.log("⚠️ No origin provided, using localhost fallback");
+    origin = "http://localhost:5174";
+  }
+
+  const isAllowed = isOriginAllowed(origin);
+
+  // Log the origin and whether it's allowed
+  console.log("🌐 CORS Check:", {
+    receivedOrigin: origin,
+    isAllowed,
+    allowedPatterns: getAllowedOrigins(),
+    willUseOrigin: isAllowed ? origin : origin, // Always use the actual origin
+  });
+
+  // When using credentials, we must return the actual origin
+  const headers = {
+    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Headers":
+      "Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token",
+    "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,OPTIONS",
+    "Access-Control-Allow-Credentials": "true",
+    "Access-Control-Max-Age": "3600",
+    "Access-Control-Expose-Headers":
+      "Date,Authorization,X-Api-Key,X-Amz-Date,X-Amz-Security-Token,X-Amz-User-Agent,Content-Type,Content-Length",
+    "Content-Type": "application/json",
+    Vary: "Origin",
+  };
+
+  console.log("🔧 Returning CORS headers:", headers);
+
+  return headers;
+};
 
 const decodeJWT = (authHeader) => {
   try {

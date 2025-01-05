@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Event } from "../types/events";
 import { useEvents } from "../contexts/EventsContext";
+import { defaultUploadConfig } from "../types/events";
 
 export const useEventActions = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -10,6 +11,17 @@ export const useEventActions = () => {
   const { setIsCreateDialogOpen, setNewEvent } = useEvents();
 
   const handleInitiateCreate = () => {
+    setNewEvent({
+      title: "",
+      date: new Date().toISOString().split("T")[0],
+      startTime: "",
+      endTime: "",
+      location: "",
+      description: "",
+      imageUrl: "",
+      ticketLink: "",
+      uploadConfig: defaultUploadConfig,
+    });
     setIsCreateDialogOpen(true);
   };
 

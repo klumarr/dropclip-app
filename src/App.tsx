@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
-import { ThemeProvider } from "@mui/material";
+import { ThemeProvider, CssBaseline } from "@mui/material";
 import { EventsProvider } from "./contexts/EventsContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
@@ -11,6 +11,7 @@ const App: React.FC = () => {
   return (
     <BrowserRouter>
       <ThemeProvider theme={theme}>
+        <CssBaseline />
         <AuthProvider>
           <NotificationProvider>
             <EventsProvider>

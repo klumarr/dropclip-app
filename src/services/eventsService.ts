@@ -66,7 +66,7 @@ export const eventOperations = {
       const response = await fetch(url, {
         method: "GET",
         headers,
-        credentials: "same-origin",
+        credentials: "include",
       });
 
       console.log("Response status:", response.status);
@@ -121,7 +121,7 @@ export const eventOperations = {
       const response = await fetch(`${API_BASE_URL}/events/creative`, {
         method: "POST",
         headers,
-        credentials: "same-origin",
+        credentials: "include",
         body: JSON.stringify(eventData),
       });
 
@@ -185,7 +185,7 @@ export const eventOperations = {
       const response = await fetch(url, {
         method: "PUT",
         headers,
-        credentials: "same-origin",
+        credentials: "include",
         body: JSON.stringify(updateData),
       });
 
@@ -220,7 +220,7 @@ export const eventOperations = {
       console.log("Making DELETE request with headers:", {
         method: "DELETE",
         headersPresent: Object.keys(headers),
-        credentials: "same-origin",
+        credentials: "include",
       });
 
       const response = await fetch(
@@ -228,7 +228,7 @@ export const eventOperations = {
         {
           method: "DELETE",
           headers,
-          credentials: "same-origin",
+          credentials: "include",
         }
       );
 

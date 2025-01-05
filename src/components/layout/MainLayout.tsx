@@ -32,12 +32,14 @@ const MainLayout = () => {
             backgroundColor: theme.palette.background.default,
             minHeight: "100vh",
             width: "100vw",
-            overflow: "hidden",
+            overflowX: "hidden",
+            overflowY: "auto",
           },
           "#root": {
             minHeight: "100vh",
             width: "100vw",
-            overflow: "hidden",
+            overflowX: "hidden",
+            overflowY: "auto",
           },
         }}
       />
@@ -50,7 +52,8 @@ const MainLayout = () => {
           backgroundColor: "background.default",
           margin: 0,
           padding: 0,
-          overflow: "hidden",
+          overflowX: "hidden",
+          overflowY: "auto",
         }}
       >
         <Header onMenuOpen={handleSidebarToggle} />
@@ -60,8 +63,9 @@ const MainLayout = () => {
             display: "flex",
             flex: 1,
             position: "relative",
-            overflow: "hidden",
             width: "100%",
+            overflowX: "hidden",
+            overflowY: "auto",
           }}
         >
           <SideMenu

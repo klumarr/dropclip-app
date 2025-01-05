@@ -22,14 +22,26 @@ const EventsGrid: React.FC<EventsGridProps> = ({
     );
   }
 
-  // Sort events by date (nearest first)
+  // Sort events by date
   const sortedEvents = [...events].sort((a, b) => {
-    const dateA = new Date(a.date + (a.startTime || ""));
-    const dateB = new Date(b.date + (b.startTime || ""));
-    return (
-      Math.abs(dateA.getTime() - Date.now()) -
-      Math.abs(dateB.getTime() - Date.now())
-    );
+    const dateA = new Date(a.date).getTime();
+    const dateB = new Date(b.date).getTime();
+    const now = Date.now();
+    const isPastA = dateA < now;
+    const isPastB = dateB < now;
+
+    // If both events are in the same category (past or upcoming)
+    if (isPastA === isPastB) {
+      // For past events, sort by most recent first
+      if (isPastA) {
+        return dateB - dateA;
+      }
+      // For upcoming events, sort by nearest first
+      return dateA - dateB;
+    }
+
+    // If events are in different categories, upcoming events come first
+    return isPastA ? 1 : -1;
   });
 
   return (
@@ -41,7 +53,6 @@ const EventsGrid: React.FC<EventsGridProps> = ({
             event={event}
             onEdit={() => onEdit(event)}
             onDelete={() => onDelete(event)}
-            onShare={() => {}} // TODO: Implement share functionality
             isPast={new Date(event.date) < new Date()}
           />
         ))}

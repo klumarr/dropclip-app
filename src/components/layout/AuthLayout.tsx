@@ -1,11 +1,8 @@
 import React from "react";
-import { Box, Paper, Container, useTheme, useMediaQuery } from "@mui/material";
+import { Box, Container } from "@mui/material";
 import { Outlet } from "react-router-dom";
 
 const AuthLayout: React.FC = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
   return (
     <Box
       sx={{
@@ -18,19 +15,16 @@ const AuthLayout: React.FC = () => {
       }}
     >
       <Container maxWidth="sm">
-        <Paper
-          elevation={isMobile ? 0 : 3}
+        <Box
           sx={{
-            p: { xs: 2, sm: 4 },
-            borderRadius: { xs: 0, sm: 2 },
-            bgcolor: "background.paper",
-            minHeight: isMobile ? "100vh" : "auto",
             display: "flex",
             flexDirection: "column",
+            gap: 2,
+            width: "100%",
           }}
         >
           <Outlet />
-        </Paper>
+        </Box>
       </Container>
     </Box>
   );

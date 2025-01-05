@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:lambda": "tsc -p tsconfig.lambda.json",
-    "deploy:lambda": "npm run build:lambda && aws lambda update-function-code --function-name getCreativeEvents --zip-file fileb://dist/lambda/events/getCreativeEvents.js",
+    "build:lambda": "mkdir -p dist && cp src/lambda/events/getCreativeEvents.ts dist/index.js && cd dist && zip getCreativeEvents.zip index.js",
+    "deploy:lambda": "npm run build:lambda && aws lambda update-function-code --function-name dropclip-get-creative-events --zip-file fileb://dist/getCreativeEvents.zip",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "prepare": "husky install"
@@ -38,7 +38,8 @@
     "recharts": "^2.10.3",
     "stream-browserify": "^3.0.0",
     "tesseract.js": "^4.1.1",
-    "util": "^0.12.5"
+    "util": "^0.12.5",
+    "esbuild": "^0.19.11"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.133",
