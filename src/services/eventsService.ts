@@ -1,15 +1,8 @@
 import { API_BASE_URL } from "../config";
 import { fetchAuthSession } from "aws-amplify/auth";
+import { Event, EventFormData } from "../types/events";
 
-export interface Event {
-  id: string;
-  title: string;
-  date: string;
-  location: string;
-  description: string;
-  isAutomatic?: boolean;
-  user_id: string;
-}
+export type { Event, EventFormData };
 
 export interface APIResponse {
   message?: string;
@@ -20,39 +13,46 @@ export interface APIResponse {
 
 const getAuthHeaders = async () => {
   console.log("Getting auth session...");
-  const session = await fetchAuthSession();
-  const decodedToken = JSON.parse(
-    atob(session.tokens?.accessToken?.toString().split(".")[1])
-  );
+  try {
+    const session = await fetchAuthSession();
+    console.log("Session:", {
+      hasTokens: !!session.tokens,
+      hasAccessToken: !!session.tokens?.accessToken,
+      hasIdToken: !!session.tokens?.idToken,
+    });
 
-  console.log("🔍 Token details:", {
-    scopes: decodedToken.scope?.split(" ") || [],
-    requiredScope: "aws.cognito.signin.user.admin",
-    hasRequiredScope: (decodedToken.scope || "").includes(
-      "aws.cognito.signin.user.admin"
-    ),
-    exp: new Date(decodedToken.exp * 1000).toISOString(),
-    tokenType: decodedToken.token_use,
-    clientId: decodedToken.client_id,
-  });
+    if (!session.tokens?.accessToken) {
+      console.error("No access token in session");
+      throw new Error("No access token available");
+    }
 
-  if (!session.tokens?.accessToken?.toString()) {
-    throw new Error("No access token available");
+    const token = session.tokens.accessToken.toString();
+    const decodedToken = JSON.parse(atob(token.split(".")[1]));
+
+    console.log("🔍 Token details:", {
+      scopes: decodedToken.scope?.split(" ") || [],
+      exp: new Date(decodedToken.exp * 1000).toISOString(),
+      tokenType: decodedToken.token_use,
+      clientId: decodedToken.client_id,
+      userId: decodedToken.sub,
+    });
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    };
+
+    console.log("Generated headers:", {
+      hasContentType: "Content-Type" in headers,
+      hasAuthorization: "Authorization" in headers,
+      authPrefix: headers.Authorization?.substring(0, 10) + "...",
+    });
+
+    return headers;
+  } catch (error) {
+    console.error("Error getting auth headers:", error);
+    throw new Error("Failed to get authentication headers");
   }
-
-  const token = session.tokens.accessToken.toString();
-  const headers = {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-  };
-
-  console.log("Generated headers:", {
-    hasContentType: !!headers["Content-Type"],
-    hasAuthorization: !!headers.Authorization,
-    authPrefix: headers.Authorization.substring(0, 10) + "...",
-  });
-
-  return headers;
 };
 
 export const eventOperations = {
@@ -60,16 +60,69 @@ export const eventOperations = {
     console.log("Fetching creative events...");
     try {
       const headers = await getAuthHeaders();
-      console.log("Making GET request with headers:", {
-        method: "GET",
-        headersPresent: Object.keys(headers),
-        credentials: "include",
-      });
+      const url = `${API_BASE_URL}/events/creative`;
+      console.log("Making GET request to:", url);
 
-      const response = await fetch(`${API_BASE_URL}/events/creative`, {
+      const response = await fetch(url, {
         method: "GET",
         headers,
-        credentials: "include",
+        credentials: "same-origin",
+      });
+
+      console.log("Response status:", response.status);
+      console.log(
+        "Response headers:",
+        Object.fromEntries(response.headers.entries())
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Response error:", {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText,
+          url,
+          responseHeaders: Object.fromEntries(response.headers.entries()),
+        });
+        throw new Error(
+          `HTTP error! status: ${response.status} - ${errorText}`
+        );
+      }
+
+      const contentType = response.headers.get("content-type");
+      if (!contentType?.includes("application/json")) {
+        const text = await response.text();
+        console.error("Invalid content type:", {
+          contentType,
+          responseText: text,
+        });
+        throw new Error("Invalid response format");
+      }
+
+      const data: APIResponse = await response.json();
+      console.log("Received events data:", data);
+
+      if (!data.events) {
+        console.error("No events array in response:", data);
+        return [];
+      }
+
+      return data.events;
+    } catch (error) {
+      console.error("Error fetching creative events:", error);
+      throw error;
+    }
+  },
+
+  createEvent: async (eventData: Omit<Event, "id">): Promise<Event> => {
+    console.log("Creating new event:", eventData);
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch(`${API_BASE_URL}/events/creative`, {
+        method: "POST",
+        headers,
+        credentials: "same-origin",
+        body: JSON.stringify(eventData),
       });
 
       if (!response.ok) {
@@ -84,10 +137,15 @@ export const eventOperations = {
       }
 
       const data: APIResponse = await response.json();
-      console.log("Received events data:", data);
-      return data.events || [];
+      console.log("Event creation response:", data);
+
+      if (!data.event) {
+        throw new Error("No event data in response");
+      }
+
+      return data.event;
     } catch (error) {
-      console.error("Error fetching creative events:", error);
+      console.error("Error creating event:", error);
       throw error;
     }
   },
@@ -109,16 +167,7 @@ export const eventOperations = {
         atob(session.tokens?.accessToken?.toString().split(".")[1])
       );
 
-      console.log("🔑 Auth details:", {
-        tokenExpiry: new Date(decodedToken.exp * 1000).toISOString(),
-        currentTime: new Date().toISOString(),
-        isExpired: Date.now() > decodedToken.exp * 1000,
-        tokenScopes: decodedToken.scope,
-        tokenType: session.tokens?.accessToken?.toString().split(".")[0],
-        headerKeys: Object.keys(headers),
-      });
-
-      const { id, user_id, ...updateData } = eventData;
+      const { id, ...updateData } = eventData;
 
       const url = `${API_BASE_URL}/events/creative/${eventId}`;
       console.log("📡 Request details:", {
@@ -136,31 +185,23 @@ export const eventOperations = {
       const response = await fetch(url, {
         method: "PUT",
         headers,
-        credentials: "include",
+        credentials: "same-origin",
         body: JSON.stringify(updateData),
-      });
-
-      console.log("📥 Response details:", {
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries()),
-        url: response.url,
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Response error:", {
-          status: response.status,
-          statusText: response.statusText,
-          body: errorText,
-          responseHeaders: Object.fromEntries(response.headers.entries()),
-        });
-        throw new Error(`HTTP error! status: ${response.status}`);
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          errorMessage = errorText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
       const data: APIResponse = await response.json();
-      console.log("Event update response:", data);
-
       if (!data.event) {
         throw new Error("No event data in response");
       }
@@ -179,7 +220,7 @@ export const eventOperations = {
       console.log("Making DELETE request with headers:", {
         method: "DELETE",
         headersPresent: Object.keys(headers),
-        credentials: "include",
+        credentials: "same-origin",
       });
 
       const response = await fetch(
@@ -187,7 +228,7 @@ export const eventOperations = {
         {
           method: "DELETE",
           headers,
-          credentials: "include",
+          credentials: "same-origin",
         }
       );
 

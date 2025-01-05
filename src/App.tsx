@@ -1,26 +1,21 @@
-import { BrowserRouter, useRoutes } from "react-router-dom";
-import { ThemeProvider } from "./providers/ThemeProvider";
+import React from "react";
+import { BrowserRouter } from "react-router-dom";
+import { ThemeProvider } from "@mui/material";
+import { EventsProvider } from "./contexts/EventsContext";
 import { AuthProvider } from "./contexts/AuthContext";
-import { routes } from "./config/routes.config";
-import { Suspense } from "react";
-import { LoadingScreen } from "./components/common/LoadingScreen";
-import { VideoPlayerProvider } from "./contexts/VideoPlayerContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import { theme } from "./theme";
+import { AppRoutes } from "./routes";
 
-const AppRoutes = () => {
-  const element = useRoutes(routes);
-  return <Suspense fallback={<LoadingScreen />}>{element}</Suspense>;
-};
-
-const App = () => {
+const App: React.FC = () => {
   return (
     <BrowserRouter>
-      <ThemeProvider>
+      <ThemeProvider theme={theme}>
         <AuthProvider>
           <NotificationProvider>
-            <VideoPlayerProvider>
+            <EventsProvider>
               <AppRoutes />
-            </VideoPlayerProvider>
+            </EventsProvider>
           </NotificationProvider>
         </AuthProvider>
       </ThemeProvider>

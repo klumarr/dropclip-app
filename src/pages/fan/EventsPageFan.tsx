@@ -40,12 +40,12 @@ import {
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { useAuth } from "../../contexts/AuthContext";
-import EventCard from "../../components/events/EventCard";
+import EventCard from "../../components/events/common/EventCard";
 import {
   ScrollSection,
   EventsRow,
-} from "../../components/events/EventsPageStyles";
-import { eventOperations, Event } from "../../services/events.service";
+} from "../../components/events/common/EventsPageStyles";
+import { eventOperations } from "../../services/eventsService";
 import { s3Operations } from "../../services/s3.service";
 import { contentOperations } from "../../services/content.service";
 

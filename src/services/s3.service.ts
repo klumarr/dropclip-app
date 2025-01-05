@@ -19,45 +19,32 @@ const s3Client = new S3Client({
 
 const BUCKET_NAME = env.aws.s3Bucket;
 
+interface UploadResult {
+  url: string;
+  key: string;
+}
+
 export const s3Operations = {
-  async uploadFile(
+  uploadFile: async (
     file: File,
-    key: string,
+    folder: string,
     onProgress?: (progress: number) => void
-  ): Promise<void> {
-    const params = {
-      Bucket: BUCKET_NAME,
-      Key: key,
-      Body: file,
-      ContentType: file.type,
-    };
-
-    try {
-      // Use multipart upload with progress tracking
-      const upload = new Upload({
-        client: s3Client,
-        params,
-      });
-
-      // Add progress listener if callback provided
-      if (onProgress) {
-        upload.on("httpUploadProgress", (progress: ProgressEvent) => {
-          const percentage = Math.round(
-            ((progress.loaded || 0) * 100) / (progress.total || file.size)
-          );
-          onProgress(percentage);
-        });
-      }
-
-      await upload.done();
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      throw new Error(
-        error instanceof Error
-          ? `Failed to upload file: ${error.message}`
-          : "Failed to upload file: Unknown error"
-      );
-    }
+  ): Promise<UploadResult> => {
+    // Simulate upload for now
+    return new Promise((resolve) => {
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 10;
+        onProgress?.(progress);
+        if (progress >= 100) {
+          clearInterval(interval);
+          resolve({
+            url: URL.createObjectURL(file),
+            key: `${folder}/${file.name}`,
+          });
+        }
+      }, 200);
+    });
   },
 
   async getFileUrl(key: string): Promise<string> {

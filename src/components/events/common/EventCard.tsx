@@ -9,31 +9,15 @@ import {
   EventCard as StyledEventCard,
   EventCardMedia,
   EventCardContent,
-} from "./EventsPageStyles";
-
-interface Event {
-  id: string;
-  title: string;
-  date: string;
-  startTime?: string;
-  endTime?: string;
-  location: string;
-  description: string;
-  imageUrl?: string;
-  ticketLink?: string;
-  isAutomatic?: boolean;
-  uploadConfig?: {
-    enabled: boolean;
-    allowedTypes: string[];
-    maxFileSize: number;
-  };
-}
+} from "../creative/EventsPageStyles";
+import { Event } from "../../../types/events";
+import { useEventActions } from "../../../hooks/useEventActions";
+import ShareMenu from "../creative/EventActions/ShareMenu";
 
 interface EventCardProps {
   event: Event;
   onEdit: () => void;
   onDelete: () => void;
-  onShare: (e: React.MouseEvent<HTMLElement>) => void;
   isPast?: boolean;
 }
 
@@ -41,23 +25,27 @@ const EventCard: React.FC<EventCardProps> = ({
   event,
   onEdit,
   onDelete,
-  onShare,
   isPast = false,
 }) => {
-  const handleClick = (
-    e: React.MouseEvent<HTMLElement>,
-    action: (e: React.MouseEvent<HTMLElement>) => void
-  ) => {
-    e.stopPropagation();
-    action(e);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const { handleShare } = useEventActions();
+
+  const handleShareClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleShareClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDelete = () => {
+    if (window.confirm("Are you sure you want to delete this event?")) {
+      onDelete();
+    }
   };
 
   return (
-    <StyledEventCard
-      sx={{
-        opacity: isPast ? 0.7 : 1,
-      }}
-    >
+    <StyledEventCard sx={{ opacity: isPast ? 0.7 : 1 }}>
       {event.imageUrl && (
         <EventCardMedia src={event.imageUrl} alt={event.title} />
       )}
@@ -86,38 +74,25 @@ const EventCard: React.FC<EventCardProps> = ({
             {event.description}
           </Typography>
         )}
-        <Box
-          sx={{
-            display: "flex",
-            gap: 1,
-            mt: 2,
-            justifyContent: "space-between",
-          }}
-        >
-          <Box sx={{ display: "flex", gap: 1 }}>
-            <IconButton
-              size="small"
-              onClick={(e) => handleClick(e, () => onEdit())}
-            >
-              <EditIcon />
-            </IconButton>
-            <IconButton
-              size="small"
-              onClick={(e) => handleClick(e, () => onDelete())}
-            >
-              <DeleteIcon />
-            </IconButton>
-            <IconButton size="small" onClick={(e) => handleClick(e, onShare)}>
-              <ShareIcon />
-            </IconButton>
-          </Box>
-          {event.uploadConfig?.enabled && (
-            <Typography variant="caption" color="text.secondary">
-              Uploads Enabled
-            </Typography>
-          )}
+        <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
+          <IconButton size="small" onClick={onEdit}>
+            <EditIcon />
+          </IconButton>
+          <IconButton size="small" onClick={handleShareClick}>
+            <ShareIcon />
+          </IconButton>
+          <IconButton size="small" onClick={handleDelete} color="error">
+            <DeleteIcon />
+          </IconButton>
         </Box>
       </EventCardContent>
+
+      <ShareMenu
+        event={event}
+        anchorEl={anchorEl}
+        onClose={handleShareClose}
+        onShare={handleShare}
+      />
     </StyledEventCard>
   );
 };

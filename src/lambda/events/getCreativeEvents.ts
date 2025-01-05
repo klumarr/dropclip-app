@@ -42,17 +42,28 @@ try {
 }
 
 // CORS headers for all responses
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "http://localhost:5174",
+const getAllowedOrigins = () => {
+  const origins = [
+    "http://localhost:5174",
+    "https://localhost:5174",
+    "https://*.ngrok-free.app"  // This will match any ngrok subdomain
+  ];
+  return origins;
+};
+
+const corsHeaders = (origin: string) => ({
+  "Access-Control-Allow-Origin": getAllowedOrigins().some(allowed => 
+    allowed.includes("*") ? origin.endsWith(allowed.replace("*", "")) : origin === allowed
+  ) ? origin : "http://localhost:5174",
   "Access-Control-Allow-Headers":
     "Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token",
-  "Access-Control-Allow-Methods": "GET,PUT,DELETE,OPTIONS",
+  "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,OPTIONS",
   "Access-Control-Allow-Credentials": "true",
   "Access-Control-Max-Age": "3600",
   "Access-Control-Expose-Headers":
     "Date,Authorization,X-Api-Key,X-Amz-Date,X-Amz-Security-Token,X-Amz-User-Agent,Content-Type,Content-Length",
   "Content-Type": "application/json",
-};
+});
 
 const decodeJWT = (authHeader) => {
   try {
@@ -177,7 +188,7 @@ export const handler = async (event) => {
       console.log("Handling OPTIONS request");
       return {
         statusCode: 200,
-        headers: corsHeaders,
+        headers: corsHeaders(event.headers?.origin),
         body: "",
       };
     }
@@ -199,7 +210,7 @@ export const handler = async (event) => {
       });
       return {
         statusCode: 401,
-        headers: corsHeaders,
+        headers: corsHeaders(event.headers?.origin),
         body: JSON.stringify({
           message: "Unauthorized - No user ID found",
           debug: {
@@ -224,7 +235,7 @@ export const handler = async (event) => {
       if (!verifyAuthorization(event)) {
         return {
           statusCode: 403,
-          headers: corsHeaders,
+          headers: corsHeaders(event.headers?.origin),
           body: JSON.stringify({
             message:
               "Forbidden - Missing required scope aws.cognito.signin.user.admin",
@@ -237,7 +248,7 @@ export const handler = async (event) => {
         console.log("❌ No event ID in path parameters");
         return {
           statusCode: 400,
-          headers: corsHeaders,
+          headers: corsHeaders(event.headers?.origin),
           body: JSON.stringify({ message: "Event ID is required" }),
         };
       }
@@ -261,7 +272,7 @@ export const handler = async (event) => {
       if (!isOwner) {
         return {
           statusCode: 403,
-          headers: corsHeaders,
+          headers: corsHeaders(event.headers?.origin),
           body: JSON.stringify({
             message: "Forbidden - You don't own this event",
           }),
@@ -293,7 +304,7 @@ export const handler = async (event) => {
           if (!existingEvent.Item) {
             return {
               statusCode: 404,
-              headers: corsHeaders,
+              headers: corsHeaders(event.headers?.origin),
               body: JSON.stringify({
                 message: "Event not found",
               }),
@@ -323,7 +334,7 @@ export const handler = async (event) => {
           if (updateExpression.length === 0) {
             return {
               statusCode: 400,
-              headers: corsHeaders,
+              headers: corsHeaders(event.headers?.origin),
               body: JSON.stringify({
                 message: "No valid attributes to update",
               }),
@@ -355,7 +366,7 @@ export const handler = async (event) => {
 
           return {
             statusCode: 200,
-            headers: corsHeaders,
+            headers: corsHeaders(event.headers?.origin),
             body: JSON.stringify({
               message: "Event updated successfully",
               event: result.Attributes,
@@ -365,7 +376,7 @@ export const handler = async (event) => {
           console.error("❌ Error in PUT request:", error);
           return {
             statusCode: 500,
-            headers: corsHeaders,
+            headers: corsHeaders(event.headers?.origin),
             body: JSON.stringify({
               message: "Error updating event",
               error: error.message || "Unknown error",
@@ -388,7 +399,7 @@ export const handler = async (event) => {
 
         return {
           statusCode: 200,
-          headers: corsHeaders,
+          headers: corsHeaders(event.headers?.origin),
           body: JSON.stringify({
             message: "Event deleted successfully",
             eventId,
@@ -410,7 +421,7 @@ export const handler = async (event) => {
       console.error("DynamoDB permissions test failed:", dbError);
       return {
         statusCode: 500,
-        headers: corsHeaders,
+        headers: corsHeaders(event.headers?.origin),
         body: JSON.stringify({
           message: "Database access error",
           error: dbError?.message || "Unknown database error",
@@ -448,7 +459,7 @@ export const handler = async (event) => {
 
     const response = {
       statusCode: 200,
-      headers: corsHeaders,
+      headers: corsHeaders(event.headers?.origin),
       body: responseBody,
       isBase64Encoded: false,
     };
@@ -465,7 +476,7 @@ export const handler = async (event) => {
 
     return {
       statusCode: 500,
-      headers: corsHeaders,
+      headers: corsHeaders(event.headers?.origin),
       body: JSON.stringify({
         message: "Internal server error",
         error: error?.message || "Unknown error",

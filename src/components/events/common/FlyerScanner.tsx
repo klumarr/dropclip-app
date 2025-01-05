@@ -56,6 +56,7 @@ interface ScannedEvent {
 }
 
 interface FlyerScannerProps {
+  open: boolean;
   onEventDetected: (eventData: ScannedEvent) => void;
   onClose: () => void;
 }

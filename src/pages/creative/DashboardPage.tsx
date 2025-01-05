@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Box,
   Typography,
@@ -15,7 +16,7 @@ import {
   Analytics,
 } from "@mui/icons-material";
 
-const DashboardPage = () => {
+const DashboardPage: React.FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { userAttributes } = useAuth();
@@ -68,6 +69,8 @@ const DashboardPage = () => {
                 cursor: "pointer",
                 "&:hover": {
                   boxShadow: theme.shadows[8],
+                  transform: "translateY(-4px)",
+                  transition: "all 0.2s ease-in-out",
                 },
               }}
               onClick={() => navigate(action.path)}

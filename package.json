@@ -26,7 +26,6 @@
     "@mui/icons-material": "^5.15.3",
     "@mui/material": "^5.15.3",
     "@mui/system": "^5.15.3",
-    "@types/qrcode.react": "^1.0.5",
     "aws-amplify": "^6.11.0",
     "aws-sdk": "^2.1692.0",
     "buffer": "^6.0.3",
@@ -44,6 +43,7 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.133",
     "@types/node": "^20.17.11",
+    "@types/qrcode.react": "^1.0.5",
     "@types/react": "^18.2.47",
     "@types/react-beautiful-dnd": "^13.1.8",
     "@types/react-dom": "^18.2.18",
