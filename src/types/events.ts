@@ -14,6 +14,8 @@ export interface Event {
   uploadConfig: UploadConfig;
   created_at?: string;
   updated_at?: string;
+  attendees?: number;
+  isInterested?: boolean;
 }
 
 export interface UploadConfig {
@@ -33,6 +35,7 @@ export interface CategorizedEvents {
 }
 
 export interface EventFormData {
+  id?: string;
   title: string;
   date: string;
   startTime: string;

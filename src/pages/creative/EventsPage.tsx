@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { Event, EventFormData, initialEventFormData } from "../../types/events";
+
 import {
   Box,
   Button,
@@ -35,32 +37,6 @@ const EVENTS_TABLE_NAME = process.env.REACT_APP_EVENTS_TABLE_NAME || "events";
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
 
-interface Event {
-  id: string;
-  user_id: string;
-  title: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  location: string;
-  description: string;
-  imageUrl?: string;
-  ticketLink: string;
-  created_at: string;
-}
-
-interface EventFormData {
-  title: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  location: string;
-  description: string;
-  imageUrl?: string;
-  imageFile?: File;
-  ticketLink: string;
-}
-
 export default function EventsPage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -82,16 +58,7 @@ export default function EventsPage() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | undefined>();
-  const [formData, setFormData] = useState<EventFormData>({
-    title: "",
-    date: new Date().toISOString().split("T")[0],
-    startTime: "",
-    endTime: "",
-    location: "",
-    description: "",
-    imageUrl: "",
-    ticketLink: "",
-  });
+  const [formData, setFormData] = useState<EventFormData>(initialEventFormData);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -142,16 +109,7 @@ export default function EventsPage() {
   };
 
   const resetForm = () => {
-    setFormData({
-      title: "",
-      date: new Date().toISOString().split("T")[0],
-      startTime: "",
-      endTime: "",
-      location: "",
-      description: "",
-      imageUrl: "",
-      ticketLink: "",
-    });
+    setFormData(initialEventFormData);
     setFormErrors({});
   };
 
@@ -210,6 +168,13 @@ export default function EventsPage() {
         imageUrl,
         ticketLink: formData.ticketLink,
         created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        isAutomatic: false,
+        uploadConfig: {
+          enabled: false,
+          allowedTypes: ["image/*"],
+          maxFileSize: 5,
+        },
       };
 
       // Optimistic update
@@ -341,6 +306,10 @@ export default function EventsPage() {
         ...prev,
         imageUrl,
         imageFile: file,
+        uploadConfig: {
+          ...prev.uploadConfig,
+          enabled: true,
+        },
       }));
 
       setSuccessMessage("Image uploaded successfully");
@@ -442,6 +411,11 @@ export default function EventsPage() {
                       setFormData({
                         ...event,
                         imageFile: undefined,
+                        uploadConfig: event.uploadConfig || {
+                          enabled: false,
+                          allowedTypes: ["image/*"],
+                          maxFileSize: 5,
+                        },
                       });
                       setIsCreateDialogOpen(true);
                     }}
@@ -529,7 +503,10 @@ export default function EventsPage() {
                   label="Event Title"
                   value={formData.title}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, title: e.target.value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      title: e.target.value,
+                    }))
                   }
                   error={!!formErrors.title}
                   helperText={formErrors.title}
@@ -543,7 +520,10 @@ export default function EventsPage() {
                   label="Date"
                   value={formData.date}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, date: e.target.value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      date: e.target.value,
+                    }))
                   }
                   InputLabelProps={{ shrink: true }}
                   error={!!formErrors.date}

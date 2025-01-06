@@ -31,7 +31,7 @@ import {
   Block,
 } from "@mui/icons-material";
 import { useVideoPlayer } from "../contexts/VideoPlayerContext";
-import { uploadLinkOperations } from "../services/uploadLink.service";
+import { uploadLinkService } from "../services/uploadLink.service";
 import { UploadLink } from "../services/uploadLink.service";
 
 interface Upload {
@@ -131,7 +131,7 @@ const EventManagementPage = () => {
   const loadUploadLinks = async () => {
     if (!eventId) return;
     try {
-      const links = await uploadLinkOperations.listEventLinks(eventId);
+      const links = await uploadLinkService.listEventLinks(eventId);
       setUploadLinks(links);
     } catch (error) {
       console.error("Failed to load upload links:", error);
@@ -142,8 +142,9 @@ const EventManagementPage = () => {
     if (!eventId) return;
     setIsGeneratingLink(true);
     try {
-      const link = await uploadLinkOperations.generateLink(
+      const link = await uploadLinkService.generateLink(
         eventId,
+        "fan-id",
         "creative-id",
         {
           expirationHours: 24,
@@ -166,7 +167,7 @@ const EventManagementPage = () => {
 
   const handleDeactivateLink = async (linkId: string) => {
     try {
-      await uploadLinkOperations.deactivateLink(linkId);
+      await uploadLinkService.deactivateLink(linkId);
       setUploadLinks((prev) =>
         prev.map((link) =>
           link.id === linkId ? { ...link, isActive: false } : link

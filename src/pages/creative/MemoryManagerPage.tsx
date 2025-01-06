@@ -15,6 +15,7 @@ import { ApprovedContent } from "../../components/moderation/ApprovedContent";
 import { Collections } from "../../components/collections/Collections";
 import { useModeration } from "../../hooks/useModeration";
 import { useCollections } from "../../hooks/useCollections";
+import { Collection } from "../../types/collections";
 
 interface TabPanelProps {
   children?: React.ReactNode;

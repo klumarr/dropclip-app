@@ -6,29 +6,30 @@ const TABLE_NAME = "dev-uploads";
 
 export const uploadOperations = {
   createUpload: async (
-    id: string,
-    eventId: string,
-    userId: string,
-    file: File,
-    onProgress?: (progress: { loaded: number; total: number }) => void
+    uploadData: {
+      id: string;
+      eventId: string;
+      userId: string;
+      fileType: string;
+      fileKey: string;
+      status: "pending";
+      userEventId: string;
+      uploadDateEventId: string;
+    },
+    file: File
   ): Promise<UploadItem> => {
     // Implementation will depend on your AWS setup
     // This is a placeholder that returns a mock upload
     const upload: UploadItem = {
-      id,
-      eventId,
-      userId,
+      ...uploadData,
       eventOwnerId: "", // This should be fetched from the event
-      uploaderId: userId,
+      uploaderId: uploadData.userId,
       uploaderName: "", // This should be fetched from the user
       fileUrl: "",
-      fileKey: "",
-      status: "pending",
       uploadedAt: new Date().toISOString(),
       fileType: "video",
       fileSize: file.size,
-      userEventId: userId,
-      uploadDateEventId: `${new Date().toISOString()}#${eventId}`,
+      processingStatus: "pending",
     };
 
     return upload;

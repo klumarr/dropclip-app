@@ -10,7 +10,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useEvents } from "../../../contexts/EventsContext";
-import { Event } from "../../../types/events";
+import { Event, defaultUploadConfig } from "../../../types/events";
 
 interface FlyerScannerProps {
   open: boolean;
@@ -59,6 +59,7 @@ const FlyerScanner: React.FC<FlyerScannerProps> = ({ open, onClose }) => {
         ticketLink: data.ticketLink || "",
         imageUrl: URL.createObjectURL(file),
         isAutomatic: false,
+        uploadConfig: defaultUploadConfig,
       });
 
       // Close the scanner and open the create dialog

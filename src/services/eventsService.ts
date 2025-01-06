@@ -114,6 +114,64 @@ export const eventOperations = {
     }
   },
 
+  getFanEvents: async (): Promise<Event[]> => {
+    console.log("Fetching fan events...");
+    try {
+      const headers = await getAuthHeaders();
+      const url = `${API_BASE_URL}/events/fan`;
+      console.log("Making GET request to:", url);
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers,
+        credentials: "include",
+      });
+
+      console.log("Response status:", response.status);
+      console.log(
+        "Response headers:",
+        Object.fromEntries(response.headers.entries())
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Response error:", {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText,
+          url,
+          responseHeaders: Object.fromEntries(response.headers.entries()),
+        });
+        throw new Error(
+          `HTTP error! status: ${response.status} - ${errorText}`
+        );
+      }
+
+      const contentType = response.headers.get("content-type");
+      if (!contentType?.includes("application/json")) {
+        const text = await response.text();
+        console.error("Invalid content type:", {
+          contentType,
+          responseText: text,
+        });
+        throw new Error("Invalid response format");
+      }
+
+      const data: APIResponse = await response.json();
+      console.log("Received fan events data:", data);
+
+      if (!data.events) {
+        console.error("No events array in response:", data);
+        return [];
+      }
+
+      return data.events;
+    } catch (error) {
+      console.error("Error fetching fan events:", error);
+      throw error;
+    }
+  },
+
   createEvent: async (eventData: Omit<Event, "id">): Promise<Event> => {
     console.log("Creating new event:", eventData);
     try {

@@ -3,6 +3,7 @@ import React, {
   useContext,
   useReducer,
   useCallback,
+  useMemo,
 } from "react";
 import { eventOperations } from "../services/eventsService";
 import { Event, EventFormData } from "../types/events";
@@ -197,25 +198,68 @@ export const EventsProvider: React.FC<EventsProviderProps> = ({ children }) => {
     [setNewEvent, setIsScannerOpen, setIsCreateDialogOpen]
   );
 
-  const value: EventsContextValue = {
-    ...state,
-    fetchEvents,
-    createEvent: eventOperations.createEvent,
-    updateEvent: eventOperations.updateEvent,
-    deleteEvent: eventOperations.deleteEvent,
-    setIsScannerOpen,
-    setNewEvent,
-    setIsCreateDialogOpen,
-    setSelectedEvent,
-    setIsDeleteDialogOpen,
-    setEventToDelete,
-    setUploadProgress,
-    setError,
-    handleCreateEvent,
-    handleUpdateEvent,
-    handleDeleteEvent,
-    handleScannedEvent,
-  };
+  const value = useMemo(
+    () => ({
+      // State
+      events: state.events,
+      isLoading: state.isLoading,
+      error: state.error,
+      newEvent: state.newEvent,
+      selectedEvent: state.selectedEvent,
+      eventToDelete: state.eventToDelete,
+      isCreateDialogOpen: state.isCreateDialogOpen,
+      isDeleteDialogOpen: state.isDeleteDialogOpen,
+      isScannerOpen: state.isScannerOpen,
+      uploadProgress: state.uploadProgress,
+
+      // Event CRUD operations
+      fetchEvents,
+      createEvent: eventOperations.createEvent,
+      updateEvent: eventOperations.updateEvent,
+      deleteEvent: eventOperations.deleteEvent,
+
+      // State setters
+      setNewEvent,
+      setSelectedEvent,
+      setEventToDelete,
+      setIsCreateDialogOpen,
+      setIsDeleteDialogOpen,
+      setIsScannerOpen,
+      setUploadProgress,
+      setError,
+
+      // Event handlers
+      handleCreateEvent,
+      handleUpdateEvent,
+      handleDeleteEvent,
+      handleScannedEvent,
+    }),
+    [
+      state.events,
+      state.isLoading,
+      state.error,
+      state.newEvent,
+      state.selectedEvent,
+      state.eventToDelete,
+      state.isCreateDialogOpen,
+      state.isDeleteDialogOpen,
+      state.isScannerOpen,
+      state.uploadProgress,
+      fetchEvents,
+      setNewEvent,
+      setSelectedEvent,
+      setEventToDelete,
+      setIsCreateDialogOpen,
+      setIsDeleteDialogOpen,
+      setIsScannerOpen,
+      setUploadProgress,
+      setError,
+      handleCreateEvent,
+      handleUpdateEvent,
+      handleDeleteEvent,
+      handleScannedEvent,
+    ]
+  );
 
   return (
     <EventsContext.Provider value={value}>{children}</EventsContext.Provider>

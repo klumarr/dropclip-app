@@ -1,11 +1,14 @@
+export type UploadStatus = "pending" | "approved" | "rejected";
+
 export interface Upload {
   id: string;
   eventId: string;
   uploaderId: string;
   uploaderName: string;
   fileUrl: string;
+  fileKey: string;
   thumbnailUrl?: string;
-  status: "pending" | "approved" | "rejected";
+  status: UploadStatus;
   uploadedAt: string;
   fileType: "video" | "image";
   fileSize: number;
@@ -15,11 +18,18 @@ export interface Upload {
   };
 }
 
-export interface UploadItem extends Upload {
+export interface UploadItem {
+  id: string;
   userId: string;
-  eventOwnerId: string;
-  fileKey: string;
-  userEventId: string;
-  uploadDateEventId: string;
-  processingStatus: "pending" | "processing" | "completed" | "failed";
+  eventId: string;
+  fileUrl: string;
+  thumbnailUrl?: string;
+  fileName: string;
+  fileType: "video" | "image";
+  fileSize: number;
+  status: UploadStatus;
+  uploadedAt: string;
+  updatedAt: string;
+  processingStatus?: "processing" | "completed" | "failed";
+  rejectionReason?: string;
 }

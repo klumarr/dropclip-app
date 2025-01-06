@@ -13,60 +13,65 @@ import { CloudUpload } from "@mui/icons-material";
 import { uploadLinkOperations } from "../services/uploadLink.service";
 import { uploadOperations } from "../services/dynamodb.service";
 import { s3Operations } from "../services/s3.service";
-import { UploadItem } from "../config/dynamodb";
+import { UploadItem, UploadStatus } from "../types/uploads";
 import { nanoid } from "nanoid";
-
-type UploadStatus =
-  | "idle"
-  | "validating"
-  | "ready"
-  | "uploading"
-  | "success"
-  | "error";
+import { eventOperations } from "../services/eventsService";
 
 interface UploadState {
-  status: UploadStatus;
+  status: "idle" | "ready" | "uploading" | "success" | "error";
   message?: string;
   progress?: number;
 }
 
-const createUploadObject = (eventId: string, file: File) => {
-  const now = new Date().toISOString();
-  const userId = "anonymous";
-  const uploadId = nanoid();
-  const fileKey = s3Operations.generateFileKey(eventId, userId, file.name);
-
-  return {
-    id: uploadId,
-    eventId,
-    userId,
-    fileType: "video" as const,
-    status: "pending" as const,
-    userEventId: userId,
-    uploadDateEventId: `${now}#${eventId}`,
-    fileKey,
-  } satisfies Omit<UploadItem, "uploadDate" | "fileUrl" | "thumbnailUrl">;
-};
-
-const isUploadingStatus = (status: UploadStatus): boolean => {
-  return status === "uploading";
-};
+interface EventDetails {
+  title: string;
+  date: string;
+}
 
 const FanUploadPage = () => {
   const { linkId } = useParams<{ linkId: string }>();
   const navigate = useNavigate();
-  const [uploadState, setUploadState] = useState<UploadState>({
-    status: "validating",
-  });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [eventDetails, setEventDetails] = useState<{
-    title: string;
-    date: string;
-  } | null>(null);
+  const [uploadState, setUploadState] = useState<UploadState>({
+    status: "idle",
+  });
+  const [eventDetails, setEventDetails] = useState<EventDetails | null>(null);
 
-  useEffect(() => {
-    validateUploadLink();
-  }, [linkId]);
+  const createUploadObject = async (eventId: string, file: File) => {
+    const now = new Date().toISOString();
+    const userId = "anonymous";
+    const uploadId = nanoid();
+    const fileKey = s3Operations.generateFileKey(eventId, userId, file.name);
+
+    try {
+      // Get event details
+      const events = await eventOperations.getCreativeEvents();
+      const eventDetails = events.find((e) => e.id === eventId);
+      if (!eventDetails) {
+        throw new Error("Event not found");
+      }
+
+      return {
+        id: uploadId,
+        eventId,
+        userId,
+        eventOwnerId: eventDetails.user_id,
+        uploaderId: userId,
+        uploaderName: "Anonymous Fan",
+        fileType: "video" as const,
+        status: "pending" as const,
+        processingStatus: "pending" as const,
+        userEventId: userId,
+        uploadDateEventId: `${now}#${eventId}`,
+        fileKey,
+        uploadedAt: now,
+        fileSize: file.size,
+      } satisfies Omit<UploadItem, "uploadDate" | "fileUrl" | "thumbnailUrl">;
+    } catch (error) {
+      console.error("Failed to get event details:", error);
+      throw new Error("Failed to create upload object");
+    }
+  };
 
   const validateUploadLink = async () => {
     if (!linkId) {
@@ -78,26 +83,29 @@ const FanUploadPage = () => {
     }
 
     try {
-      const validation = await uploadLinkOperations.validateLink(linkId);
-      if (!validation.isValid) {
+      const link = await uploadLinkOperations.getLink(linkId);
+      if (!link || !link.isActive || link.currentUploads >= link.maxUploads) {
         setUploadState({
           status: "error",
-          message: validation.error || "Invalid upload link",
+          message: link
+            ? "Upload limit reached or link expired"
+            : "Invalid upload link",
         });
         return;
       }
 
       // Get event details
-      const link = await uploadLinkOperations.getLink(linkId);
-      if (link) {
-        // TODO: Fetch actual event details
+      const events = await eventOperations.getCreativeEvents();
+      const eventDetails = events.find((e) => e.id === link.eventId);
+      if (eventDetails) {
         setEventDetails({
-          title: "Event Title",
-          date: new Date().toLocaleDateString(),
+          title: eventDetails.title,
+          date: new Date(eventDetails.date).toLocaleDateString(),
         });
         setUploadState({ status: "ready" });
       }
     } catch (error) {
+      console.error("Failed to validate upload link:", error);
       setUploadState({
         status: "error",
         message: "Failed to validate upload link",
@@ -141,9 +149,12 @@ const FanUploadPage = () => {
       const link = await uploadLinkOperations.getLink(linkId);
       if (!link) throw new Error("Upload link not found");
 
+      // Create upload object first
+      const uploadObject = await createUploadObject(link.eventId, selectedFile);
+
       // Create upload record with proper composite keys
       const upload = await uploadOperations.createUpload(
-        createUploadObject(link.eventId, selectedFile),
+        uploadObject,
         selectedFile
       );
 
@@ -168,133 +179,81 @@ const FanUploadPage = () => {
     }
   };
 
-  const renderContent = () => {
-    switch (uploadState.status) {
-      case "validating":
-        return (
-          <Box display="flex" alignItems="center" gap={2}>
-            <CircularProgress size={20} />
-            <Typography>Validating upload link...</Typography>
-          </Box>
-        );
-
-      case "error":
-        return (
-          <Alert severity="error" sx={{ width: "100%" }}>
-            {uploadState.message}
-          </Alert>
-        );
-
-      case "ready":
-      case "idle":
-        return (
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 3,
-            }}
-          >
-            {eventDetails && (
-              <Box textAlign="center" mb={2}>
-                <Typography variant="h5">{eventDetails.title}</Typography>
-                <Typography color="text.secondary">
-                  {eventDetails.date}
-                </Typography>
-              </Box>
-            )}
-
-            <Paper
-              sx={{
-                p: 4,
-                textAlign: "center",
-                backgroundColor: "rgba(255, 255, 255, 0.05)",
-                cursor: "pointer",
-                "&:hover": {
-                  backgroundColor: "rgba(255, 255, 255, 0.08)",
-                },
-              }}
-              onClick={() => document.getElementById("fileInput")?.click()}
-            >
-              <input
-                type="file"
-                id="fileInput"
-                accept="video/*"
-                style={{ display: "none" }}
-                onChange={handleFileSelect}
-              />
-              <CloudUpload sx={{ fontSize: 48, mb: 2 }} />
-              <Typography variant="h6" gutterBottom>
-                {selectedFile
-                  ? selectedFile.name
-                  : "Click to select a video to upload"}
-              </Typography>
-              <Typography color="text.secondary" variant="body2">
-                Maximum file size: 500MB
-                <br />
-                Supported formats: MP4, MOV, M4V
-              </Typography>
-            </Paper>
-
-            {selectedFile && (
-              <Button
-                variant="contained"
-                size="large"
-                onClick={handleUpload}
-                disabled={isUploadingStatus(uploadState.status)}
-              >
-                Upload Video
-              </Button>
-            )}
-          </Box>
-        );
-
-      case "uploading":
-        return (
-          <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            gap={2}
-          >
-            <CircularProgress
-              variant="determinate"
-              value={uploadState.progress || 0}
-              size={60}
-            />
-            <Typography>Uploading video...</Typography>
-          </Box>
-        );
-
-      case "success":
-        return (
-          <Alert severity="success" sx={{ width: "100%" }}>
-            {uploadState.message}
-          </Alert>
-        );
-
-      default:
-        return null;
-    }
-  };
+  useEffect(() => {
+    validateUploadLink();
+  }, [linkId]);
 
   return (
-    <Container maxWidth="md">
-      <Box
-        sx={{
-          minHeight: "100vh",
-          py: 4,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 4,
-        }}
-      >
-        <Typography variant="h4" gutterBottom>
-          Upload Your Video
-        </Typography>
-        {renderContent()}
+    <Container maxWidth="sm">
+      <Box sx={{ mt: 4, mb: 4 }}>
+        <Paper elevation={3} sx={{ p: 3 }}>
+          {uploadState.status === "error" ? (
+            <Alert severity="error">{uploadState.message}</Alert>
+          ) : uploadState.status === "success" ? (
+            <Alert severity="success">{uploadState.message}</Alert>
+          ) : uploadState.status === "idle" ? (
+            <CircularProgress />
+          ) : (
+            <>
+              {eventDetails && (
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="h5" gutterBottom>
+                    {eventDetails.title}
+                  </Typography>
+                  <Typography variant="subtitle1" color="text.secondary">
+                    {eventDetails.date}
+                  </Typography>
+                </Box>
+              )}
+              <input
+                accept="video/*"
+                style={{ display: "none" }}
+                id="upload-file"
+                type="file"
+                onChange={handleFileSelect}
+                disabled={uploadState.status === "uploading"}
+              />
+              <label htmlFor="upload-file">
+                <Button
+                  variant="contained"
+                  component="span"
+                  startIcon={<CloudUpload />}
+                  disabled={uploadState.status === "uploading"}
+                  fullWidth
+                  sx={{ mb: 2 }}
+                >
+                  Select Video
+                </Button>
+              </label>
+              {selectedFile && (
+                <>
+                  <Typography variant="body2" sx={{ mb: 2 }}>
+                    Selected file: {selectedFile.name}
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleUpload}
+                    disabled={uploadState.status === "uploading"}
+                    fullWidth
+                  >
+                    {uploadState.status === "uploading"
+                      ? "Uploading..."
+                      : "Upload Video"}
+                  </Button>
+                </>
+              )}
+              {uploadState.status === "uploading" && (
+                <Box sx={{ width: "100%", mt: 2 }}>
+                  <CircularProgress
+                    variant="determinate"
+                    value={uploadState.progress || 0}
+                  />
+                </Box>
+              )}
+            </>
+          )}
+        </Paper>
       </Box>
     </Container>
   );

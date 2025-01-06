@@ -15,21 +15,27 @@ import {
   useTheme,
   CircularProgress,
   useMediaQuery,
+  Divider,
+  Chip,
 } from "@mui/material";
 import {
   CloudUpload as UploadIcon,
   Delete as DeleteIcon,
   CheckCircle as CheckCircleIcon,
   Error as ErrorIcon,
+  Event as EventIcon,
+  LocationOn as LocationIcon,
 } from "@mui/icons-material";
 import { uploadLinkService } from "../../../../services/uploadLink.service";
 import {
   uploadService,
   UploadError,
 } from "../../../../services/upload.service";
+import { eventOperations } from "../../../../services/eventsService";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { nanoid } from "nanoid";
 import { ErrorBoundary } from "../../../../components/ErrorBoundary";
+import { UploadGuidelines } from "../../../../components/upload/UploadGuidelines";
 
 interface UploadFile {
   id: string;
@@ -37,6 +43,13 @@ interface UploadFile {
   progress: number;
   status: "pending" | "uploading" | "completed" | "error";
   error?: string;
+}
+
+interface EventDetails {
+  title: string;
+  date: string;
+  location: string;
+  imageUrl?: string;
 }
 
 export const UploadPage = () => {
@@ -49,11 +62,12 @@ export const UploadPage = () => {
   const [isValidating, setIsValidating] = useState(true);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [remainingUploads, setRemainingUploads] = useState<number | null>(null);
+  const [eventDetails, setEventDetails] = useState<EventDetails | null>(null);
 
   // Validate upload link and get remaining uploads
   useEffect(() => {
     const validateLink = async () => {
-      if (!linkId) return;
+      if (!linkId || !eventId) return;
 
       try {
         const { isValid, error } = await uploadLinkService.validateLink(linkId);
@@ -62,11 +76,28 @@ export const UploadPage = () => {
           return;
         }
 
-        const link = await uploadLinkService.getLink(linkId);
+        const [link, events] = await Promise.all([
+          uploadLinkService.getLink(linkId),
+          eventOperations.getCreativeEvents(),
+        ]);
+
         if (link) {
           setRemainingUploads(link.maxUploads - link.currentUploads);
         }
+
+        const event = events.find((e) => e.id === eventId);
+        if (event) {
+          setEventDetails({
+            title: event.title,
+            date: new Date(event.date).toLocaleDateString(),
+            location: event.location,
+            imageUrl: event.imageUrl,
+          });
+        } else {
+          setValidationError("Event not found");
+        }
       } catch (err) {
+        console.error("Failed to validate upload link:", err);
         setValidationError("Failed to validate upload link");
       } finally {
         setIsValidating(false);
@@ -74,7 +105,7 @@ export const UploadPage = () => {
     };
 
     validateLink();
-  }, [linkId]);
+  }, [linkId, eventId]);
 
   const handleFileSelect = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -213,20 +244,54 @@ export const UploadPage = () => {
 
     return (
       <Box p={isMobile ? 2 : 4}>
-        <Typography variant="h4" gutterBottom>
-          Upload Videos
-        </Typography>
-
-        {remainingUploads !== null && remainingUploads > 0 && (
-          <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-            You can upload {remainingUploads} more videos
-          </Typography>
+        {eventDetails && (
+          <Paper
+            sx={{
+              p: isMobile ? 2 : 3,
+              mb: 3,
+              backgroundColor: "background.paper",
+              borderRadius: 1,
+              backgroundImage: eventDetails.imageUrl
+                ? `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${eventDetails.imageUrl})`
+                : undefined,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              color: eventDetails.imageUrl ? "white" : "inherit",
+            }}
+          >
+            <Typography variant="h4" gutterBottom>
+              {eventDetails.title}
+            </Typography>
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mt: 2 }}>
+              <Chip
+                icon={<EventIcon />}
+                label={eventDetails.date}
+                color="primary"
+                variant="outlined"
+                sx={{
+                  color: eventDetails.imageUrl ? "white" : undefined,
+                  borderColor: eventDetails.imageUrl ? "white" : undefined,
+                }}
+              />
+              <Chip
+                icon={<LocationIcon />}
+                label={eventDetails.location}
+                color="primary"
+                variant="outlined"
+                sx={{
+                  color: eventDetails.imageUrl ? "white" : undefined,
+                  borderColor: eventDetails.imageUrl ? "white" : undefined,
+                }}
+              />
+            </Box>
+          </Paper>
         )}
+
+        <UploadGuidelines remainingUploads={remainingUploads} />
 
         <Paper
           sx={{
             p: isMobile ? 2 : 3,
-            mt: 2,
             backgroundColor: "background.paper",
             borderRadius: 1,
           }}

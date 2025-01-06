@@ -19,6 +19,7 @@ import {
   Download as DownloadIcon,
   Visibility as PreviewIcon,
   PlaylistAdd as AddToCollectionIcon,
+  Delete as DeleteIcon,
 } from "@mui/icons-material";
 import { Upload } from "../../types/uploads";
 import { formatFileSize, formatDate } from "../../utils/format";
@@ -27,6 +28,7 @@ interface ApprovedContentProps {
   uploads: Upload[];
   onDownload: (uploadId: string) => void;
   onAddToCollection?: (uploadId: string) => void;
+  onRemoveFromCollection?: (uploadId: string) => void;
 }
 
 interface PreviewDialogProps {
@@ -35,6 +37,7 @@ interface PreviewDialogProps {
   onClose: () => void;
   onDownload: () => void;
   onAddToCollection?: () => void;
+  onRemoveFromCollection?: () => void;
 }
 
 const PreviewDialog: React.FC<PreviewDialogProps> = ({
@@ -43,6 +46,7 @@ const PreviewDialog: React.FC<PreviewDialogProps> = ({
   onClose,
   onDownload,
   onAddToCollection,
+  onRemoveFromCollection,
 }) => {
   if (!upload) return null;
 
@@ -103,6 +107,11 @@ const PreviewDialog: React.FC<PreviewDialogProps> = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Close</Button>
+        {onRemoveFromCollection && (
+          <Button onClick={onRemoveFromCollection} color="error">
+            Remove from Collection
+          </Button>
+        )}
         {onAddToCollection && (
           <Button
             onClick={onAddToCollection}
@@ -127,6 +136,7 @@ export const ApprovedContent: React.FC<ApprovedContentProps> = ({
   uploads,
   onDownload,
   onAddToCollection,
+  onRemoveFromCollection,
 }) => {
   const theme = useTheme();
   const [selectedUpload, setSelectedUpload] = useState<Upload | null>(null);
@@ -205,6 +215,17 @@ export const ApprovedContent: React.FC<ApprovedContentProps> = ({
                       </IconButton>
                     </Tooltip>
                   )}
+                  {onRemoveFromCollection && (
+                    <Tooltip title="Remove from Collection">
+                      <IconButton
+                        onClick={() => onRemoveFromCollection(upload.id)}
+                        size="small"
+                        color="error"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  )}
                 </Box>
               </CardContent>
             </Card>
@@ -224,6 +245,11 @@ export const ApprovedContent: React.FC<ApprovedContentProps> = ({
         onAddToCollection={
           onAddToCollection && selectedUpload
             ? () => onAddToCollection(selectedUpload.id)
+            : undefined
+        }
+        onRemoveFromCollection={
+          onRemoveFromCollection && selectedUpload
+            ? () => onRemoveFromCollection(selectedUpload.id)
             : undefined
         }
       />

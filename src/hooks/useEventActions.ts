@@ -1,32 +1,44 @@
 import { useState } from "react";
-import { Event } from "../types/events";
 import { useEvents } from "../contexts/EventsContext";
-import { defaultUploadConfig } from "../types/events";
+import { Event, defaultUploadConfig } from "../types/events";
+import { SharePlatform } from "../types/share";
 
 export const useEventActions = () => {
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
+  const {
+    selectedEvent,
+    handleDeleteEvent,
+    setEventToDelete,
+    setSelectedEvent,
+    setIsCreateDialogOpen,
+    setNewEvent,
+  } = useEvents();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const { setIsCreateDialogOpen, setNewEvent } = useEvents();
-
-  const handleInitiateCreate = () => {
-    setNewEvent({
-      title: "",
-      date: new Date().toISOString().split("T")[0],
-      startTime: "",
-      endTime: "",
-      location: "",
-      description: "",
-      imageUrl: "",
-      ticketLink: "",
-      uploadConfig: defaultUploadConfig,
-    });
-    setIsCreateDialogOpen(true);
-  };
+  const [error, setError] = useState<string | null>(null);
 
   const handleInitiateEdit = (event: Event) => {
-    setNewEvent(event);
+    setSelectedEvent(event);
+    setNewEvent({
+      title: event.title,
+      date: event.date,
+      startTime: event.startTime || "",
+      endTime: event.endTime || "",
+      location: event.location,
+      description: event.description || "",
+      ticketLink: event.ticketLink || "",
+      imageUrl: event.imageUrl || "",
+      isAutomatic: event.isAutomatic || false,
+      uploadConfig: event.uploadConfig || {
+        enabled: false,
+        allowedTypes: ["image/*", "video/*"],
+        maxFileSize: 100,
+        startDate: new Date().toISOString().split("T")[0],
+        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0],
+        startTime: "",
+        endTime: "",
+      },
+    });
     setIsCreateDialogOpen(true);
   };
 
@@ -34,55 +46,71 @@ export const useEventActions = () => {
     setEventToDelete(event);
   };
 
-  const handleShare = async (event: Event, platform: string) => {
-    try {
-      let shareUrl = "";
-      const eventUrl = `${window.location.origin}/events/${event.id}`;
-      const text = `Check out this event: ${event.title}`;
+  const handleConfirmDelete = async () => {
+    setIsLoading(true);
+    setError(null);
 
+    try {
+      await handleDeleteEvent();
+    } catch (err) {
+      setError("Failed to delete event");
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleShare = async (event: Event, platform: SharePlatform) => {
+    const eventUrl = `${window.location.origin}/events/${event.id}`;
+    const title = event.title;
+    const text = `Check out this event: ${title}`;
+
+    try {
       switch (platform) {
         case "facebook":
-          shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-            eventUrl
-          )}`;
+          window.open(
+            `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+              eventUrl
+            )}`,
+            "_blank"
+          );
           break;
         case "twitter":
-          shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-            text
-          )}&url=${encodeURIComponent(eventUrl)}`;
+          window.open(
+            `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+              text
+            )}&url=${encodeURIComponent(eventUrl)}`,
+            "_blank"
+          );
           break;
         case "whatsapp":
-          shareUrl = `https://wa.me/?text=${encodeURIComponent(
-            `${text} ${eventUrl}`
-          )}`;
+          window.open(
+            `https://wa.me/?text=${encodeURIComponent(text + " " + eventUrl)}`,
+            "_blank"
+          );
           break;
         case "email":
-          shareUrl = `mailto:?subject=${encodeURIComponent(
-            event.title
-          )}&body=${encodeURIComponent(`${text} ${eventUrl}`)}`;
+          window.location.href = `mailto:?subject=${encodeURIComponent(
+            title
+          )}&body=${encodeURIComponent(text + "\n\n" + eventUrl)}`;
           break;
         case "copy":
           await navigator.clipboard.writeText(eventUrl);
-          return;
+          break;
       }
-
-      if (shareUrl) {
-        window.open(shareUrl, "_blank", "noopener,noreferrer");
-      }
-    } catch (error) {
-      console.error("Error sharing event:", error);
-      setError("Failed to share event");
+    } catch (err) {
+      console.error("Error sharing event:", err);
+      throw err;
     }
   };
 
   return {
     selectedEvent,
-    eventToDelete,
     isLoading,
     error,
-    handleInitiateCreate,
     handleInitiateEdit,
     handleInitiateDelete,
+    handleConfirmDelete,
     handleShare,
   };
 };

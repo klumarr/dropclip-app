@@ -1,32 +1,19 @@
-import { Event } from "../../../services/eventsService";
+import { Event, EventFormData, UploadConfig } from "../../../types/events";
+
+export type { EventFormData, UploadConfig };
+export type { Event };
+
+export interface EventsListProps {
+  events: Event[];
+  onEdit?: (event: Event) => void;
+  onDelete?: (event: Event) => void;
+  isPast?: boolean;
+}
 
 export interface CategorizedEvents {
   upcoming: Event[];
   past: Event[];
   automatic: Event[];
-}
-
-export interface UploadConfig {
-  enabled: boolean;
-  allowedTypes: string[];
-  maxFileSize: number;
-  startDate?: string;
-  endDate?: string;
-  startTime?: string;
-  endTime?: string;
-}
-
-export interface EventFormData {
-  title: string;
-  description: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  location: string;
-  ticketLink: string;
-  imageUrl: string;
-  isAutomatic: boolean;
-  uploadConfig: UploadConfig;
 }
 
 export const defaultUploadConfig: UploadConfig = {

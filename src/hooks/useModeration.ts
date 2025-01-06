@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { ModerationService } from "../services/moderation.service";
-import { Upload } from "../types/uploads";
+import { Upload, UploadStatus } from "../types/uploads";
 import { useNotificationManager } from "./useNotificationManager";
 
 export const useModeration = () => {

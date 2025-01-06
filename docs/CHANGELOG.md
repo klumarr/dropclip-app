@@ -528,7 +528,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implemented new event sharing mechanism
 - Updated image storage to use public S3 URLs
 
-## [1.4.0] - 2025-01-06
+## [1.4.0] - 2025-01-05
 
 ### Added (ALL UNTESTED)
 
@@ -638,3 +638,120 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Consider implementing offline support
 - Plan for enhanced analytics
 - Consider adding AI-powered features
+
+## [1.5.0] - 2025-01-06
+
+### Added
+
+- Upload Management Dashboard:
+
+  - Created comprehensive `/fan/uploads` dashboard for tracking uploads across events
+  - Implemented status-based organization (Pending, Approved, Rejected)
+  - Added file type and date range filtering capabilities
+  - Integrated search functionality for finding specific uploads
+  - Implemented batch delete operations for multiple uploads
+  - Added upload replacement functionality with validation
+  - Created detailed upload information view with metadata
+  - Implemented thumbnail preview system
+  - Added progress tracking for ongoing uploads
+  - Created responsive grid and list view layouts
+
+- AWS S3 Integration Enhancements:
+
+  - Implemented secure file upload handling with proper AWS credentials
+  - Added efficient file deletion with cleanup
+  - Created thumbnail management system
+  - Implemented file replacement functionality
+  - Added upload status tracking with S3 events
+  - Enhanced error handling for AWS operations
+  - Improved URL generation security
+  - Added proper access control mechanisms
+
+- Content Organization Features:
+  - Implemented advanced filtering system:
+    - Status-based filtering (Pending, Approved, Rejected)
+    - Date range selection
+    - File type filtering
+    - Search by filename or metadata
+  - Added batch operations:
+    - Multiple upload selection
+    - Batch delete functionality
+    - Status update for multiple items
+  - Created detailed upload cards with:
+    - Thumbnail previews
+    - Upload status indicators
+    - File metadata display
+    - Action buttons
+    - Progress tracking
+
+### Changed
+
+- Upload System Architecture:
+
+  - Migrated from Firebase to AWS S3 for file storage
+  - Updated upload service to use AWS SDK v3
+  - Enhanced file processing pipeline
+  - Improved error handling and recovery
+  - Updated type definitions for better TypeScript support
+
+- User Interface Improvements:
+  - Redesigned upload management interface
+  - Enhanced mobile responsiveness
+  - Added loading states and progress indicators
+  - Improved error message display
+  - Updated success notifications
+  - Enhanced accessibility features
+
+### Fixed
+
+- Resolved UploadStatus type import issues
+
+  - Added proper type definitions
+  - Fixed import paths
+  - Updated service implementations
+
+- Fixed upload link validation:
+
+  - Improved error handling
+  - Added proper type checking
+  - Enhanced validation messages
+
+- Addressed AWS S3 integration issues:
+  - Fixed file upload error handling
+  - Resolved URL generation problems
+  - Corrected access control issues
+  - Fixed file deletion cleanup
+
+### Technical Improvements
+
+- Enhanced TypeScript Integration:
+
+  - Added comprehensive type definitions
+  - Improved type safety across components
+  - Updated interface definitions
+  - Enhanced error type handling
+
+- Performance Optimizations:
+  - Implemented efficient file handling
+  - Optimized status updates
+  - Improved thumbnail loading
+  - Enhanced batch operations
+  - Reduced API calls
+
+### Security
+
+- AWS Integration Security:
+  - Implemented proper IAM roles
+  - Enhanced S3 bucket policies
+  - Added secure URL generation
+  - Improved access control
+  - Enhanced error handling
+
+### Documentation
+
+- Updated technical documentation:
+  - Added AWS integration guides
+  - Updated type definitions
+  - Enhanced component documentation
+  - Added usage examples
+  - Updated setup instructions

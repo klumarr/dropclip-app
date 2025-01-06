@@ -1,89 +1,77 @@
 import React from "react";
-import {
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
-  Divider,
-} from "@mui/material";
+import { Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import {
   Facebook as FacebookIcon,
   Twitter as TwitterIcon,
   WhatsApp as WhatsAppIcon,
   Email as EmailIcon,
-  ContentCopy as CopyIcon,
+  ContentCopy as ContentCopyIcon,
 } from "@mui/icons-material";
 import { Event } from "../../../../types/events";
+import { SharePlatform } from "../../../../types/share";
 
 interface ShareMenuProps {
-  event: Event;
+  event: Event | null;
+  open: boolean;
   anchorEl: HTMLElement | null;
   onClose: () => void;
-  onShare: (event: Event, platform: string) => void;
+  onShare: (event: Event, platform: SharePlatform) => Promise<void>;
 }
 
 const ShareMenu: React.FC<ShareMenuProps> = ({
   event,
+  open,
   anchorEl,
   onClose,
   onShare,
 }) => {
-  const shareOptions = [
-    {
-      label: "Facebook",
-      icon: <FacebookIcon fontSize="small" />,
-      platform: "facebook",
-    },
-    {
-      label: "Twitter",
-      icon: <TwitterIcon fontSize="small" />,
-      platform: "twitter",
-    },
-    {
-      label: "WhatsApp",
-      icon: <WhatsAppIcon fontSize="small" />,
-      platform: "whatsapp",
-    },
-    {
-      label: "Email",
-      icon: <EmailIcon fontSize="small" />,
-      platform: "email",
-    },
-    {
-      label: "Copy Link",
-      icon: <CopyIcon fontSize="small" />,
-      platform: "copy",
-    },
-  ];
-
-  const handleShare = (platform: string) => {
-    onShare(event, platform);
-    onClose();
+  const handleShare = (platform: SharePlatform) => {
+    if (event) {
+      onShare(event, platform);
+      onClose();
+    }
   };
 
   return (
     <Menu
+      id="share-menu"
       anchorEl={anchorEl}
-      open={Boolean(anchorEl)}
+      open={open}
       onClose={onClose}
-      anchorOrigin={{
-        vertical: "bottom",
-        horizontal: "right",
-      }}
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
+      MenuListProps={{
+        "aria-labelledby": "share-button",
       }}
     >
-      {shareOptions.map((option, index) => (
-        <React.Fragment key={option.platform}>
-          <MenuItem onClick={() => handleShare(option.platform)}>
-            <ListItemIcon>{option.icon}</ListItemIcon>
-            <ListItemText>{option.label}</ListItemText>
-          </MenuItem>
-          {index < shareOptions.length - 1 && <Divider />}
-        </React.Fragment>
-      ))}
+      <MenuItem onClick={() => handleShare("facebook")}>
+        <ListItemIcon>
+          <FacebookIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>Share on Facebook</ListItemText>
+      </MenuItem>
+      <MenuItem onClick={() => handleShare("twitter")}>
+        <ListItemIcon>
+          <TwitterIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>Share on Twitter</ListItemText>
+      </MenuItem>
+      <MenuItem onClick={() => handleShare("whatsapp")}>
+        <ListItemIcon>
+          <WhatsAppIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>Share on WhatsApp</ListItemText>
+      </MenuItem>
+      <MenuItem onClick={() => handleShare("email")}>
+        <ListItemIcon>
+          <EmailIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>Share via Email</ListItemText>
+      </MenuItem>
+      <MenuItem onClick={() => handleShare("copy")}>
+        <ListItemIcon>
+          <ContentCopyIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>Copy Link</ListItemText>
+      </MenuItem>
     </Menu>
   );
 };

@@ -5,7 +5,7 @@ export interface ShareMenuProps {
   open: boolean;
   anchorEl: HTMLElement | null;
   onClose: () => void;
-  onShare: (platform: SharePlatform) => void;
+  onShare: (event: Event, platform: SharePlatform) => Promise<void>;
 }
 
 export interface DeleteDialogProps {

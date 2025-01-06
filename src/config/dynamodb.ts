@@ -11,6 +11,8 @@ export const TableNames = {
   PLAYLISTS: `${stage}-playlists`,
   ATTENDANCE: `${stage}-attendance`,
   FOLLOWS: `${stage}-follows`,
+  COLLECTIONS: `${stage}-collections`,
+  COLLECTION_UPLOADS: `${stage}-collection-uploads`,
 } as const;
 
 // DynamoDB Client setup
@@ -43,12 +45,14 @@ export interface UploadItem {
   id: string;
   eventId: string;
   userId: string;
+  eventOwnerId: string;
   fileType: "video" | "image";
   fileUrl: string;
   fileKey: string; // S3 key for the file
   thumbnailUrl?: string;
   thumbnailUrls?: string[];
-  status: "pending" | "processing" | "completed" | "rejected";
+  status: "pending" | "processing" | "completed" | "rejected" | "approved";
+  processingStatus?: "pending" | "processing" | "completed" | "failed";
   metadata?: {
     duration?: number;
     width?: number;

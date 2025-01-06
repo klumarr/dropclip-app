@@ -19,6 +19,7 @@ import ShareMenu from "./ShareMenu";
 import DeleteDialog from "./DeleteDialog";
 import QRDialog from "./QRDialog";
 import { EventActionsProps, SharePlatform } from "./types";
+import { Event } from "../../../../types/events";
 
 const EventActions: React.FC<EventActionsProps> = ({ className }) => {
   const {
@@ -27,6 +28,7 @@ const EventActions: React.FC<EventActionsProps> = ({ className }) => {
     error,
     handleInitiateDelete,
     handleConfirmDelete,
+    handleShare,
   } = useEventActions();
 
   const [shareAnchorEl, setShareAnchorEl] = useState<null | HTMLElement>(null);
@@ -44,47 +46,13 @@ const EventActions: React.FC<EventActionsProps> = ({ className }) => {
     setShareAnchorEl(null);
   };
 
-  const handleShare = async (platform: SharePlatform) => {
-    if (!selectedEvent) return;
-
-    const eventUrl = `${window.location.origin}/events/${selectedEvent.id}`;
-    const title = selectedEvent.title;
-    const text = `Check out this event: ${title}`;
-
+  const handleShareWrapper = async (event: Event, platform: SharePlatform) => {
     try {
-      switch (platform) {
-        case "facebook":
-          window.open(
-            `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-              eventUrl
-            )}`,
-            "_blank"
-          );
-          break;
-        case "twitter":
-          window.open(
-            `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-              text
-            )}&url=${encodeURIComponent(eventUrl)}`,
-            "_blank"
-          );
-          break;
-        case "whatsapp":
-          window.open(
-            `https://wa.me/?text=${encodeURIComponent(text + " " + eventUrl)}`,
-            "_blank"
-          );
-          break;
-        case "email":
-          window.location.href = `mailto:?subject=${encodeURIComponent(
-            title
-          )}&body=${encodeURIComponent(text + "\n\n" + eventUrl)}`;
-          break;
-        case "copy":
-          await navigator.clipboard.writeText(eventUrl);
-          setCopySuccess(true);
-          break;
+      await handleShare(event, platform);
+      if (platform === "copy") {
+        setCopySuccess(true);
       }
+      handleShareClose();
     } catch (err) {
       console.error("Error sharing event:", err);
       setShareError(
@@ -159,7 +127,7 @@ const EventActions: React.FC<EventActionsProps> = ({ className }) => {
         open={Boolean(shareAnchorEl)}
         anchorEl={shareAnchorEl}
         onClose={handleShareClose}
-        onShare={handleShare}
+        onShare={handleShareWrapper}
       />
 
       <DeleteDialog

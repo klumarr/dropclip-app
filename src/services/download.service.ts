@@ -1,6 +1,7 @@
 import { s3Operations } from "./s3.service";
-import { uploadOperations } from "./dynamodb.service";
+import { uploadOperations } from "./operations/upload.operations";
 import { notificationService } from "./notification.service";
+import { Upload, UploadItem } from "../types/uploads";
 
 export class DownloadError extends Error {
   constructor(
@@ -24,46 +25,27 @@ export class DownloadService {
     options: DownloadOptions = {}
   ): Promise<string> {
     try {
-      console.log(`Getting download URL for upload ${uploadId}`);
-
-      // Get upload details
       const upload = await uploadOperations.getUpload(uploadId, eventId);
       if (!upload) {
         throw new DownloadError("Upload not found", "FILE_NOT_FOUND");
       }
 
-      // Check if the upload is ready for download
-      if (upload.status !== "completed") {
+      // Check if the upload is approved
+      if (upload.status !== "approved") {
         throw new DownloadError(
-          "Upload is not ready for download",
-          "FILE_NOT_FOUND"
+          "Upload is not approved for download",
+          "UNAUTHORIZED"
         );
       }
 
-      // Get the appropriate variant URL based on quality preference
-      let downloadUrl = upload.fileUrl; // Default to original file
-      if (options.quality && upload.variants) {
-        const variant = upload.variants.find(
-          (v) => v.quality === options.quality
-        );
-        if (variant) {
-          downloadUrl = variant.url;
-        }
-      }
-
-      // Generate a signed URL for download
+      // Get the signed URL from S3
       const signedUrl = await s3Operations.getSignedUrl(
-        downloadUrl,
+        upload.fileKey,
         options.forceDownload ? "attachment" : "inline"
       );
 
       // Track the download
-      try {
-        await this.trackDownload(uploadId, eventId);
-      } catch (error) {
-        console.error("Failed to track download:", error);
-        // Don't throw error for tracking failure
-      }
+      await this.trackDownload(uploadId, eventId);
 
       return signedUrl;
     } catch (error) {
@@ -71,29 +53,14 @@ export class DownloadService {
         `Failed to get download URL for upload ${uploadId}:`,
         error
       );
-
       if (error instanceof DownloadError) {
         throw error;
       }
-
-      if (error instanceof Error) {
-        if (error.message.includes("unauthorized")) {
-          throw new DownloadError(
-            "You are not authorized to download this file",
-            "UNAUTHORIZED"
-          );
-        }
-        if (error.message.includes("network")) {
-          throw new DownloadError(
-            "Network error occurred while getting download URL",
-            "NETWORK_ERROR"
-          );
-        }
-      }
-
       throw new DownloadError(
-        "An unexpected error occurred while getting download URL",
-        "UNKNOWN"
+        "Failed to get download URL",
+        error instanceof Error && error.message.includes("NetworkError")
+          ? "NETWORK_ERROR"
+          : "UNKNOWN"
       );
     }
   }
@@ -107,24 +74,21 @@ export class DownloadService {
       const upload = await uploadOperations.getUpload(uploadId, eventId);
       if (!upload) return;
 
-      // Notify the upload owner about the download
+      // Create a notification for the download
       await notificationService.createNotification({
         userId: upload.userId,
         type: "download",
         status: "unread",
         title: "New Download",
-        message: "Someone downloaded your video",
+        message: "Someone downloaded your content",
         metadata: {
           uploadId,
           eventId,
         },
       });
-
-      // Here you could also update analytics or download count in DynamoDB
-      // This would depend on your requirements for download tracking
     } catch (error) {
       console.error("Failed to track download:", error);
-      throw error;
+      // Don't throw error for tracking failure
     }
   }
 
@@ -138,11 +102,15 @@ export class DownloadService {
         throw new DownloadError("Upload not found", "FILE_NOT_FOUND");
       }
 
+      // Since UploadItem extends Upload, we can safely access fileSize
+      const uploadWithSize = upload as Upload;
+      const totalSize = uploadWithSize.fileSize ?? 0;
+
       // This would typically come from your download tracking system
       // For now, we'll return a mock progress
       return {
         downloaded: 0,
-        total: upload.fileSize || 0,
+        total: totalSize,
       };
     } catch (error) {
       console.error(

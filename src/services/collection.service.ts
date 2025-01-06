@@ -200,10 +200,6 @@ export class CollectionService {
           Key: { id: collectionId },
           UpdateExpression:
             "SET uploadCount = uploadCount - :dec, modifiedAt = :now",
-          ExpressionAttributeValues: {
-            ":dec": 1,
-            ":now": now,
-          },
           ConditionExpression: "uploadCount > :zero",
           ExpressionAttributeValues: {
             ":dec": 1,
@@ -224,9 +220,9 @@ export class CollectionService {
       const collectionUploadsResponse = await docClient.send(
         new QueryCommand({
           TableName: TableNames.COLLECTION_UPLOADS,
-          KeyConditionExpression: "collectionId = :collectionId",
+          KeyConditionExpression: "collectionId = :id",
           ExpressionAttributeValues: {
-            ":collectionId": collectionId,
+            ":id": collectionId,
           },
         })
       );

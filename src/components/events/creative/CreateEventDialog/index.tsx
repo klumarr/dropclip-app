@@ -30,6 +30,7 @@ const CreateEventDialog: React.FC = () => {
     newEvent,
     handleCreateEvent,
     handleUpdateEvent,
+    setNewEvent,
   } = useEvents();
   const [activeTab, setActiveTab] = React.useState(0);
   const {
@@ -60,10 +61,12 @@ const CreateEventDialog: React.FC = () => {
   const handleSubmit = async () => {
     if (validateForm()) {
       try {
+        setNewEvent(formData);
+
         if (newEvent.id) {
-          await handleUpdateEvent(formData);
+          await handleUpdateEvent();
         } else {
-          await handleCreateEvent(formData);
+          await handleCreateEvent();
         }
         handleClose();
       } catch (error) {

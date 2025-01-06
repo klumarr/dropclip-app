@@ -10,6 +10,7 @@ import { DashboardPage } from "../pages/DashboardPage";
 import { SearchPage } from "../pages/SearchPage";
 import { SettingsPage } from "../pages/SettingsPage";
 import { TestComponentsPage } from "../pages/TestComponentsPage";
+import UploadManagementDashboard from "../pages/fan/uploads";
 
 // Lazy load components with default exports
 const EventsPage = lazy(() => import("../pages/EventsPage"));
@@ -95,6 +96,9 @@ export const AppRoutes = () => {
           }
         />
         <Route path="/test-components" element={<TestComponentsPage />} />
+        <Route path="/fan" element={<PrivateRoute />}>
+          <Route path="uploads" element={<UploadManagementDashboard />} />
+        </Route>
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Suspense>

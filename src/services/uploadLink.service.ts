@@ -22,9 +22,9 @@ export interface UploadLink {
   updatedAt: string;
 }
 
-class UploadLinkService {
-  private readonly tableName = TableNames.UPLOAD_LINKS;
+const TABLE_NAME = TableNames.UPLOAD_LINKS;
 
+export class UploadLinkService {
   async generateLink(
     eventId: string,
     fanId: string,
@@ -54,7 +54,7 @@ class UploadLinkService {
 
     await docClient.send(
       new PutCommand({
-        TableName: this.tableName,
+        TableName: TABLE_NAME,
         Item: link,
       })
     );
@@ -146,7 +146,7 @@ class UploadLinkService {
   async getLink(linkId: string): Promise<UploadLink | undefined> {
     const response = await docClient.send(
       new GetCommand({
-        TableName: this.tableName,
+        TableName: TABLE_NAME,
         Key: { id: linkId },
       })
     );
@@ -159,7 +159,7 @@ class UploadLinkService {
   ): Promise<UploadLink[]> {
     const response = await docClient.send(
       new QueryCommand({
-        TableName: this.tableName,
+        TableName: TABLE_NAME,
         IndexName: "FanEventLinksIndex",
         KeyConditionExpression: "fanId = :fanId AND eventId = :eventId",
         ExpressionAttributeValues: {
@@ -203,7 +203,7 @@ class UploadLinkService {
 
     await docClient.send(
       new PutCommand({
-        TableName: this.tableName,
+        TableName: TABLE_NAME,
         Item: {
           ...link,
           currentUploads: link.currentUploads + 1,
@@ -221,7 +221,7 @@ class UploadLinkService {
 
     await docClient.send(
       new PutCommand({
-        TableName: this.tableName,
+        TableName: TABLE_NAME,
         Item: {
           ...link,
           isActive: false,
@@ -230,6 +230,43 @@ class UploadLinkService {
       })
     );
   }
+
+  async listEventLinks(eventId: string): Promise<UploadLink[]> {
+    const response = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "EventLinksIndex",
+        KeyConditionExpression: "eventId = :eventId",
+        ExpressionAttributeValues: {
+          ":eventId": eventId,
+        },
+      })
+    );
+    return response.Items as UploadLink[];
+  }
 }
 
 export const uploadLinkService = new UploadLinkService();
+
+export const uploadLinkOperations = {
+  generateLink: (
+    eventId: string,
+    fanId: string,
+    creativeId: string,
+    options?: {
+      expirationHours?: number;
+      maxUploads?: number;
+    }
+  ) => uploadLinkService.generateLink(eventId, fanId, creativeId, options),
+
+  checkEligibility: (fanId: string, eventId: string, creativeId: string) =>
+    uploadLinkService.checkEligibility(fanId, eventId, creativeId),
+
+  autoGenerateLink: (fanId: string, eventId: string, creativeId: string) =>
+    uploadLinkService.autoGenerateLink(fanId, eventId, creativeId),
+
+  getLink: (linkId: string) => uploadLinkService.getLink(linkId),
+
+  incrementUploadCount: (linkId: string) =>
+    uploadLinkService.incrementUploadCount(linkId),
+};

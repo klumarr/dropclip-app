@@ -28,7 +28,7 @@ import {
 import {
   MoreVert,
   Share,
-  Event,
+  Event as EventIcon,
   LocationOn,
   People,
   Star,
@@ -48,6 +48,7 @@ import {
 import { eventOperations } from "../../services/eventsService";
 import { s3Operations } from "../../services/s3.service";
 import { contentOperations } from "../../services/content.service";
+import { Event } from "../../types/events";
 
 // Fan-specific event type that extends the base Event type
 interface FanEventType extends Event {
@@ -314,7 +315,7 @@ const EventsPageFan: React.FC = () => {
                           <Grid container spacing={1}>
                             <Grid item xs={12}>
                               <Box display="flex" alignItems="center" gap={1}>
-                                <Event fontSize="small" />
+                                <EventIcon fontSize="small" />
                                 <Typography variant="body2">
                                   {new Date(event.date).toLocaleDateString()} at{" "}
                                   {event.time}

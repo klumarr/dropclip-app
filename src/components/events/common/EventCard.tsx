@@ -143,6 +143,7 @@ const EventCard: React.FC<EventCardProps> = ({
           anchorEl={anchorEl}
           onClose={handleShareClose}
           onShare={handleShare}
+          open={Boolean(anchorEl)}
         />
       </StyledEventCard>
 
