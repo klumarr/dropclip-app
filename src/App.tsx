@@ -1,27 +1,31 @@
-import React from "react";
-import { BrowserRouter } from "react-router-dom";
-import { ThemeProvider, CssBaseline } from "@mui/material";
-import { EventsProvider } from "./contexts/EventsContext";
-import { AuthProvider } from "./contexts/AuthContext";
-import { NotificationProvider } from "./contexts/NotificationContext";
+import { RouterProvider } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
+import { routes } from "./config/routes.config";
+import { ThemeProvider } from "@mui/material/styles";
 import { theme } from "./theme";
-import { AppRoutes } from "./routes";
+import { CssBaseline } from "@mui/material";
+import { AuthProvider } from "./contexts/AuthContext";
+import { SnackbarProvider } from "./contexts/SnackbarContext";
+import { EventsProvider } from "./contexts/EventsContext";
+import { NotificationProvider } from "./contexts/NotificationContext";
 
-const App: React.FC = () => {
+const router = createBrowserRouter(routes);
+
+function App() {
   return (
-    <BrowserRouter>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <SnackbarProvider>
         <AuthProvider>
           <NotificationProvider>
             <EventsProvider>
-              <AppRoutes />
+              <RouterProvider router={router} />
             </EventsProvider>
           </NotificationProvider>
         </AuthProvider>
-      </ThemeProvider>
-    </BrowserRouter>
+      </SnackbarProvider>
+    </ThemeProvider>
   );
-};
+}
 
 export default App;

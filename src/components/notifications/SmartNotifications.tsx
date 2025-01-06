@@ -28,17 +28,8 @@ import {
   Settings as SettingsIcon,
   Close as CloseIcon,
 } from "@mui/icons-material";
-
-interface Notification {
-  id: string;
-  type: "event" | "video" | "social" | "system";
-  title: string;
-  message: string;
-  timestamp: Date;
-  read: boolean;
-  actionUrl?: string;
-  icon?: React.ReactNode;
-}
+import { useNotifications } from "../../contexts/NotificationContext";
+import { Notification } from "../../services/notification.service";
 
 interface NotificationPreferences {
   events: boolean;
@@ -49,21 +40,7 @@ interface NotificationPreferences {
   pushNotifications: boolean;
 }
 
-interface SmartNotificationsProps {
-  notifications: Notification[];
-  onMarkAsRead: (notificationId: string) => Promise<void>;
-  onMarkAllAsRead: () => Promise<void>;
-  onUpdatePreferences: (preferences: NotificationPreferences) => Promise<void>;
-  onDismiss: (notificationId: string) => Promise<void>;
-}
-
-export const SmartNotifications: React.FC<SmartNotificationsProps> = ({
-  notifications,
-  onMarkAsRead,
-  onMarkAllAsRead,
-  onUpdatePreferences,
-  onDismiss,
-}) => {
+export const SmartNotifications: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [preferences, setPreferences] = useState<NotificationPreferences>({
@@ -75,24 +52,30 @@ export const SmartNotifications: React.FC<SmartNotificationsProps> = ({
     pushNotifications: true,
   });
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const {
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAllAsRead,
+    dismissNotification,
+  } = useNotifications();
 
-  const getNotificationIcon = (type: string) => {
+  const getNotificationIcon = (type: Notification["type"]) => {
     switch (type) {
-      case "event":
-        return <EventIcon />;
-      case "video":
+      case "upload":
         return <VideoIcon />;
-      case "social":
-        return <PeopleIcon />;
+      case "moderation":
+        return <EventIcon />;
+      case "system":
+        return <NotificationsIcon />;
       default:
         return <NotificationsIcon />;
     }
   };
 
   const handleNotificationClick = async (notification: Notification) => {
-    if (!notification.read) {
-      await onMarkAsRead(notification.id);
+    if (notification.status === "unread") {
+      await markAsRead(notification.id);
     }
     if (notification.actionUrl) {
       window.location.href = notification.actionUrl;
@@ -106,7 +89,7 @@ export const SmartNotifications: React.FC<SmartNotificationsProps> = ({
       [key]: !preferences[key],
     };
     setPreferences(newPreferences);
-    onUpdatePreferences(newPreferences);
+    // TODO: Implement preference update in backend
   };
 
   const groupedNotifications = notifications.reduce((groups, notification) => {
@@ -152,7 +135,11 @@ export const SmartNotifications: React.FC<SmartNotificationsProps> = ({
               <SettingsIcon />
             </IconButton>
             {unreadCount > 0 && (
-              <Button size="small" onClick={onMarkAllAsRead} sx={{ ml: 1 }}>
+              <Button
+                size="small"
+                onClick={() => markAllAsRead()}
+                sx={{ ml: 1 }}
+              >
                 Mark all as read
               </Button>
             )}
@@ -175,7 +162,10 @@ export const SmartNotifications: React.FC<SmartNotificationsProps> = ({
                   button
                   onClick={() => handleNotificationClick(notification)}
                   sx={{
-                    bgcolor: notification.read ? "transparent" : "action.hover",
+                    bgcolor:
+                      notification.status === "read"
+                        ? "transparent"
+                        : "action.hover",
                   }}
                   secondaryAction={
                     <IconButton
@@ -183,7 +173,7 @@ export const SmartNotifications: React.FC<SmartNotificationsProps> = ({
                       size="small"
                       onClick={(e) => {
                         e.stopPropagation();
-                        onDismiss(notification.id);
+                        dismissNotification(notification.id);
                       }}
                     >
                       <CloseIcon />
@@ -209,6 +199,15 @@ export const SmartNotifications: React.FC<SmartNotificationsProps> = ({
               ))}
             </React.Fragment>
           ))}
+          {notifications.length === 0 && (
+            <ListItem>
+              <ListItemText
+                primary="No notifications"
+                secondary="You're all caught up!"
+                sx={{ textAlign: "center" }}
+              />
+            </ListItem>
+          )}
         </List>
       </Menu>
 

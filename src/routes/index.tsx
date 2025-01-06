@@ -9,11 +9,12 @@ import MainLayout from "../components/layout/MainLayout";
 import { DashboardPage } from "../pages/DashboardPage";
 import { SearchPage } from "../pages/SearchPage";
 import { SettingsPage } from "../pages/SettingsPage";
+import { TestComponentsPage } from "../pages/TestComponentsPage";
 
 // Lazy load components with default exports
 const EventsPage = lazy(() => import("../pages/EventsPage"));
 const PlaylistsPage = lazy(() => import("../pages/PlaylistsPage"));
-const SignInPage = lazy(() => import("../pages/SignInPage"));
+const SignInPage = lazy(() => import("../pages/auth/SignInPage"));
 const SignUpPage = lazy(() => import("../pages/SignUpPage"));
 const VerifyEmailPage = lazy(() => import("../pages/VerifyEmailPage"));
 
@@ -93,6 +94,7 @@ export const AppRoutes = () => {
             )
           }
         />
+        <Route path="/test-components" element={<TestComponentsPage />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Suspense>

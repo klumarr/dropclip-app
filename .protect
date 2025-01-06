@@ -6,9 +6,53 @@ src/pages/DashboardPage.tsx - Stable implementation with working features
 src/pages/LoginPage.tsx - Stable auth flow
 src/pages/SignUpPage.tsx - Stable registration flow
 
+# Core configuration and type files
+src/config/dynamodb.ts
+src/types/events.ts
+src/types/dynamodb.ts
+
+# Critical services
+src/services/dynamodb.service.ts
+src/services/s3.service.ts
+src/services/attendance.service.ts
+src/services/follow.service.ts
+src/services/uploadLink.service.ts
+
+# Authentication and context
+src/contexts/AuthContext.tsx
+src/hooks/useAuth.ts
+src/hooks/useFollowStatus.ts
+src/hooks/useAttendanceStatus.ts
+
+# Core layout components
+src/components/layout/MainLayout.tsx
+src/components/layout/Navigation.tsx
+
+# Important feature components
+src/components/events/creative/EventActions/index.tsx
+src/components/events/creative/FlyerScanner.tsx
+src/components/events/AttendanceButton.tsx
+src/components/follow/FollowButton.tsx
+
+# Core pages
+src/pages/auth/SignInPage.tsx
+src/pages/DashboardPage.tsx
+src/pages/creative/EventsPageCreative.tsx
+
 # Core Components
 src/components/auth/ProtectedRoute.tsx - Critical auth protection
 src/components/layout/MobileNavigation.tsx - Stable navigation
+# Infrastructure
+src/infrastructure/tables.yml
+src/infrastructure/create-tables.ts
 
 # Configuration
 src/config/aws/amplify.config.ts - Critical AWS setup 
+# Environment configuration
+.env.example 
+
+# Core Components
+/src/components/events/creative/EventsPageStyles.ts
+
+# Lambda functions
+src/lambda/events/getCreativeEvents.ts

@@ -16,11 +16,6 @@ export const theme = createTheme({
       default: "#121212",
       paper: "#181818",
     },
-    text: {
-      primary: "#ffffff",
-      secondary: "rgba(255, 255, 255, 0.7)",
-      disabled: "rgba(255, 255, 255, 0.5)",
-    },
   },
   components,
 });

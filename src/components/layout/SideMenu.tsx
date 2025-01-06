@@ -26,6 +26,13 @@ import {
   SwapHoriz,
   MusicNote,
   Event,
+  Collections,
+  Dashboard,
+  VideoLibrary,
+  Search,
+  Favorite,
+  Settings,
+  Analytics,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
@@ -132,25 +139,37 @@ export const SideMenu: React.FC<SideMenuProps> = ({
 
   const menuItems = isCreative
     ? [
-        { text: "Profile", icon: <Person />, path: "/profile" },
-        { text: "Account", icon: <AccountCircle />, path: "/account" },
-        { text: "Stats", icon: <BarChart />, path: "/stats" },
-        { text: "Upload", icon: <CloudUpload />, path: "/upload" },
-        { text: "Mailing List", icon: <Mail />, path: "/mailing-list" },
+        { text: "Dashboard", icon: <Dashboard />, path: "/creative/dashboard" },
+        { text: "My Videos", icon: <VideoLibrary />, path: "/creative/videos" },
+        { text: "Events", icon: <Event />, path: "/creative/events" },
+        {
+          text: "Memory Manager",
+          icon: <Collections />,
+          path: "/creative/memories",
+        },
+        { text: "Analytics", icon: <Analytics />, path: "/creative/analytics" },
+        { text: "Settings", icon: <Settings />, path: "/creative/settings" },
         {
           text: "Notifications",
           icon: <Notifications />,
-          path: "/notifications",
+          path: "/creative/notifications",
         },
       ]
     : [
-        { text: "Profile", icon: <Person />, path: "/profile" },
-        { text: "My Content", icon: <CloudUpload />, path: "/my-content" },
-        { text: "Events", icon: <Event />, path: "/events" },
+        { text: "Dashboard", icon: <Dashboard />, path: "/fan/dashboard" },
+        { text: "Discover", icon: <Search />, path: "/fan/search" },
+        { text: "Events", icon: <Event />, path: "/fan/events" },
+        {
+          text: "My Playlists",
+          icon: <VideoLibrary />,
+          path: "/fan/playlists",
+        },
+        { text: "Following", icon: <Favorite />, path: "/fan/following" },
+        { text: "Settings", icon: <Settings />, path: "/fan/settings" },
         {
           text: "Notifications",
           icon: <Notifications />,
-          path: "/notifications",
+          path: "/fan/notifications",
         },
       ];
 

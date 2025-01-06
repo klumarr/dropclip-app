@@ -1,65 +1,84 @@
-import React from "react";
-import { Box, Typography, Button } from "@mui/material";
+import React, { Component, ErrorInfo, ReactNode } from "react";
+import { Box, Typography, Button, Paper } from "@mui/material";
+import { Error as ErrorIcon } from "@mui/icons-material";
 
-interface ErrorBoundaryState {
+interface Props {
+  children: ReactNode;
+  fallback?: ReactNode;
+}
+
+interface State {
   hasError: boolean;
   error: Error | null;
+  errorInfo: ErrorInfo | null;
 }
 
-interface ErrorBoundaryProps {
-  children: React.ReactNode;
-}
+export class ErrorBoundary extends Component<Props, State> {
+  public state: State = {
+    hasError: false,
+    error: null,
+    errorInfo: null,
+  };
 
-export class ErrorBoundary extends React.Component<
-  ErrorBoundaryProps,
-  ErrorBoundaryState
-> {
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = { hasError: false, error: null };
+  public static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, error, errorInfo: null };
   }
 
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error("Uncaught error:", error, errorInfo);
+    this.setState({
+      error,
+      errorInfo,
+    });
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("Error caught by boundary:", error, errorInfo);
-  }
+  private handleReset = () => {
+    this.setState({
+      hasError: false,
+      error: null,
+      errorInfo: null,
+    });
+  };
 
-  render() {
+  public render() {
     if (this.state.hasError) {
-      const isCredentialError = this.state.error?.message.includes(
-        "credential object is not valid"
-      );
+      if (this.props.fallback) {
+        return this.props.fallback;
+      }
 
       return (
         <Box
-          sx={{
-            p: 3,
-            textAlign: "center",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            minHeight: "80vh",
-          }}
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          minHeight="200px"
+          p={3}
         >
-          <Typography variant="h4" gutterBottom>
-            {isCredentialError ? "Session Expired" : "Something went wrong"}
-          </Typography>
-          <Typography variant="body1" paragraph>
-            {isCredentialError
-              ? "Your session has expired. Please refresh the page to continue."
-              : "An unexpected error occurred. Please try again."}
-          </Typography>
-          <Button
-            variant="contained"
-            onClick={() => window.location.reload()}
-            sx={{ mt: 2 }}
+          <Paper
+            elevation={3}
+            sx={{
+              p: 3,
+              maxWidth: 500,
+              width: "100%",
+              textAlign: "center",
+            }}
           >
-            Refresh Page
-          </Button>
+            <ErrorIcon color="error" sx={{ fontSize: 48, mb: 2 }} />
+            <Typography variant="h6" gutterBottom>
+              Something went wrong
+            </Typography>
+            <Typography color="text.secondary" paragraph>
+              {this.state.error?.message || "An unexpected error occurred"}
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={this.handleReset}
+            >
+              Try Again
+            </Button>
+          </Paper>
         </Box>
       );
     }
@@ -67,3 +86,5 @@ export class ErrorBoundary extends React.Component<
     return this.props.children;
   }
 }
+
+export default ErrorBoundary;

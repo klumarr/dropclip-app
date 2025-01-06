@@ -15,6 +15,9 @@ const VideosPage = lazy(() => import("../pages/creative/VideosPage"));
 const EventsPage = lazy(() => import("../pages/creative/EventsPageCreative"));
 const AnalyticsPage = lazy(() => import("../pages/creative/AnalyticsPage"));
 const SettingsPage = lazy(() => import("../pages/creative/SettingsPage"));
+const MemoryManagerPage = lazy(
+  () => import("../pages/creative/MemoryManagerPage")
+);
 const SearchPage = lazy(() => import("../pages/fan/SearchPage"));
 const EventsPageFan = lazy(() => import("../pages/fan/EventsPageFan"));
 
@@ -75,6 +78,10 @@ export const routes = [
       {
         path: "settings",
         element: <SettingsPage />,
+      },
+      {
+        path: "memories",
+        element: <MemoryManagerPage />,
       },
     ],
   },

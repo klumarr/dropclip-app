@@ -12,7 +12,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import {
   VideoLibrary,
   Event,
-  CloudDownload,
+  Collections,
   Analytics,
 } from "@mui/icons-material";
 
@@ -35,10 +35,10 @@ const DashboardPage: React.FC = () => {
       path: "/creative/events",
     },
     {
-      title: "Downloads",
-      description: "Access your downloaded content",
-      icon: CloudDownload,
-      path: "/creative/downloads",
+      title: "Memory Manager",
+      description: "Manage fan-submitted content",
+      icon: Collections,
+      path: "/creative/memories",
     },
     {
       title: "Analytics",
