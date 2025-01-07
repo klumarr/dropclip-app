@@ -112,7 +112,6 @@ export const AuthService = {
       console.log("Sign out successful");
       localStorage.clear();
       sessionStorage.clear();
-      window.location.href = "/auth/sign-in";
     } catch (error) {
       console.error("Error signing out:", error);
       throw error instanceof Error

@@ -8,6 +8,8 @@ import {
   fetchUserAttributes,
   type SignUpInput as AmplifySignUpInput,
   updateUserAttributes as amplifyUpdateUserAttributes,
+  confirmResetPassword,
+  confirmSignIn,
 } from "aws-amplify/auth";
 import { AuthService } from "../services/auth.service";
 import {
@@ -60,6 +62,11 @@ interface AuthContextType {
     newPassword: string
   ) => Promise<void>;
   updateUserAttributes: (attributes: Record<string, string>) => Promise<void>;
+  completeNewPassword: (
+    email: string,
+    oldPassword: string,
+    newPassword: string
+  ) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -102,7 +109,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         user: {
           id: attributes.sub || "",
           email: attributes.email || "",
-          userType: (attributes["custom:userType"] as UserType) || UserType.FAN,
+          userType:
+            (attributes["custom:userType"]?.toUpperCase() as UserType) ||
+            UserType.FAN,
           creativeCategory:
             (attributes["custom:creativeCategory"] as CreativeCategory) ||
             undefined,
@@ -143,12 +152,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const handleSignIn = async (email: string, password: string) => {
+  const handleSignIn = async (
+    email: string,
+    password: string
+  ): Promise<void> => {
     try {
       console.log("Sign in attempt:", {
         email,
         timestamp: new Date().toISOString(),
       });
+
+      setState((prev) => ({ ...prev, isLoading: true }));
 
       // First check if there's an existing session
       try {
@@ -160,8 +174,67 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         console.log("No existing session found");
       }
 
-      await amplifySignIn({ username: email, password });
-      await checkAuthState();
+      // Perform sign in
+      const signInResult = await amplifySignIn({ username: email, password });
+      console.log("Sign in result:", signInResult);
+
+      if (
+        signInResult.nextStep?.signInStep ===
+        "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED"
+      ) {
+        console.log("Password change required");
+        setState((prev) => ({
+          ...prev,
+          isLoading: false,
+          error: new Error("NEW_PASSWORD_REQUIRED"),
+        }));
+        throw new Error("NEW_PASSWORD_REQUIRED");
+      }
+
+      if (!signInResult.isSignedIn) {
+        throw new Error("Sign in failed");
+      }
+
+      // Get current user and attributes
+      const currentUser = await getCurrentUser();
+      console.log("Current user:", currentUser);
+
+      const attributes = await fetchUserAttributes();
+      console.log("User attributes:", attributes);
+
+      // Update auth state
+      setState({
+        user: {
+          id: attributes.sub || "",
+          email: attributes.email || "",
+          userType:
+            (attributes["custom:userType"]?.toUpperCase() as UserType) ||
+            UserType.FAN,
+          creativeCategory:
+            (attributes["custom:creativeCategory"] as CreativeCategory) ||
+            undefined,
+          customCategory: attributes["custom:customCategory"] || undefined,
+          securitySettings: {
+            twoFactorEnabled: attributes["custom:twoFactorEnabled"] === "true",
+            emailNotifications:
+              attributes["custom:emailNotifications"] === "true",
+            sessionTimeout: parseInt(
+              attributes["custom:sessionTimeout"] || "30",
+              10
+            ),
+            passwordLastChanged: new Date(
+              attributes["custom:passwordLastChanged"] || Date.now()
+            ),
+            backupCodes: attributes["custom:backupCodes"]?.split(",") || [],
+          },
+          isEmailVerified: attributes.email_verified === "true",
+          createdAt: new Date(attributes["custom:createdAt"] || Date.now()),
+          updatedAt: new Date(attributes["custom:updatedAt"] || Date.now()),
+        },
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
     } catch (error) {
       console.error("Sign in error:", {
         error,
@@ -169,7 +242,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         currentPath: window.location.pathname,
         timestamp: new Date().toISOString(),
       });
-      setState((prev) => ({ ...prev, error: error as Error }));
+      setState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: error as Error,
+        isAuthenticated: false,
+        user: null,
+      }));
       throw error;
     }
   };
@@ -371,6 +450,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const handleCompleteNewPassword = async (
+    email: string,
+    oldPassword: string,
+    newPassword: string
+  ): Promise<void> => {
+    try {
+      setState((prev) => ({ ...prev, isLoading: true }));
+
+      // First sign in to get the session
+      const signInResult = await amplifySignIn({
+        username: email,
+        password: oldPassword,
+      });
+
+      if (
+        signInResult.nextStep?.signInStep !==
+        "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED"
+      ) {
+        throw new Error("Password change not required");
+      }
+
+      // Complete the new password challenge
+      const challengeResponse = await confirmSignIn({
+        challengeResponse: newPassword,
+      });
+
+      if (!challengeResponse.isSignedIn) {
+        throw new Error("Failed to complete password change");
+      }
+
+      // Check auth state after password change
+      await checkAuthState();
+    } catch (error) {
+      console.error("Error completing new password:", error);
+      setState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: error as Error,
+      }));
+      throw error;
+    }
+  };
+
   const value = {
     user: state.user,
     userAttributes: state.user
@@ -403,6 +525,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     forgotPassword: handleForgotPassword,
     resetPassword: handleResetPassword,
     updateUserAttributes,
+    completeNewPassword: handleCompleteNewPassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
