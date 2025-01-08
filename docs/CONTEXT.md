@@ -104,7 +104,7 @@ src/hooks/
 - TypeScript 5.3
 - Material-UI v5
 - AWS SDK
-- Firebase Authentication
+- AWS Cognito Authentication
 - PostgreSQL
 - Jest with TestType
 
@@ -177,6 +177,6 @@ Current Version: 1.3.0 (January 5th, 2025)
 
 - AWS configurations in main.tsx
 - Material-UI v5 for styling
-- Firebase authentication
+- AWS Cognito Authentication
 - PostgreSQL database
 - TestType system guidelines
