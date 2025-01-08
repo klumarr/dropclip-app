@@ -7,6 +7,7 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({
   formData,
   onChange,
   errors,
+  uploadProgress,
 }) => {
   const handleChange =
     (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,9 +41,11 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({
       <Grid item xs={12}>
         <ImageUpload
           imageUrl={formData.imageUrl}
+          imageFile={formData.imageFile}
           onImageUpload={handleImageUpload}
           onImageRemove={handleImageRemove}
           error={errors.imageFile}
+          uploadProgress={uploadProgress}
         />
       </Grid>
 
@@ -83,6 +86,7 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({
             onChange={handleChange("startTime")}
             error={!!errors.startTime}
             helperText={errors.startTime}
+            required
             InputLabelProps={{ shrink: true }}
           />
         </FormControl>
@@ -97,6 +101,7 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({
             onChange={handleChange("endTime")}
             error={!!errors.endTime}
             helperText={errors.endTime}
+            required
             InputLabelProps={{ shrink: true }}
           />
         </FormControl>

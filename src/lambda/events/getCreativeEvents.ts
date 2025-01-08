@@ -15,6 +15,7 @@ import {
   UpdateCommand,
   DeleteCommand,
   GetCommand,
+  PutCommand,
 } from "@aws-sdk/lib-dynamodb";
 
 const EVENTS_TABLE_NAME = process.env.EVENTS_TABLE_NAME || "dropclip-events";
@@ -232,19 +233,20 @@ const verifyAuthorization = (event) => {
   console.log("🔒 Verifying authorization:", {
     claims: event.requestContext?.authorizer?.claims,
     scopes: event.requestContext?.authorizer?.claims?.scope,
-    requiredScope: "aws.cognito.signin.user.admin",
   });
 
-  // Check if we have the required scope
-  const scopes =
-    event.requestContext?.authorizer?.claims?.scope?.split(" ") || [];
-  const hasRequiredScope = scopes.includes("aws.cognito.signin.user.admin");
+  // Check if we have valid claims
+  const claims = event.requestContext?.authorizer?.claims;
+  if (!claims || !claims.sub) {
+    console.log("❌ Missing required claims");
+    return false;
+  }
 
-  if (!hasRequiredScope) {
-    console.log("❌ Missing required scope:", {
-      availableScopes: scopes,
-      requiredScope: "aws.cognito.signin.user.admin",
-    });
+  // Check if token is not expired
+  const exp = claims.exp ? parseInt(claims.exp) : 0;
+  const now = Math.floor(Date.now() / 1000);
+  if (exp < now) {
+    console.log("❌ Token expired");
     return false;
   }
 
@@ -315,8 +317,12 @@ export const handler = async (event) => {
           statusCode: 403,
           headers: corsHeaders(event.headers?.origin),
           body: JSON.stringify({
-            message:
-              "Forbidden - Missing required scope aws.cognito.signin.user.admin",
+            message: "Unauthorized - Invalid or expired token",
+            debug: {
+              hasAuthorizer: !!event.requestContext?.authorizer,
+              hasClaims: !!event.requestContext?.authorizer?.claims,
+              timestamp: new Date().toISOString(),
+            },
           }),
         };
       }
@@ -486,7 +492,160 @@ export const handler = async (event) => {
       }
     }
 
-    // Original GET logic
+    // Handle POST request for creating events
+    if (event.httpMethod === "POST") {
+      console.log("🛠️ Processing POST request:", {
+        userId: userId,
+        authorizerClaims: event.requestContext?.authorizer?.claims,
+        authHeader: event.headers?.Authorization?.substring(0, 20) + "...",
+        body: event.body,
+        headers: event.headers,
+        isBase64Encoded: event.isBase64Encoded,
+        contentType: event.headers?.["content-type"],
+        contentLength: event.headers?.["content-length"],
+      });
+
+      // First verify authorization
+      if (!verifyAuthorization(event)) {
+        console.log("❌ Authorization failed:", {
+          hasAuthorizer: !!event.requestContext?.authorizer,
+          hasClaims: !!event.requestContext?.authorizer?.claims,
+          claims: event.requestContext?.authorizer?.claims,
+          userId: userId,
+        });
+        return {
+          statusCode: 403,
+          headers: corsHeaders(event.headers?.origin),
+          body: JSON.stringify({
+            message: "Unauthorized - Invalid or expired token",
+            debug: {
+              hasAuthorizer: !!event.requestContext?.authorizer,
+              hasClaims: !!event.requestContext?.authorizer?.claims,
+              timestamp: new Date().toISOString(),
+              userId: userId,
+              claims: event.requestContext?.authorizer?.claims,
+            },
+          }),
+        };
+      }
+
+      try {
+        // Handle potential base64 encoding
+        let eventData;
+        try {
+          if (event.isBase64Encoded) {
+            console.log("📦 Decoding base64 body");
+            const decodedBody = Buffer.from(event.body, "base64").toString(
+              "utf8"
+            );
+            console.log("📦 Decoded body:", decodedBody);
+            eventData = JSON.parse(decodedBody);
+          } else {
+            console.log("📦 Parsing JSON body:", event.body);
+            eventData = JSON.parse(event.body);
+          }
+        } catch (parseError) {
+          console.error("❌ Failed to parse event body:", {
+            body: event.body,
+            error: parseError,
+            isBase64Encoded: event.isBase64Encoded,
+            bodyType: typeof event.body,
+          });
+          return {
+            statusCode: 400,
+            headers: corsHeaders(event.headers?.origin),
+            body: JSON.stringify({
+              message: "Invalid request body",
+              error: parseError.message,
+              debug: {
+                body: event.body,
+                isBase64Encoded: event.isBase64Encoded,
+                bodyType: typeof event.body,
+              },
+            }),
+          };
+        }
+
+        console.log("📦 Event data after parsing:", eventData);
+
+        // Validate required fields
+        const requiredFields = ["title", "date", "location"];
+        const missingFields = requiredFields.filter(
+          (field) => !eventData[field]
+        );
+
+        if (missingFields.length > 0) {
+          console.log("❌ Missing required fields:", {
+            missingFields,
+            receivedData: eventData,
+          });
+          return {
+            statusCode: 400,
+            headers: corsHeaders(event.headers?.origin),
+            body: JSON.stringify({
+              message: "Missing required fields",
+              fields: missingFields,
+              receivedData: eventData,
+            }),
+          };
+        }
+
+        // Add user_id and timestamps
+        const newEvent = {
+          ...eventData,
+          id: Date.now().toString(), // Ensure we have an ID
+          user_id: userId,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          // Ensure optional fields have default values
+          startTime: eventData.startTime || "",
+          endTime: eventData.endTime || "",
+          description: eventData.description || "",
+          ticketLink: eventData.ticketLink || "",
+          isAutomatic: eventData.isAutomatic || false,
+          uploadConfig: eventData.uploadConfig || {
+            enabled: false,
+            allowedTypes: ["image/*"],
+            maxFileSize: 5,
+          },
+        };
+
+        // Create event in DynamoDB
+        const command = {
+          TableName: EVENTS_TABLE_NAME,
+          Item: newEvent,
+        };
+
+        console.log("🔧 Creating event with command:", command);
+        await docClient.send(new PutCommand(command));
+
+        return {
+          statusCode: 201,
+          headers: corsHeaders(event.headers?.origin),
+          body: JSON.stringify({
+            message: "Event created successfully",
+            event: newEvent,
+          }),
+        };
+      } catch (error) {
+        console.error("❌ Error in POST request:", error);
+        return {
+          statusCode: 500,
+          headers: corsHeaders(event.headers?.origin),
+          body: JSON.stringify({
+            message: "Error creating event",
+            error: error.message || "Unknown error",
+            debug: {
+              userId: userId,
+              claims: event.requestContext?.authorizer?.claims,
+              headers: event.headers,
+            },
+          }),
+        };
+      }
+    }
+
+    // Original GET logic    // Original GET logic
     try {
       console.log("Testing DynamoDB permissions...");
       const testCommand = new ScanCommand({

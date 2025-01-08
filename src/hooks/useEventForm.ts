@@ -77,6 +77,7 @@ export const useEventForm = (initialData: EventFormData) => {
   return {
     formData,
     errors,
+    setErrors,
     handleChange,
     handleUploadConfigChange,
     validateForm,

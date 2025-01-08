@@ -2,52 +2,77 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { UserType } from "../types/auth.types";
+import { Box, CircularProgress } from "@mui/material";
 
 interface RouteGuardProps {
   children: React.ReactNode;
   requiredUserTypes?: UserType[];
-  fallbackPath?: string;
 }
 
 export const RouteGuard: React.FC<RouteGuardProps> = ({
   children,
   requiredUserTypes,
-  fallbackPath = "/dashboard",
 }) => {
-  const { userAttributes, isLoading } = useAuth();
+  const { isAuthenticated, userAttributes, isLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("RouteGuard Check:", {
+    const currentPath = window.location.pathname;
+    console.log("🔒 RouteGuard Mount:", {
+      path: currentPath,
+      timestamp: new Date().toISOString(),
+    });
+
+    console.log("🔑 Auth State:", {
+      isAuthenticated,
       userType: userAttributes?.userType,
-      requiredTypes: requiredUserTypes,
       isLoading,
-      currentPath: window.location.pathname,
+      requiredTypes: requiredUserTypes,
     });
 
     if (!isLoading) {
-      if (!userAttributes) {
-        console.log("RouteGuard: No user attributes, redirecting to signin");
-        navigate("/signin");
+      if (!isAuthenticated) {
+        console.log(
+          "❌ Not authenticated, redirecting to signin from:",
+          currentPath
+        );
+        navigate("/auth/signin", { replace: true });
         return;
       }
 
       if (
         requiredUserTypes &&
+        userAttributes?.userType &&
         !requiredUserTypes.includes(userAttributes.userType)
       ) {
-        console.log(
-          "RouteGuard: Unauthorized user type, redirecting to fallback"
-        );
-        navigate(fallbackPath);
+        console.log("⚠️ User type not allowed:", {
+          current: userAttributes.userType,
+          required: requiredUserTypes,
+          path: currentPath,
+        });
+        navigate("/dashboard", { replace: true });
         return;
       }
+
+      console.log("✅ Access granted to:", currentPath);
     }
-  }, [userAttributes, isLoading, requiredUserTypes, navigate, fallbackPath]);
+  }, [isAuthenticated, userAttributes, isLoading, requiredUserTypes, navigate]);
 
   if (isLoading) {
-    return null; // Or a loading spinner
+    console.log("⏳ Loading auth state...");
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+      >
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return <>{children}</>;
 };
+
+export default RouteGuard;

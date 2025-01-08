@@ -1,5 +1,6 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import env from "./env.config";
 
 const stage = import.meta.env.VITE_STAGE || "dev";
 
@@ -13,15 +14,12 @@ export const TableNames = {
   FOLLOWS: `${stage}-follows`,
   COLLECTIONS: `${stage}-collections`,
   COLLECTION_UPLOADS: `${stage}-collection-uploads`,
+  NOTIFICATIONS: `${stage}-notifications`,
 } as const;
 
-// DynamoDB Client setup
+// DynamoDB Client setup - only used in Lambda functions
 const client = new DynamoDBClient({
-  region: import.meta.env.VITE_AWS_REGION,
-  credentials: {
-    accessKeyId: import.meta.env.VITE_AWS_ACCESS_KEY_ID!,
-    secretAccessKey: import.meta.env.VITE_AWS_SECRET_ACCESS_KEY!,
-  },
+  region: env.aws.region,
 });
 
 export const docClient = DynamoDBDocumentClient.from(client);
@@ -118,4 +116,14 @@ export interface FollowItem {
   creativeId: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface NotificationItem {
+  userId: string;
+  id: string;
+  status: "read" | "unread";
+  type: "upload" | "moderation" | "system" | "download";
+  message: string;
+  createdAt: string;
+  metadata?: Record<string, any>;
 }

@@ -9,6 +9,7 @@ DropClip is a single-page application (SPA) built with React and TypeScript, uti
 ## Technology Stack
 
 ### Frontend
+
 - React 18.2.0
 - TypeScript 5.3
 - Material-UI v5
@@ -16,13 +17,14 @@ DropClip is a single-page application (SPA) built with React and TypeScript, uti
 - ESLint for code quality
 
 ### Backend Services
+
 - AWS S3 for storage
 - AWS CloudFront for content delivery
 - AWS Cognito for authentication
 - PostgreSQL for database
-- Firebase Authentication (to be replaced with Cognito)
 
 ### Development Infrastructure
+
 - Jest with TestType for testing
 - ESLint for code quality
 - AWS SDK for service integration
@@ -49,16 +51,19 @@ src/
 ## Data Flow
 
 1. **User Interface Layer**
+
    - React components
    - Material-UI components
    - Custom hooks for state management
 
 2. **Application Layer**
+
    - Business logic
    - State management
    - API integration
 
 3. **Service Layer**
+
    - AWS service integration
    - Database operations
    - Authentication
@@ -106,11 +111,13 @@ src/
 ## Future Considerations
 
 1. **Scalability**
+
    - Horizontal scaling
    - Load balancing
    - Cache optimization
 
 2. **Feature Expansion**
+
    - Additional video processing features
    - Enhanced social features
    - Analytics dashboard

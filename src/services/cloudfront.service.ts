@@ -1,58 +1,41 @@
-import {
-  CloudFrontClient,
-  CreateInvalidationCommand,
-} from "@aws-sdk/client-cloudfront";
-
-const cloudfrontClient = new CloudFrontClient({
-  region: import.meta.env.VITE_AWS_REGION,
-  credentials: {
-    accessKeyId: import.meta.env.VITE_AWS_ACCESS_KEY_ID!,
-    secretAccessKey: import.meta.env.VITE_AWS_SECRET_ACCESS_KEY!,
-  },
-});
-
-const DISTRIBUTION_ID = import.meta.env.VITE_AWS_CLOUDFRONT_DISTRIBUTION_ID;
-const DISTRIBUTION_DOMAIN = import.meta.env.VITE_AWS_CLOUDFRONT_DOMAIN;
+import env from "../config/env.config";
 
 export const cloudfrontOperations = {
-  // Get the CloudFront URL for a file
-  getFileUrl: (key: string): string => {
-    return `https://${DISTRIBUTION_DOMAIN}/${key}`;
+  async invalidateCache(paths: string[]): Promise<void> {
+    try {
+      const response = await fetch(
+        `${env.api.endpoint}/cloudfront/invalidate`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ paths }),
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to invalidate cache");
+      }
+    } catch (error) {
+      console.error("Error invalidating cache:", error);
+      throw error;
+    }
   },
 
-  // Invalidate CloudFront cache for specific paths
-  invalidateCache: async (paths: string[]): Promise<void> => {
-    const command = new CreateInvalidationCommand({
-      DistributionId: DISTRIBUTION_ID,
-      InvalidationBatch: {
-        CallerReference: Date.now().toString(),
-        Paths: {
-          Quantity: paths.length,
-          Items: paths.map((path) =>
-            path.startsWith("/") ? path : `/${path}`
-          ),
-        },
-      },
-    });
-
-    await cloudfrontClient.send(command);
+  async invalidateEventCache(eventId: string): Promise<void> {
+    await this.invalidateCache([`/events/${eventId}/*`]);
   },
 
-  // Invalidate cache for an event's content
-  invalidateEventCache: async (eventId: string): Promise<void> => {
-    await cloudfrontOperations.invalidateCache([
-      `/events/${eventId}/*`,
-      `/uploads/${eventId}/*`,
-    ]);
-  },
-
-  // Invalidate cache for a specific upload
-  invalidateUploadCache: async (
+  async invalidateUploadCache(
     eventId: string,
     uploadId: string
-  ): Promise<void> => {
-    await cloudfrontOperations.invalidateCache([
-      `/uploads/${eventId}/${uploadId}/*`,
-    ]);
+  ): Promise<void> {
+    await this.invalidateCache([`/uploads/${eventId}/${uploadId}/*`]);
+  },
+
+  getFileUrl(key: string): string {
+    return `${env.api.endpoint}/files/${encodeURIComponent(key)}`;
   },
 };

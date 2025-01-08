@@ -10,6 +10,7 @@ export interface CreateEventFormProps {
   formData: EventFormData;
   onChange: (field: keyof EventFormData, value: any) => void;
   errors: Record<string, string>;
+  uploadProgress?: number;
 }
 
 export interface UploadConfigFormProps {
@@ -31,7 +32,9 @@ export interface DialogActionsProps {
 
 export interface ImageUploadProps {
   imageUrl?: string;
+  imageFile?: File;
   onImageUpload: (file: File) => void;
   onImageRemove: () => void;
   error?: string;
+  uploadProgress?: number;
 }

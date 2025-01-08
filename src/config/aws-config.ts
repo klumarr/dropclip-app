@@ -3,10 +3,10 @@ import { Amplify } from "aws-amplify";
 const config = {
   Auth: {
     Cognito: {
-      userPoolId: import.meta.env.VITE_USER_POOL_ID || "eu-north-1_j46Wdmbhw",
+      userPoolId: import.meta.env.VITE_USER_POOL_ID || "eu-north-1_OOIFH855z",
       userPoolClientId:
         import.meta.env.VITE_USER_POOL_CLIENT_ID ||
-        "4q5fcvpf06ouai8edm8bg02utm",
+        "6ql7knc7d1vl13tvkf2t2qh7gv",
     },
   },
   API: {

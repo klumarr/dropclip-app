@@ -154,6 +154,11 @@ export const SideMenu: React.FC<SideMenuProps> = ({
           icon: <Notifications />,
           path: "/creative/notifications",
         },
+        {
+          text: "Test Components",
+          icon: <Settings />,
+          path: "/test-components",
+        },
       ]
     : [
         { text: "Dashboard", icon: <Dashboard />, path: "/fan/dashboard" },
@@ -170,6 +175,11 @@ export const SideMenu: React.FC<SideMenuProps> = ({
           text: "Notifications",
           icon: <Notifications />,
           path: "/fan/notifications",
+        },
+        {
+          text: "Test Components",
+          icon: <Settings />,
+          path: "/test-components",
         },
       ];
 

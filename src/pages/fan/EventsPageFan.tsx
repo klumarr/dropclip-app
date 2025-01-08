@@ -37,6 +37,7 @@ import {
   Close,
   Image,
   VideoFile,
+  CheckCircle,
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { useAuth } from "../../contexts/AuthContext";
@@ -48,20 +49,29 @@ import {
 import { eventOperations } from "../../services/eventsService";
 import { s3Operations } from "../../services/s3.service";
 import { contentOperations } from "../../services/content.service";
+import { followService } from "../../services/follow.service";
+import { attendanceService } from "../../services/attendance.service";
 import { Event } from "../../types/events";
+import useFollowStatus from "../../hooks/useFollowStatus";
+import useAttendanceStatus from "../../hooks/useAttendanceStatus";
 
 // Fan-specific event type that extends the base Event type
 interface FanEventType extends Event {
   status: "upcoming" | "past";
-  thumbnailUrl: string;
-  time: string;
-  attendees: number;
-  isInterested: boolean;
+  user_id: string;
+  startTime: string;
+  endTime: string;
+  ticketLink: string;
+  isAutomatic?: boolean;
   uploadConfig: {
     enabled: boolean;
     allowedTypes: string[];
     maxFileSize: number;
   };
+  created_at?: string;
+  updated_at?: string;
+  attendees?: number;
+  isInterested?: boolean;
 }
 
 interface CategorizedEvents {
@@ -71,7 +81,7 @@ interface CategorizedEvents {
 }
 
 // Styled components for upload functionality
-const UploadContainer = styled(Box)(({ theme }) => ({
+const UploadContainer = styled("div")(({ theme }) => ({
   border: `2px dashed ${theme.palette.divider}`,
   borderRadius: theme.shape.borderRadius,
   padding: theme.spacing(3),
@@ -116,24 +126,46 @@ const EventsPageFan: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
+  // Add loading state for attendance toggle
+  const [attendanceLoading, setAttendanceLoading] = useState<string | null>(
+    null
+  );
+
   const fetchEvents = async () => {
     if (!user) return;
 
     try {
       setIsLoading(true);
+      setError(null);
+
+      // Get followed creatives
+      const followedCreatives = await followService.getFanFollowing(user.id);
+      console.log("Followed creatives:", followedCreatives);
+
+      // Get events for each creative
       const eventsData = await eventOperations.getFanEvents();
+      console.log("All events:", eventsData);
+
+      // Filter events to only show those from followed creatives
+      const followedEvents = eventsData.filter((event) =>
+        followedCreatives.includes(event.user_id)
+      );
+      console.log("Filtered events:", followedEvents);
+
+      // Get attendance status for all events
+      const attendedEvents = await attendanceService.getUserAttendedEvents(
+        user.id
+      );
+      console.log("Attended events:", attendedEvents);
 
       const now = new Date();
-      const categorizedEvents = eventsData.reduce<CategorizedEvents>(
+      const categorizedEvents = followedEvents.reduce<CategorizedEvents>(
         (acc, event) => {
           const eventDate = new Date(event.date);
           const fanEvent: FanEventType = {
             ...event,
             status: eventDate >= now ? "upcoming" : "past",
-            thumbnailUrl: event.imageUrl || "",
-            time: event.startTime || "",
-            attendees: event.attendees || 0,
-            isInterested: event.isInterested || false,
+            isInterested: attendedEvents.includes(event.id),
             uploadConfig: event.uploadConfig || {
               enabled: false,
               allowedTypes: ["image/*", "video/*"],
@@ -175,6 +207,25 @@ const EventsPageFan: React.FC = () => {
     fetchEvents();
   }, [user]);
 
+  const handleAttendanceToggle = async (event: FanEventType) => {
+    if (!user) return;
+
+    setAttendanceLoading(event.id);
+    try {
+      if (event.isInterested) {
+        await attendanceService.unmarkAttendance(user.id, event.id);
+      } else {
+        await attendanceService.markAttendance(user.id, event.id);
+      }
+      fetchEvents(); // Refresh events to update attendance status
+    } catch (error) {
+      console.error("Error toggling attendance:", error);
+      setError("Failed to update attendance status. Please try again.");
+    } finally {
+      setAttendanceLoading(null);
+    }
+  };
+
   const handleFileSelect = (files: FileList | null) => {
     if (!files) return;
     setSelectedFiles(Array.from(files));
@@ -210,54 +261,12 @@ const EventsPageFan: React.FC = () => {
 
       setSelectedFiles([]);
       setIsUploadDialogOpen(false);
-      fetchEventContent(selectedEvent.id);
     } catch (error) {
       console.error("Upload failed:", error);
       setUploadError("Failed to upload files. Please try again.");
     } finally {
       setIsUploading(false);
       setUploadProgress({});
-    }
-  };
-
-  const fetchEventContent = async (eventId: string) => {
-    try {
-      const content = await contentOperations.getEventContent(eventId);
-      console.log("Fetched content for event:", eventId, content);
-    } catch (error) {
-      console.error("Failed to fetch event content:", error);
-    }
-  };
-
-  const handleInterestToggle = () => {
-    if (selectedEvent) {
-      console.log(
-        `${
-          selectedEvent.isInterested ? "Removing" : "Adding"
-        } interest for event:`,
-        selectedEvent.id
-      );
-      setAnchorEl(null);
-    }
-  };
-
-  const handleEditEvent = async (event: FanEventType) => {
-    try {
-      await eventOperations.updateEvent(event.id, event);
-      fetchEvents();
-    } catch (error) {
-      console.error("Error updating event:", error);
-      setError("Failed to update event");
-    }
-  };
-
-  const handleDeleteEvent = async (event: FanEventType) => {
-    try {
-      await eventOperations.deleteEvent(event.id);
-      fetchEvents();
-    } catch (error) {
-      console.error("Error deleting event:", error);
-      setError("Failed to delete event");
     }
   };
 
@@ -297,7 +306,10 @@ const EventsPageFan: React.FC = () => {
                       <CardMedia
                         component="img"
                         height="180"
-                        image={event.thumbnailUrl}
+                        image={
+                          event.imageUrl ||
+                          "https://via.placeholder.com/320x180"
+                        }
                         alt={event.title}
                       />
                       <CardContent>
@@ -318,7 +330,7 @@ const EventsPageFan: React.FC = () => {
                                 <EventIcon fontSize="small" />
                                 <Typography variant="body2">
                                   {new Date(event.date).toLocaleDateString()} at{" "}
-                                  {event.time}
+                                  {event.startTime}
                                 </Typography>
                               </Box>
                             </Grid>
@@ -334,40 +346,43 @@ const EventsPageFan: React.FC = () => {
                               <Box display="flex" alignItems="center" gap={1}>
                                 <People fontSize="small" />
                                 <Typography variant="body2">
-                                  {event.attendees} attendees
+                                  {event.attendees || 0} attendees
                                 </Typography>
                               </Box>
                             </Grid>
                           </Grid>
                         </Box>
+                        <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
+                          <Button
+                            variant={
+                              event.isInterested ? "contained" : "outlined"
+                            }
+                            color={event.isInterested ? "primary" : "inherit"}
+                            onClick={() => handleAttendanceToggle(event)}
+                            startIcon={
+                              attendanceLoading === event.id ? (
+                                <CircularProgress size={20} />
+                              ) : event.isInterested ? (
+                                <CheckCircle />
+                              ) : (
+                                <EventIcon />
+                              )
+                            }
+                            disabled={attendanceLoading === event.id}
+                            fullWidth
+                          >
+                            {event.isInterested ? "Attending" : "Attend"}
+                          </Button>
+                          <IconButton
+                            onClick={(e) => {
+                              setSelectedEvent(event);
+                              setAnchorEl(e.currentTarget);
+                            }}
+                          >
+                            <MoreVert />
+                          </IconButton>
+                        </Box>
                       </CardContent>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          p: 1,
-                          borderTop: 1,
-                          borderColor: "divider",
-                        }}
-                      >
-                        <IconButton
-                          onClick={() => {
-                            setSelectedEvent(event);
-                            setIsUploadDialogOpen(true);
-                          }}
-                          disabled={!event.uploadConfig.enabled}
-                        >
-                          <CloudUpload />
-                        </IconButton>
-                        <IconButton
-                          onClick={(e) => {
-                            setSelectedEvent(event);
-                            setAnchorEl(e.currentTarget);
-                          }}
-                        >
-                          <MoreVert />
-                        </IconButton>
-                      </Box>
                     </Card>
                   </Grid>
                 )
@@ -375,7 +390,77 @@ const EventsPageFan: React.FC = () => {
             </Grid>
           </Grid>
         )}
+
+        {/* Add no events message */}
+        {!isLoading &&
+          (activeTab === 0 ? events.upcoming : events.past).length === 0 && (
+            <Grid item xs={12}>
+              <Box
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+                py={8}
+              >
+                <EventIcon
+                  sx={{ fontSize: 64, color: "text.secondary", mb: 2 }}
+                />
+                <Typography variant="h6" color="text.secondary" gutterBottom>
+                  {activeTab === 0
+                    ? "No upcoming events from creatives you follow"
+                    : "No past events to show"}
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => navigate("/fan/search")}
+                  sx={{ mt: 2 }}
+                >
+                  Discover Creatives
+                </Button>
+              </Box>
+            </Grid>
+          )}
       </Grid>
+
+      {/* Event Menu */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={() => setAnchorEl(null)}
+      >
+        <MenuItem
+          onClick={() => {
+            if (selectedEvent?.uploadConfig.enabled) {
+              setIsUploadDialogOpen(true);
+            }
+            setAnchorEl(null);
+          }}
+          disabled={!selectedEvent?.uploadConfig.enabled}
+        >
+          <ListItemIcon>
+            <CloudUpload fontSize="small" />
+          </ListItemIcon>
+          Upload Content
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            console.log("View content for event:", selectedEvent?.id);
+            setAnchorEl(null);
+          }}
+        >
+          <ListItemIcon>
+            <Image fontSize="small" />
+          </ListItemIcon>
+          View Content
+        </MenuItem>
+        <MenuItem onClick={() => setAnchorEl(null)}>
+          <ListItemIcon>
+            <Share fontSize="small" />
+          </ListItemIcon>
+          Share Event
+        </MenuItem>
+      </Menu>
 
       {/* Upload Dialog */}
       <Dialog
@@ -401,82 +486,67 @@ const EventsPageFan: React.FC = () => {
               {uploadError}
             </Alert>
           )}
-          <FormLabel
+
+          <Box
+            component="label"
             htmlFor="file-input"
             sx={{
-              mt: 2,
-              width: "100%",
-              display: "block",
+              border: `2px dashed ${theme.palette.divider}`,
+              borderRadius: theme.shape.borderRadius,
+              padding: theme.spacing(3),
+              textAlign: "center",
+              backgroundColor: theme.palette.background.paper,
               cursor: "pointer",
+              transition: "border-color 0.3s ease",
+              mb: 2,
+              "&:hover": {
+                borderColor: theme.palette.primary.main,
+              },
             }}
           >
-            <UploadContainer>
-              <input
-                id="file-input"
-                type="file"
-                multiple
-                accept={selectedEvent?.uploadConfig.allowedTypes.join(",")}
-                onChange={(e) => handleFileSelect(e.target.files)}
-                style={{ display: "none" }}
-              />
-              <CloudUpload sx={{ fontSize: 48, mb: 2 }} />
-              <Typography variant="h6" gutterBottom>
-                Drop files here or click to upload
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Supported formats:{" "}
-                {selectedEvent?.uploadConfig.allowedTypes.join(", ")}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Max file size:{" "}
-                {(selectedEvent?.uploadConfig.maxFileSize || 0) / (1024 * 1024)}
-                MB
-              </Typography>
-            </UploadContainer>
-          </FormLabel>
+            <input
+              id="file-input"
+              type="file"
+              multiple
+              accept={selectedEvent?.uploadConfig.allowedTypes.join(",")}
+              onChange={(e) => handleFileSelect(e.target.files)}
+              style={{ display: "none" }}
+              disabled={isUploading}
+            />
+            <CloudUpload sx={{ fontSize: 48, mb: 2 }} />
+            <Typography variant="h6" gutterBottom>
+              Drop files here or click to upload
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Maximum file size:{" "}
+              {selectedEvent?.uploadConfig.maxFileSize / (1024 * 1024)}MB
+            </Typography>
+          </Box>
 
           {selectedFiles.length > 0 && (
             <FilePreviewContainer>
               {selectedFiles.map((file) => (
-                <Box
-                  key={file.name}
-                  sx={{
-                    p: 1,
-                    border: 1,
-                    borderColor: "divider",
-                    borderRadius: 1,
-                    width: "100%",
-                  }}
-                >
+                <Box key={file.name} sx={{ width: "100%" }}>
                   <Box
                     sx={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 1,
                       mb: 1,
                     }}
                   >
-                    {file.type.startsWith("image/") ? <Image /> : <VideoFile />}
+                    {file.type.startsWith("image/") ? (
+                      <Image sx={{ mr: 1 }} />
+                    ) : (
+                      <VideoFile sx={{ mr: 1 }} />
+                    )}
                     <Typography variant="body2" noWrap>
                       {file.name}
                     </Typography>
-                    <IconButton
-                      size="small"
-                      onClick={() =>
-                        setSelectedFiles((prev) =>
-                          prev.filter((f) => f !== file)
-                        )
-                      }
-                    >
-                      <Close fontSize="small" />
-                    </IconButton>
                   </Box>
-                  {uploadProgress[file.name] !== undefined && (
-                    <LinearProgress
-                      variant="determinate"
-                      value={uploadProgress[file.name]}
-                    />
-                  )}
+                  <LinearProgress
+                    variant="determinate"
+                    value={uploadProgress[file.name] || 0}
+                  />
                 </Box>
               ))}
             </FilePreviewContainer>
@@ -498,43 +568,6 @@ const EventsPageFan: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
-      {/* Event Menu */}
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={() => setAnchorEl(null)}
-      >
-        <MenuItem
-          onClick={() => {
-            console.log("View content for event:", selectedEvent?.id);
-            setAnchorEl(null);
-          }}
-        >
-          <ListItemIcon>
-            <Image fontSize="small" />
-          </ListItemIcon>
-          View Content
-        </MenuItem>
-        <MenuItem onClick={() => setAnchorEl(null)}>
-          <ListItemIcon>
-            <Share fontSize="small" />
-          </ListItemIcon>
-          Share Event
-        </MenuItem>
-        <MenuItem onClick={handleInterestToggle}>
-          <ListItemIcon>
-            {selectedEvent?.isInterested ? (
-              <Star fontSize="small" />
-            ) : (
-              <StarBorder fontSize="small" />
-            )}
-          </ListItemIcon>
-          {selectedEvent?.isInterested
-            ? "Remove Interest"
-            : "Mark as Interested"}
-        </MenuItem>
-      </Menu>
     </Box>
   );
 };

@@ -47,7 +47,7 @@ const RouteGuard = ({ children, allowedUserTypes }: RouteGuardProps) => {
         to={
           user.userType === UserType.CREATIVE
             ? "/creative/dashboard"
-            : "/fan/search"
+            : "/fan/events"
         }
         replace
       />

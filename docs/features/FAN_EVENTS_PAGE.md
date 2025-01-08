@@ -431,3 +431,160 @@ ORDER BY e.date DESC;
    - Security audit
 
 This document will be updated as implementation progresses and new requirements are identified.
+
+## Implementation Plan - Basic Fan Events Page (v1.0)
+
+### Phase 1: Core Page Setup
+
+1. Create Route & Component Structure
+
+   - Add `/fan/events` route in `src/App.tsx`
+   - Create `src/pages/fan/EventsPageFan.tsx` as main container
+   - Update post-login navigation to redirect to `/fan/events` instead of `/fan/search`
+
+2. Integrate Existing Services
+
+   - Leverage `AttendanceService` for event attendance status
+   - Use `FollowService` for following status
+   - Utilize `EventService` for event fetching
+   - Connect `NotificationService` for event updates
+
+3. Basic UI Components (Initial Version)
+   ```
+   EventsPageFan
+   ├── EventFilters (simple version)
+   │   ├── Upcoming/Past toggle
+   │   └── Following filter
+   ├── EventGrid
+   │   └── EventCard
+   │       ├── Event details
+   │       ├── Attendance status
+   │       └── Creative info with follow status
+   └── LoadingState
+   ```
+
+### Phase 2: Data Integration
+
+1. Main Query Implementation
+
+   ```typescript
+   // Core data fetch combining existing services
+   const fetchFollowedEvents = async (userId: string) => {
+     // Get followed creatives
+     const follows = await followService.getFollowing(userId);
+
+     // Fetch events from followed creatives
+     const events = await Promise.all(
+       follows.map((follow) =>
+         eventService.getEventsByCreative(follow.creativeId)
+       )
+     );
+
+     // Get attendance status for events
+     const attendance = await attendanceService.getAttendanceForUser(userId);
+
+     return correlateEventData(events, attendance);
+   };
+   ```
+
+2. State Management
+   - Use React Query for data fetching and caching
+   - Implement basic filters in local state
+   - Store attendance/follow updates optimistically
+
+### Phase 3: MVP Features
+
+1. Essential Features
+
+   - View events from followed creatives
+   - Display attendance status
+   - Show following status for creatives
+   - Basic event filtering (upcoming/past)
+   - Loading states and error handling
+
+2. Event Card Actions
+
+   - Toggle attendance status
+   - View event details
+   - Quick access to creative profile
+
+3. Performance Considerations
+   - Implement pagination
+   - Cache followed creatives list
+   - Optimize attendance status updates
+
+### Integration Points
+
+1. Existing Components to Reuse
+
+   - `EventCard` from search page (enhance with attendance)
+   - `FollowButton` from creative profiles
+   - `LoadingSpinner` from shared components
+   - `ErrorBoundary` from shared components
+
+2. Service Enhancements Needed
+
+   ```typescript
+   // Add to EventService
+   getEventsByCreatives(creativeIds: string[]): Promise<EventItem[]>
+
+   // Add to AttendanceService
+   getMultipleEventStatus(userId: string, eventIds: string[]): Promise<Map<string, string>>
+   ```
+
+3. New Types Required
+   ```typescript
+   interface EnhancedEventItem extends EventItem {
+     attendanceStatus?: "attending" | "not_attending";
+     creative: {
+       id: string;
+       name: string;
+       isFollowing: boolean;
+     };
+   }
+   ```
+
+### Testing Strategy
+
+1. Unit Tests
+
+   - Event fetching logic
+   - Data correlation functions
+   - Filter implementations
+
+2. Integration Tests
+
+   - Service interactions
+   - Component rendering
+   - User interactions
+
+3. Test Cases
+   - Events load correctly for followed creatives
+   - Attendance status displays accurately
+   - Following status shows correctly
+   - Filters work as expected
+   - Error states handled properly
+
+### Next Steps
+
+1. Immediate Actions
+
+   - Create basic page structure
+   - Implement core data fetching
+   - Add essential UI components
+   - Setup basic routing
+
+2. Follow-up Tasks
+
+   - Add more sophisticated filters
+   - Enhance event cards
+   - Implement real-time updates
+   - Add event notifications
+
+3. Future Enhancements
+   - Location-based filtering
+   - Advanced search capabilities
+   - Social features
+   - Event recommendations
+
+This implementation plan focuses on getting a functional MVP that allows fans to view and interact with events from creatives they follow, while laying the groundwork for more advanced features in the future.

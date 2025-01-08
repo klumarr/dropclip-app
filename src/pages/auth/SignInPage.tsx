@@ -13,6 +13,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link as RouterLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { fetchUserAttributes, getCurrentUser, signOut } from "aws-amplify/auth";
+import { UserType } from "../../types/auth.types";
 
 const SignInPage: React.FC = () => {
   const navigate = useNavigate();
@@ -57,14 +58,25 @@ const SignInPage: React.FC = () => {
         // Attempt to sign in
         await signIn(formData.email, formData.password);
 
+        // Get user attributes after successful sign in
+        const attributes = await fetchUserAttributes();
+        console.log("User attributes after sign in:", attributes);
+        const userType = attributes[
+          "custom:userType"
+        ]?.toUpperCase() as UserType;
+
         // If we get here without an error, we can proceed with navigation
         const returnUrl = (location.state as { returnUrl?: string })?.returnUrl;
         if (returnUrl) {
           console.log("Navigating to return URL:", returnUrl);
           navigate(returnUrl);
         } else {
-          console.log("Navigating to default path: /fan/search");
-          navigate("/fan/search");
+          const defaultPath =
+            userType === UserType.CREATIVE ? "/creative/events" : "/fan/events";
+          console.log(
+            `Navigating to default path for ${userType}: ${defaultPath}`
+          );
+          navigate(defaultPath);
         }
       } catch (err: Error | unknown) {
         if ((err as Error)?.message === "NEW_PASSWORD_REQUIRED") {

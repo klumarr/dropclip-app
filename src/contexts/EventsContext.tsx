@@ -10,8 +10,45 @@ import { Event, EventFormData } from "../types/events";
 import { EventsContextValue, EventsProviderProps } from "./types";
 import { eventsReducer, EventsActionType } from "./reducer";
 import { initialState } from "./initialState";
+import { s3Operations } from "../services/s3.service.ts";
 
-const EventsContext = createContext<EventsContextValue | undefined>(undefined);
+const EventsContext = createContext<
+  | {
+      events: {
+        upcoming: Event[];
+        past: Event[];
+        automatic: Event[];
+      };
+      isLoading: boolean;
+      error: string | null;
+      newEvent: EventFormData;
+      selectedEvent: Event | null;
+      eventToDelete: Event | null;
+      isCreateDialogOpen: boolean;
+      isDeleteDialogOpen: boolean;
+      isScannerOpen: boolean;
+      uploadProgress: number;
+      setEvents: (events: {
+        upcoming: Event[];
+        past: Event[];
+        automatic: Event[];
+      }) => void;
+      setLoading: (loading: boolean) => void;
+      setError: (error: string | null) => void;
+      setNewEvent: (event: EventFormData) => void;
+      setSelectedEvent: (event: Event | null) => void;
+      setEventToDelete: (event: Event | null) => void;
+      setIsCreateDialogOpen: (open: boolean) => void;
+      setIsDeleteDialogOpen: (open: boolean) => void;
+      setIsScannerOpen: (open: boolean) => void;
+      setUploadProgress: (progress: number) => void;
+      handleCreateEvent: (eventFormData: EventFormData) => Promise<void>;
+      handleUpdateEvent: () => Promise<void>;
+      handleDeleteEvent: () => Promise<void>;
+      handleScannedEvent: (eventData: Partial<Event>) => void;
+    }
+  | undefined
+>(undefined);
 
 export const EventsProvider: React.FC<EventsProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(eventsReducer, initialState);
@@ -96,34 +133,91 @@ export const EventsProvider: React.FC<EventsProviderProps> = ({ children }) => {
     }
   }, [setLoading, setError, setEvents]);
 
-  const handleCreateEvent = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const eventData: Omit<Event, "id"> = {
-        ...state.newEvent,
-        user_id: "",
-        imageUrl: state.newEvent.imageUrl || "",
-        isAutomatic: state.newEvent.isAutomatic || false,
-      };
-      await eventOperations.createEvent(eventData);
-      setIsCreateDialogOpen(false);
-      setNewEvent(initialState.newEvent);
-      await fetchEvents(); // Refresh the list
-    } catch (error) {
-      console.error("Error creating event:", error);
-      setError("Failed to create event");
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    state.newEvent,
-    setLoading,
-    setError,
-    setIsCreateDialogOpen,
-    setNewEvent,
-    fetchEvents,
-  ]);
+  const handleCreateEvent = useCallback(
+    async (eventFormData: EventFormData) => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Upload image if present
+        let imageUrl = eventFormData.imageUrl || "";
+        if (eventFormData.imageFile) {
+          try {
+            console.log("Starting image upload:", {
+              fileName: eventFormData.imageFile.name,
+              fileSize: eventFormData.imageFile.size,
+              fileType: eventFormData.imageFile.type,
+            });
+
+            const uploadResult = await s3Operations.uploadFile(
+              eventFormData.imageFile,
+              "events/flyers",
+              setUploadProgress
+            );
+            console.log("Image upload successful:", uploadResult);
+            imageUrl = uploadResult.url;
+          } catch (error) {
+            console.error("Error uploading image:", error);
+            setError(
+              "Failed to upload image: " +
+                (error instanceof Error ? error.message : "Unknown error")
+            );
+            setLoading(false);
+            return;
+          }
+        }
+
+        const eventData: Omit<Event, "id"> = {
+          title: eventFormData.title.trim(),
+          date: eventFormData.date,
+          startTime: eventFormData.startTime,
+          endTime: eventFormData.endTime,
+          location: eventFormData.location.trim(),
+          description: eventFormData.description?.trim() || "",
+          imageUrl: imageUrl,
+          ticketLink: eventFormData.ticketLink?.trim() || "",
+          isAutomatic: false,
+          uploadConfig: {
+            enabled: eventFormData.uploadConfig?.enabled || false,
+            allowedTypes: eventFormData.uploadConfig?.allowedTypes || [
+              "image/*",
+            ],
+            maxFileSize: eventFormData.uploadConfig?.maxFileSize || 5,
+            startDate:
+              eventFormData.uploadConfig?.startDate || eventFormData.date,
+            endDate: eventFormData.uploadConfig?.endDate || eventFormData.date,
+          },
+          user_id: "", // This will be set by the Lambda function
+        };
+
+        console.log("Creating event with data:", eventData);
+
+        const result = await eventOperations.createEvent(eventData);
+        console.log("Event created successfully:", result);
+
+        setIsCreateDialogOpen(false);
+        setNewEvent(initialState.newEvent);
+        await fetchEvents(); // Refresh the list
+      } catch (error) {
+        console.error("Error creating event:", error);
+        setError(
+          "Failed to create event: " +
+            (error instanceof Error ? error.message : "Unknown error")
+        );
+      } finally {
+        setLoading(false);
+        setUploadProgress(0);
+      }
+    },
+    [
+      setLoading,
+      setError,
+      setIsCreateDialogOpen,
+      setNewEvent,
+      fetchEvents,
+      setUploadProgress,
+    ]
+  );
 
   const handleUpdateEvent = useCallback(async () => {
     if (!state.selectedEvent) return;

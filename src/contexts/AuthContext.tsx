@@ -98,12 +98,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const checkAuthState = async () => {
     try {
-      console.log("Checking auth state...");
+      console.log("�� Checking auth state...");
       const currentUser = await getCurrentUser();
-      console.log("Current user:", currentUser);
+      console.log("👤 Current user:", currentUser);
 
       const attributes = await fetchUserAttributes();
-      console.log("User attributes:", attributes);
+      console.log("📝 User attributes:", attributes);
 
       setState({
         user: {
@@ -137,8 +137,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         isLoading: false,
         error: null,
       });
+      console.log("✅ Auth state updated successfully");
     } catch (error) {
-      console.log("Auth check failed:", {
+      console.log("❌ Auth check failed:", {
         error,
         currentPath: window.location.pathname,
         timestamp: new Date().toISOString(),

@@ -27,18 +27,18 @@ export const AppRoutes = () => {
       <Routes>
         {/* Public Routes */}
         <Route
-          path="/signin"
+          path="/auth/signin"
           element={
             !isAuthenticated ? <SignInPage /> : <Navigate to="/dashboard" />
           }
         />
         <Route
-          path="/signup"
+          path="/auth/signup"
           element={
             !isAuthenticated ? <SignUpPage /> : <Navigate to="/dashboard" />
           }
         />
-        <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
 
         {/* Protected Routes - Wrapped in MainLayout */}
         <Route element={<MainLayout />}>
@@ -82,6 +82,14 @@ export const AppRoutes = () => {
               </RouteGuard>
             }
           />
+          <Route
+            path="/dashboard/test-components"
+            element={
+              <RouteGuard requiredUserTypes={[UserType.CREATIVE, UserType.FAN]}>
+                <TestComponentsPage />
+              </RouteGuard>
+            }
+          />
         </Route>
 
         {/* Default Routes */}
@@ -91,13 +99,19 @@ export const AppRoutes = () => {
             isAuthenticated ? (
               <Navigate to="/dashboard" />
             ) : (
-              <Navigate to="/signin" />
+              <Navigate to="/auth/signin" />
             )
           }
         />
-        <Route path="/test-components" element={<TestComponentsPage />} />
-        <Route path="/fan" element={<PrivateRoute />}>
-          <Route path="uploads" element={<UploadManagementDashboard />} />
+        <Route path="/fan">
+          <Route
+            path="uploads"
+            element={
+              <RouteGuard>
+                <UploadManagementDashboard />
+              </RouteGuard>
+            }
+          />
         </Route>
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

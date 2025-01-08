@@ -118,7 +118,7 @@ export const eventOperations = {
     console.log("Fetching fan events...");
     try {
       const headers = await getAuthHeaders();
-      const url = `${API_BASE_URL}/events/fan`;
+      const url = `${API_BASE_URL}/fan-events`;
       console.log("Making GET request to:", url);
 
       const response = await fetch(url, {
@@ -173,14 +173,30 @@ export const eventOperations = {
   },
 
   createEvent: async (eventData: Omit<Event, "id">): Promise<Event> => {
-    console.log("Creating new event:", eventData);
+    console.log("Creating new event with data:", {
+      eventData,
+      hasTitle: !!eventData.title,
+      hasDate: !!eventData.date,
+      hasLocation: !!eventData.location,
+      titleLength: eventData.title?.length,
+      dateValue: eventData.date,
+      locationLength: eventData.location?.length,
+    });
     try {
       const headers = await getAuthHeaders();
+      console.log("Request headers:", {
+        ...headers,
+        Authorization: headers.Authorization?.substring(0, 20) + "...",
+      });
+
+      const requestBody = JSON.stringify(eventData);
+      console.log("Request body:", requestBody);
+
       const response = await fetch(`${API_BASE_URL}/events/creative`, {
         method: "POST",
         headers,
         credentials: "include",
-        body: JSON.stringify(eventData),
+        body: requestBody,
       });
 
       if (!response.ok) {

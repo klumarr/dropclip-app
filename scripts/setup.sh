@@ -173,7 +173,7 @@ cat > "$ROOT_DIR/package.json" << EOL
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "aws-amplify": "^5.0.0",
-    "firebase": "^10.0.0",
+    "express": "^4.18.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.11.0",

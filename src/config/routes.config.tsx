@@ -95,7 +95,7 @@ export const routes = [
     children: [
       {
         path: "",
-        element: <Navigate to="search" replace />,
+        element: <Navigate to="events" replace />,
       },
       {
         path: "search",

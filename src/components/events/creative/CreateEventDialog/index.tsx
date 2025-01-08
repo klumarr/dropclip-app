@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -31,6 +31,7 @@ const CreateEventDialog: React.FC = () => {
     handleCreateEvent,
     handleUpdateEvent,
     setNewEvent,
+    uploadProgress,
   } = useEvents();
   const [activeTab, setActiveTab] = React.useState(0);
   const {
@@ -39,10 +40,12 @@ const CreateEventDialog: React.FC = () => {
     handleChange,
     handleUploadConfigChange,
     validateForm,
+    setErrors,
   } = useEventForm({
     ...newEvent,
     uploadConfig: newEvent.uploadConfig || defaultUploadConfig,
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!isCreateDialogOpen) {
@@ -59,21 +62,66 @@ const CreateEventDialog: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    if (validateForm()) {
-      try {
+    try {
+      setIsSubmitting(true);
+      console.log("Form submission started with data:", {
+        formData,
+        hasTitle: !!formData.title,
+        hasDate: !!formData.date,
+        hasLocation: !!formData.location,
+        errors,
+      });
+
+      // Validate required fields first
+      const requiredFields = {
+        title: "Title is required",
+        date: "Date is required",
+        location: "Location is required",
+        startTime: "Start time is required",
+        endTime: "End time is required",
+      };
+
+      const newErrors: Record<string, string> = {};
+      Object.entries(requiredFields).forEach(([field, message]) => {
+        if (!formData[field]) {
+          newErrors[field] = message;
+          console.log(`Missing required field: ${field}`);
+        }
+      });
+
+      if (Object.keys(newErrors).length > 0) {
+        console.log("Validation failed with errors:", newErrors);
+        setErrors(newErrors);
+        return;
+      }
+
+      if (validateForm()) {
+        console.log("Form validated successfully, submitting data:", formData);
         setNewEvent(formData);
+        await new Promise((resolve) => setTimeout(resolve, 0));
 
         if (newEvent.id) {
           await handleUpdateEvent();
         } else {
-          await handleCreateEvent();
+          const eventToCreate = { ...formData };
+          await handleCreateEvent(eventToCreate);
         }
         handleClose();
-      } catch (error) {
-        console.error("Error saving event:", error);
       }
+    } catch (error) {
+      console.error("Error saving event:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  const isUploading = uploadProgress > 0 && uploadProgress < 100;
+  const buttonDisabled = isSubmitting || isUploading;
+  const buttonText = isUploading
+    ? `Uploading Image... ${uploadProgress}%`
+    : isSubmitting
+    ? "Creating Event..."
+    : "Create Event";
 
   return (
     <Dialog
@@ -97,6 +145,7 @@ const CreateEventDialog: React.FC = () => {
             formData={formData}
             onChange={handleChange}
             errors={errors}
+            uploadProgress={uploadProgress}
           />
         </TabPanel>
         <TabPanel value={activeTab} index={1}>
@@ -111,9 +160,16 @@ const CreateEventDialog: React.FC = () => {
         </TabPanel>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleSubmit} variant="contained" color="primary">
-          {newEvent.id ? "Save Changes" : "Create Event"}
+        <Button onClick={handleClose} disabled={buttonDisabled}>
+          Cancel
+        </Button>
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
+          color="primary"
+          disabled={buttonDisabled}
+        >
+          {buttonText}
         </Button>
       </DialogActions>
     </Dialog>
