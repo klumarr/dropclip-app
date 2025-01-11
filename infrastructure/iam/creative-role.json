@@ -1,0 +1,90 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:BatchGetItem",
+        "dynamodb:BatchWriteItem"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:*:*:table/dev-events",
+        "arn:aws:dynamodb:*:*:table/dev-follows",
+        "arn:aws:dynamodb:*:*:table/dev-uploads",
+        "arn:aws:dynamodb:*:*:table/dev-analytics"
+      ],
+      "Condition": {
+        "ForAllValues:StringEquals": {
+          "dynamodb:LeadingKeys": ["${cognito-identity.amazonaws.com:sub}"]
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:ListObjects",
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::dropclip-fan-uploads/*/to-creative/${cognito-identity.amazonaws.com:sub}/*",
+        "arn:aws:s3:::dropclip-creative-content/${cognito-identity.amazonaws.com:sub}/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:DescribeLogStreams",
+        "logs:GetLogEvents"
+      ],
+      "Resource": [
+        "arn:aws:logs:*:*:log-group:/aws/dropclip/creative/${cognito-identity.amazonaws.com:sub}*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:PutMetricData",
+        "cloudwatch:GetMetricData",
+        "cloudwatch:GetMetricStatistics"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "cloudwatch:namespace": "DropClip/Creative/${cognito-identity.amazonaws.com:sub}"
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["kms:Decrypt"],
+      "Resource": ["${KMS_KEY_ARN}"]
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["s3:ListBucket"],
+      "Resource": [
+        "arn:aws:s3:::dropclip-fan-uploads",
+        "arn:aws:s3:::dropclip-creative-content"
+      ],
+      "Condition": {
+        "StringLike": {
+          "s3:prefix": [
+            "*/to-creative/${cognito-identity.amazonaws.com:sub}/*",
+            "${cognito-identity.amazonaws.com:sub}/*"
+          ]
+        }
+      }
+    }
+  ]
+}

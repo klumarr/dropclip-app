@@ -1,0 +1,15 @@
+type Event @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  title: String!
+  date: String!
+  startTime: String
+  endTime: String
+  location: String!
+  description: String!
+  imageUrl: String
+  ticketLink: String
+  isAutomatic: Boolean!
+  user_id: String!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}

@@ -1,0 +1,109 @@
+0 verbose cli /usr/local/Cellar/node@18/18.20.5/bin/node /usr/local/bin/npm
+1 info using npm@10.8.2
+2 info using node@v18.20.5
+3 silly config load:file:/usr/local/Cellar/node@18/18.20.5/lib/node_modules/npm/npmrc
+4 silly config load:file:/Users/ken.lumumba/Documents/Documents/CODE PROJECTS/dropclip-app/dropclip/.npmrc
+5 silly config load:file:/Users/ken.lumumba/.npmrc
+6 silly config load:file:/Users/ken.lumumba/.npm-global/etc/npmrc
+7 verbose title npm install @types/node @types/react @types/react-dom @vitejs/plugin-react typescript @types/vite
+8 verbose argv "install" "--save-dev" "@types/node" "@types/react" "@types/react-dom" "@vitejs/plugin-react" "typescript" "@types/vite"
+9 verbose logfile logs-max:10 dir:/Users/ken.lumumba/.npm/_logs/2024-12-29T01_04_49_640Z-
+10 verbose logfile /Users/ken.lumumba/.npm/_logs/2024-12-29T01_04_49_640Z-debug-0.log
+11 silly packumentCache heap:2197815296 maxSize:549453824 maxEntrySize:274726912
+12 silly logfile start cleaning logs, removing 1 files
+13 silly logfile done cleaning log files
+14 silly idealTree buildDeps
+15 silly fetch manifest @types/node@^20.10.6
+16 silly packumentCache full:https://registry.npmjs.org/@types%2fnode cache-miss
+17 http fetch GET 200 https://registry.npmjs.org/@types%2fnode 3901ms (cache updated)
+18 silly packumentCache full:https://registry.npmjs.org/@types%2fnode set size:undefined disposed:false
+19 silly fetch manifest @types/react@^18.2.47
+20 silly packumentCache full:https://registry.npmjs.org/@types%2freact cache-miss
+21 http fetch GET 200 https://registry.npmjs.org/@types%2freact 299ms (cache updated)
+22 silly packumentCache full:https://registry.npmjs.org/@types%2freact set size:undefined disposed:false
+23 silly fetch manifest @types/react-dom@^18.2.18
+24 silly packumentCache full:https://registry.npmjs.org/@types%2freact-dom cache-miss
+25 http fetch GET 200 https://registry.npmjs.org/@types%2freact-dom 130ms (cache updated)
+26 silly packumentCache full:https://registry.npmjs.org/@types%2freact-dom set size:undefined disposed:false
+27 silly fetch manifest @vitejs/plugin-react@^4.2.1
+28 silly packumentCache full:https://registry.npmjs.org/@vitejs%2fplugin-react cache-miss
+29 http fetch GET 200 https://registry.npmjs.org/@vitejs%2fplugin-react 133ms (cache updated)
+30 silly packumentCache full:https://registry.npmjs.org/@vitejs%2fplugin-react set size:undefined disposed:false
+31 silly fetch manifest vite@^5.0.11
+32 silly packumentCache full:https://registry.npmjs.org/vite cache-miss
+33 http fetch GET 200 https://registry.npmjs.org/vite 6783ms (cache updated)
+34 silly packumentCache full:https://registry.npmjs.org/vite set size:undefined disposed:false
+35 silly fetch manifest less@*
+36 silly packumentCache full:https://registry.npmjs.org/less cache-miss
+37 http fetch GET 200 https://registry.npmjs.org/less 144ms (cache updated)
+38 silly packumentCache full:https://registry.npmjs.org/less set size:undefined disposed:false
+39 silly fetch manifest lightningcss@^1.21.0
+40 silly packumentCache full:https://registry.npmjs.org/lightningcss cache-miss
+41 http fetch GET 200 https://registry.npmjs.org/lightningcss 108ms (cache updated)
+42 silly packumentCache full:https://registry.npmjs.org/lightningcss set size:undefined disposed:false
+43 silly fetch manifest sass@*
+44 silly packumentCache full:https://registry.npmjs.org/sass cache-miss
+45 http fetch GET 200 https://registry.npmjs.org/sass 105ms (cache updated)
+46 silly packumentCache full:https://registry.npmjs.org/sass set size:undefined disposed:false
+47 silly fetch manifest sass-embedded@*
+48 silly packumentCache full:https://registry.npmjs.org/sass-embedded cache-miss
+49 http fetch GET 200 https://registry.npmjs.org/sass-embedded 106ms (cache updated)
+50 silly packumentCache full:https://registry.npmjs.org/sass-embedded set size:undefined disposed:false
+51 silly fetch manifest stylus@*
+52 silly packumentCache full:https://registry.npmjs.org/stylus cache-miss
+53 http fetch GET 200 https://registry.npmjs.org/stylus 115ms (cache updated)
+54 silly packumentCache full:https://registry.npmjs.org/stylus set size:undefined disposed:false
+55 silly fetch manifest sugarss@*
+56 silly packumentCache full:https://registry.npmjs.org/sugarss cache-miss
+57 http fetch GET 200 https://registry.npmjs.org/sugarss 100ms (cache updated)
+58 silly packumentCache full:https://registry.npmjs.org/sugarss set size:undefined disposed:false
+59 silly fetch manifest postcss@^8.3.3
+60 silly packumentCache full:https://registry.npmjs.org/postcss cache-miss
+61 http fetch GET 200 https://registry.npmjs.org/postcss 129ms (cache updated)
+62 silly packumentCache full:https://registry.npmjs.org/postcss set size:undefined disposed:false
+63 silly fetch manifest terser@^5.4.0
+64 silly packumentCache full:https://registry.npmjs.org/terser cache-miss
+65 http fetch GET 200 https://registry.npmjs.org/terser 155ms (cache updated)
+66 silly packumentCache full:https://registry.npmjs.org/terser set size:undefined disposed:false
+67 silly fetch manifest typescript@^5.3.3
+68 silly packumentCache full:https://registry.npmjs.org/typescript cache-miss
+69 http fetch GET 200 https://registry.npmjs.org/typescript 2369ms (cache updated)
+70 silly packumentCache full:https://registry.npmjs.org/typescript set size:undefined disposed:false
+71 silly fetch manifest @types/vite@*
+72 silly packumentCache full:https://registry.npmjs.org/@types%2fvite cache-miss
+73 http fetch GET 404 https://registry.npmjs.org/@types%2fvite 658ms (cache skip)
+74 silly placeDep ROOT @types/node@20.17.10 REPLACE for: dropclip@0.1.0 want: ^20.10.6
+75 silly placeDep ROOT @types/react@18.3.18 REPLACE for: dropclip@0.1.0 want: ^18.2.47
+76 silly placeDep ROOT @types/react-dom@18.3.5 REPLACE for: dropclip@0.1.0 want: ^18.2.18
+77 silly placeDep ROOT @types/vite@ OK for: dropclip@0.1.0 want: *
+78 silly placeDep ROOT @vitejs/plugin-react@4.3.4 REPLACE for: dropclip@0.1.0 want: ^4.2.1
+79 silly placeDep ROOT typescript@5.7.2 REPLACE for: dropclip@0.1.0 want: ^5.3.3
+80 verbose stack HttpErrorGeneral: 404 Not Found - GET https://registry.npmjs.org/@types%2fvite - Not found
+80 verbose stack     at /usr/local/Cellar/node@18/18.20.5/lib/node_modules/npm/node_modules/npm-registry-fetch/lib/check-response.js:95:15
+80 verbose stack     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+80 verbose stack     at async RegistryFetcher.packument (/usr/local/Cellar/node@18/18.20.5/lib/node_modules/npm/node_modules/pacote/lib/registry.js:90:19)
+80 verbose stack     at async RegistryFetcher.manifest (/usr/local/Cellar/node@18/18.20.5/lib/node_modules/npm/node_modules/pacote/lib/registry.js:128:23)
+80 verbose stack     at async #fetchManifest (/usr/local/Cellar/node@18/18.20.5/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/build-ideal-tree.js:1199:20)
+80 verbose stack     at async #nodeFromEdge (/usr/local/Cellar/node@18/18.20.5/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/build-ideal-tree.js:1037:19)
+80 verbose stack     at async #buildDepStep (/usr/local/Cellar/node@18/18.20.5/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/build-ideal-tree.js:901:11)
+80 verbose stack     at async Arborist.buildIdealTree (/usr/local/Cellar/node@18/18.20.5/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/build-ideal-tree.js:181:7)
+80 verbose stack     at async Promise.all (index 1)
+80 verbose stack     at async Arborist.reify (/usr/local/Cellar/node@18/18.20.5/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/reify.js:131:5)
+81 verbose statusCode 404
+82 verbose pkgid @types/vite@*
+83 error code E404
+84 error 404 Not Found - GET https://registry.npmjs.org/@types%2fvite - Not found
+85 error 404
+86 error 404  '@types/vite@*' is not in this registry.
+87 error 404
+88 error 404 Note that you can also install from a
+89 error 404 tarball, folder, http url, or git url.
+90 silly unfinished npm timer reify 1735434290332
+91 silly unfinished npm timer reify:loadTrees 1735434290340
+92 verbose cwd /Users/ken.lumumba/Documents/Documents/CODE PROJECTS/dropclip-app/dropclip
+93 verbose os Darwin 23.0.0
+94 verbose node v18.20.5
+95 verbose npm  v10.8.2
+96 verbose exit 1
+97 verbose code 1
+98 error A complete log of this run can be found in: /Users/ken.lumumba/.npm/_logs/2024-12-29T01_04_49_640Z-debug-0.log

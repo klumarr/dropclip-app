@@ -1,0 +1,3691 @@
+timestamp,message
+1735993692862,"{""time"":""2025-01-04T12:28:12.862Z"",""type"":""platform.initStart"",""record"":{""initializationType"":""on-demand"",""phase"":""init"",""runtimeVersion"":""nodejs:18.v57"",""runtimeVersionArn"":""arn:aws:lambda:eu-north-1::runtime:8865cfc6a1d3f2dfabf5c509eaa9fbd70aa12fa4bbe614047030158c21978bcc"",""functionName"":""dropclip-get-creative-events"",""functionVersion"":""$LATEST""}}"
+1735993693276,"{""timestamp"":""2025-01-04T12:28:13.276Z"",""level"":""INFO"",""message"":""Environment variables: {
+  AWS_REGION: 'eu-north-1',
+  EVENTS_TABLE_NAME: 'dropclip-events',
+  AWS_LAMBDA_FUNCTION_NAME: 'dropclip-get-creative-events',
+  AWS_LAMBDA_FUNCTION_VERSION: '$LATEST'
+}""}"
+1735993693283,"{""timestamp"":""2025-01-04T12:28:13.283Z"",""level"":""INFO"",""message"":""DynamoDB clients initialized successfully""}"
+1735993693310,"{""time"":""2025-01-04T12:28:13.310Z"",""type"":""platform.start"",""record"":{""requestId"":""c73ca73e-7058-4af2-b7de-08e608450e0b"",""version"":""$LATEST"",""tracing"":{""spanId"":""1863547246797593"",""type"":""X-Amzn-Trace-Id"",""value"":""Root=1-6779295c-2f693fa34cb656ad5c49b607;Parent=04c36949a34ed62c;Sampled=1""}}}"
+1735993693325,"{""timestamp"":""2025-01-04T12:28:13.325Z"",""level"":""INFO"",""requestId"":""c73ca73e-7058-4af2-b7de-08e608450e0b"",""message"":""Lambda handler started with event: {
+  level: 'DEBUG',
+  event: '{\
+' +
+    '  \""resource\"": \""/events/creative\"",\
+' +
+    '  \""path\"": \""/events/creative\"",\
+' +
+    '  \""httpMethod\"": \""GET\"",\
+' +
+    '  \""headers\"": {\
+' +
+    '    \""accept\"": \""*/*\"",\
+' +
+    '    \""accept-encoding\"": \""gzip, deflate, br, zstd\"",\
+' +
+    '    \""accept-language\"": \""en-GB,en;q=0.9\"",\
+' +
+    '    \""Authorization\"": \""Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA\"",\
+' +
+    '    \""content-type\"": \""application/json\"",\
+' +
+    '    \""Host\"": \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\"",\
+' +
+    '    \""origin\"": \""http://localhost:5174\"",\
+' +
+    '    \""priority\"": \""u=1, i\"",\
+' +
+    '    \""referer\"": \""http://localhost:5174/\"",\
+' +
+    '    \""sec-ch-ua\"": \""\\\\\""Google Chrome\\\\\"";v=\\\\\""131\\\\\"", \\\\\""Chromium\\\\\"";v=\\\\\""131\\\\\"", \\\\\""Not_A Brand\\\\\"";v=\\\\\""24\\\\\""\"",\
+' +
+    '    \""sec-ch-ua-mobile\"": \""?1\"",\
+' +
+    '    \""sec-ch-ua-platform\"": \""\\\\\""Android\\\\\""\"",\
+' +
+    '    \""sec-fetch-dest\"": \""empty\"",\
+' +
+    '    \""sec-fetch-mode\"": \""cors\"",\
+' +
+    '    \""sec-fetch-site\"": \""cross-site\"",\
+' +
+    '    \""User-Agent\"": \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\"",\
+' +
+    '    \""X-Amzn-Trace-Id\"": \""Root=1-6779295c-2f693fa34cb656ad5c49b607\"",\
+' +
+    '    \""X-Forwarded-For\"": \""92.40.173.220\"",\
+' +
+    '    \""X-Forwarded-Port\"": \""443\"",\
+' +
+    '    \""X-Forwarded-Proto\"": \""https\""\
+' +
+    '  },\
+' +
+    '  \""multiValueHeaders\"": {\
+' +
+    '    \""accept\"": [\
+' +
+    '      \""*/*\""\
+' +
+    '    ],\
+' +
+    '    \""accept-encoding\"": [\
+' +
+    '      \""gzip, deflate, br, zstd\""\
+' +
+    '    ],\
+' +
+    '    \""accept-language\"": [\
+' +
+    '      \""en-GB,en;q=0.9\""\
+' +
+    '    ],\
+' +
+    '    \""Authorization\"": [\
+' +
+    '      \""Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA\""\
+' +
+    '    ],\
+' +
+    '    \""content-type\"": [\
+' +
+    '      \""application/json\""\
+' +
+    '    ],\
+' +
+    '    \""Host\"": [\
+' +
+    '      \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\""\
+' +
+    '    ],\
+' +
+    '    \""origin\"": [\
+' +
+    '      \""http://localhost:5174\""\
+' +
+    '    ],\
+' +
+    '    \""priority\"": [\
+' +
+    '      \""u=1, i\""\
+' +
+    '    ],\
+' +
+    '    \""referer\"": [\
+' +
+    '      \""http://localhost:5174/\""\
+' +
+    '    ],\
+' +
+    '    \""sec-ch-ua\"": [\
+' +
+    '      \""\\\\\""Google Chrome\\\\\"";v=\\\\\""131\\\\\"", \\\\\""Chromium\\\\\"";v=\\\\\""131\\\\\"", \\\\\""Not_A Brand\\\\\"";v=\\\\\""24\\\\\""\""\
+' +
+    '    ],\
+' +
+    '    \""sec-ch-ua-mobile\"": [\
+' +
+    '      \""?1\""\
+' +
+    '    ],\
+' +
+    '    \""sec-ch-ua-platform\"": [\
+' +
+    '      \""\\\\\""Android\\\\\""\""\
+' +
+    '    ],\
+' +
+    '    \""sec-fetch-dest\"": [\
+' +
+    '      \""empty\""\
+' +
+    '    ],\
+' +
+    '    \""sec-fetch-mode\"": [\
+' +
+    '      \""cors\""\
+' +
+    '    ],\
+' +
+    '    \""sec-fetch-site\"": [\
+' +
+    '      \""cross-site\""\
+' +
+    '    ],\
+' +
+    '    \""User-Agent\"": [\
+' +
+    '      \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\""\
+' +
+    '    ],\
+' +
+    '    \""X-Amzn-Trace-Id\"": [\
+' +
+    '      \""Root=1-6779295c-2f693fa34cb656ad5c49b607\""\
+' +
+    '    ],\
+' +
+    '    \""X-Forwarded-For\"": [\
+' +
+    '      \""92.40.173.220\""\
+' +
+    '    ],\
+' +
+    '    \""X-Forwarded-Port\"": [\
+' +
+    '      \""443\""\
+' +
+    '    ],\
+' +
+    '    \""X-Forwarded-Proto\"": [\
+' +
+    '      \""https\""\
+' +
+    '    ]\
+' +
+    '  },\
+' +
+    '  \""queryStringParameters\"": null,\
+' +
+    '  \""multiValueQueryStringParameters\"": null,\
+' +
+    '  \""pathParameters\"": null,\
+' +
+    '  \""stageVariables\"": null,\
+' +
+    '  \""requestContext\"": {\
+' +
+    '    \""resourceId\"": \""lvn15a\"",\
+' +
+    '    \""authorizer\"": {\
+' +
+    '      \""claims\"": {\
+' +
+    '        \""origin_jti\"": \""c64ef854-7060-4d52-87d3-864502a90831\"",\
+' +
+    '        \""sub\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",\
+' +
+    '        \""event_id\"": \""9d28c4b0-a089-488f-be78-fb20fce213bd\"",\
+' +
+    '        \""token_use\"": \""access\"",\
+' +
+    '        \""scope\"": \""aws.cognito.signin.user.admin\"",\
+' +
+    '        \""auth_time\"": \""1735989899\"",\
+' +
+    '        \""iss\"": \""https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw\"",\
+' +
+    '        \""exp\"": \""Sat Jan 04 13:28:09 UTC 2025\"",\
+' +
+    '        \""iat\"": \""Sat Jan 04 12:28:09 UTC 2025\"",\
+' +
+    '        \""client_id\"": \""4q5fcvpf06ouai8edm8bg02utm\"",\
+' +
+    '        \""jti\"": \""1a1f459b-05c7-4489-9287-a803c0ee1b01\"",\
+' +
+    '        \""username\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\""\
+' +
+    '      }\
+' +
+    '    },\
+' +
+    '    \""resourcePath\"": \""/events/creative\"",\
+' +
+    '    \""httpMethod\"": \""GET\"",\
+' +
+    '    \""extendedRequestId\"": \""D3NmjG8RAi0Ejkw=\"",\
+' +
+    '    \""requestTime\"": \""04/Jan/2025:12:28:12 +0000\"",\
+' +
+    '    \""path\"": \""/dev/events/creative\"",\
+' +
+    '    \""accountId\"": \""872515266409\"",\
+' +
+    '    \""protocol\"": \""HTTP/1.1\"",\
+' +
+    '    \""stage\"": \""dev\"",\
+' +
+    '    \""domainPrefix\"": \""4t6y6pteaa\"",\
+' +
+    '    \""requestTimeEpoch\"": 1735993692733,\
+' +
+    '    \""requestId\"": \""2cf119dc-aa1a-4a20-932c-f2114a5d983c\"",\
+' +
+    '    \""identity\"": {\
+' +
+    '      \""cognitoIdentityPoolId\"": null,\
+' +
+    '      \""accountId\"": null,\
+' +
+    '      \""cognitoIdentityId\"": null,\
+' +
+    '      \""caller\"": null,\
+' +
+    '      \""sourceIp\"": \""92.40.173.220\"",\
+' +
+    '      \""principalOrgId\"": null,\
+' +
+    '      \""accessKey\"": null,\
+' +
+    '      \""cognitoAuthenticationType\"": null,\
+' +
+    '      \""cognitoAuthenticationProvider\"": null,\
+' +
+    '      \""userArn\"": null,\
+' +
+    '      \""userAgent\"": \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\"",\
+' +
+    '      \""user\"": null\
+' +
+    '    },\
+' +
+    '    \""domainName\"": \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\"",\
+' +
+    '    \""deploymentId\"": \""9kb2p7\"",\
+' +
+    '    \""apiId\"": \""4t6y6pteaa\""\
+' +
+    '  },\
+' +
+    '  \""body\"": null,\
+' +
+    '  \""isBase64Encoded\"": false\
+' +
+    '}',
+  eventType: 'object',
+  headers: {
+    accept: '*/*',
+    'accept-encoding': 'gzip, deflate, br, zstd',
+    'accept-language': 'en-GB,en;q=0.9',
+    Authorization: 'Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA',
+    'content-type': 'application/json',
+    Host: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    origin: 'http://localhost:5174',
+    priority: 'u=1, i',
+    referer: 'http://localhost:5174/',
+    'sec-ch-ua': '\""Google Chrome\"";v=\""131\"", \""Chromium\"";v=\""131\"", \""Not_A Brand\"";v=\""24\""',
+    'sec-ch-ua-mobile': '?1',
+    'sec-ch-ua-platform': '\""Android\""',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'cross-site',
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+    'X-Amzn-Trace-Id': 'Root=1-6779295c-2f693fa34cb656ad5c49b607',
+    'X-Forwarded-For': '92.40.173.220',
+    'X-Forwarded-Port': '443',
+    'X-Forwarded-Proto': 'https'
+  },
+  requestContext: {
+    resourceId: 'lvn15a',
+    authorizer: { claims: [Object] },
+    resourcePath: '/events/creative',
+    httpMethod: 'GET',
+    extendedRequestId: 'D3NmjG8RAi0Ejkw=',
+    requestTime: '04/Jan/2025:12:28:12 +0000',
+    path: '/dev/events/creative',
+    accountId: '872515266409',
+    protocol: 'HTTP/1.1',
+    stage: 'dev',
+    domainPrefix: '4t6y6pteaa',
+    requestTimeEpoch: 1735993692733,
+    requestId: '2cf119dc-aa1a-4a20-932c-f2114a5d983c',
+    identity: {
+      cognitoIdentityPoolId: null,
+      accountId: null,
+      cognitoIdentityId: null,
+      caller: null,
+      sourceIp: '92.40.173.220',
+      principalOrgId: null,
+      accessKey: null,
+      cognitoAuthenticationType: null,
+      cognitoAuthenticationProvider: null,
+      userArn: null,
+      userAgent: 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+      user: null
+    },
+    domainName: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    deploymentId: '9kb2p7',
+    apiId: '4t6y6pteaa'
+  },
+  httpMethod: 'GET'
+}""}"
+1735993693327,"{""timestamp"":""2025-01-04T12:28:13.327Z"",""level"":""INFO"",""requestId"":""c73ca73e-7058-4af2-b7de-08e608450e0b"",""message"":""Full event for debugging: {
+  \""resource\"": \""/events/creative\"",
+  \""path\"": \""/events/creative\"",
+  \""httpMethod\"": \""GET\"",
+  \""headers\"": {
+    \""accept\"": \""*/*\"",
+    \""accept-encoding\"": \""gzip, deflate, br, zstd\"",
+    \""accept-language\"": \""en-GB,en;q=0.9\"",
+    \""Authorization\"": \""Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA\"",
+    \""content-type\"": \""application/json\"",
+    \""Host\"": \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\"",
+    \""origin\"": \""http://localhost:5174\"",
+    \""priority\"": \""u=1, i\"",
+    \""referer\"": \""http://localhost:5174/\"",
+    \""sec-ch-ua\"": \""\\\""Google Chrome\\\"";v=\\\""131\\\"", \\\""Chromium\\\"";v=\\\""131\\\"", \\\""Not_A Brand\\\"";v=\\\""24\\\""\"",
+    \""sec-ch-ua-mobile\"": \""?1\"",
+    \""sec-ch-ua-platform\"": \""\\\""Android\\\""\"",
+    \""sec-fetch-dest\"": \""empty\"",
+    \""sec-fetch-mode\"": \""cors\"",
+    \""sec-fetch-site\"": \""cross-site\"",
+    \""User-Agent\"": \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\"",
+    \""X-Amzn-Trace-Id\"": \""Root=1-6779295c-2f693fa34cb656ad5c49b607\"",
+    \""X-Forwarded-For\"": \""92.40.173.220\"",
+    \""X-Forwarded-Port\"": \""443\"",
+    \""X-Forwarded-Proto\"": \""https\""
+  },
+  \""multiValueHeaders\"": {
+    \""accept\"": [
+      \""*/*\""
+    ],
+    \""accept-encoding\"": [
+      \""gzip, deflate, br, zstd\""
+    ],
+    \""accept-language\"": [
+      \""en-GB,en;q=0.9\""
+    ],
+    \""Authorization\"": [
+      \""Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA\""
+    ],
+    \""content-type\"": [
+      \""application/json\""
+    ],
+    \""Host\"": [
+      \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\""
+    ],
+    \""origin\"": [
+      \""http://localhost:5174\""
+    ],
+    \""priority\"": [
+      \""u=1, i\""
+    ],
+    \""referer\"": [
+      \""http://localhost:5174/\""
+    ],
+    \""sec-ch-ua\"": [
+      \""\\\""Google Chrome\\\"";v=\\\""131\\\"", \\\""Chromium\\\"";v=\\\""131\\\"", \\\""Not_A Brand\\\"";v=\\\""24\\\""\""
+    ],
+    \""sec-ch-ua-mobile\"": [
+      \""?1\""
+    ],
+    \""sec-ch-ua-platform\"": [
+      \""\\\""Android\\\""\""
+    ],
+    \""sec-fetch-dest\"": [
+      \""empty\""
+    ],
+    \""sec-fetch-mode\"": [
+      \""cors\""
+    ],
+    \""sec-fetch-site\"": [
+      \""cross-site\""
+    ],
+    \""User-Agent\"": [
+      \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\""
+    ],
+    \""X-Amzn-Trace-Id\"": [
+      \""Root=1-6779295c-2f693fa34cb656ad5c49b607\""
+    ],
+    \""X-Forwarded-For\"": [
+      \""92.40.173.220\""
+    ],
+    \""X-Forwarded-Port\"": [
+      \""443\""
+    ],
+    \""X-Forwarded-Proto\"": [
+      \""https\""
+    ]
+  },
+  \""queryStringParameters\"": null,
+  \""multiValueQueryStringParameters\"": null,
+  \""pathParameters\"": null,
+  \""stageVariables\"": null,
+  \""requestContext\"": {
+    \""resourceId\"": \""lvn15a\"",
+    \""authorizer\"": {
+      \""claims\"": {
+        \""origin_jti\"": \""c64ef854-7060-4d52-87d3-864502a90831\"",
+        \""sub\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",
+        \""event_id\"": \""9d28c4b0-a089-488f-be78-fb20fce213bd\"",
+        \""token_use\"": \""access\"",
+        \""scope\"": \""aws.cognito.signin.user.admin\"",
+        \""auth_time\"": \""1735989899\"",
+        \""iss\"": \""https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw\"",
+        \""exp\"": \""Sat Jan 04 13:28:09 UTC 2025\"",
+        \""iat\"": \""Sat Jan 04 12:28:09 UTC 2025\"",
+        \""client_id\"": \""4q5fcvpf06ouai8edm8bg02utm\"",
+        \""jti\"": \""1a1f459b-05c7-4489-9287-a803c0ee1b01\"",
+        \""username\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\""
+      }
+    },
+    \""resourcePath\"": \""/events/creative\"",
+    \""httpMethod\"": \""GET\"",
+    \""extendedRequestId\"": \""D3NmjG8RAi0Ejkw=\"",
+    \""requestTime\"": \""04/Jan/2025:12:28:12 +0000\"",
+    \""path\"": \""/dev/events/creative\"",
+    \""accountId\"": \""872515266409\"",
+    \""protocol\"": \""HTTP/1.1\"",
+    \""stage\"": \""dev\"",
+    \""domainPrefix\"": \""4t6y6pteaa\"",
+    \""requestTimeEpoch\"": 1735993692733,
+    \""requestId\"": \""2cf119dc-aa1a-4a20-932c-f2114a5d983c\"",
+    \""identity\"": {
+      \""cognitoIdentityPoolId\"": null,
+      \""accountId\"": null,
+      \""cognitoIdentityId\"": null,
+      \""caller\"": null,
+      \""sourceIp\"": \""92.40.173.220\"",
+      \""principalOrgId\"": null,
+      \""accessKey\"": null,
+      \""cognitoAuthenticationType\"": null,
+      \""cognitoAuthenticationProvider\"": null,
+      \""userArn\"": null,
+      \""userAgent\"": \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\"",
+      \""user\"": null
+    },
+    \""domainName\"": \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\"",
+    \""deploymentId\"": \""9kb2p7\"",
+    \""apiId\"": \""4t6y6pteaa\""
+  },
+  \""body\"": null,
+  \""isBase64Encoded\"": false
+}""}"
+1735993693327,"{""timestamp"":""2025-01-04T12:28:13.327Z"",""level"":""INFO"",""requestId"":""c73ca73e-7058-4af2-b7de-08e608450e0b"",""message"":""Found user ID in Cognito claims: 205cb9ac-9081-705d-7537-d9ba77c374af""}"
+1735993693328,"{""timestamp"":""2025-01-04T12:28:13.328Z"",""level"":""INFO"",""requestId"":""c73ca73e-7058-4af2-b7de-08e608450e0b"",""message"":""Auth debug: {
+  requestContext: {
+    resourceId: 'lvn15a',
+    authorizer: { claims: [Object] },
+    resourcePath: '/events/creative',
+    httpMethod: 'GET',
+    extendedRequestId: 'D3NmjG8RAi0Ejkw=',
+    requestTime: '04/Jan/2025:12:28:12 +0000',
+    path: '/dev/events/creative',
+    accountId: '872515266409',
+    protocol: 'HTTP/1.1',
+    stage: 'dev',
+    domainPrefix: '4t6y6pteaa',
+    requestTimeEpoch: 1735993692733,
+    requestId: '2cf119dc-aa1a-4a20-932c-f2114a5d983c',
+    identity: {
+      cognitoIdentityPoolId: null,
+      accountId: null,
+      cognitoIdentityId: null,
+      caller: null,
+      sourceIp: '92.40.173.220',
+      principalOrgId: null,
+      accessKey: null,
+      cognitoAuthenticationType: null,
+      cognitoAuthenticationProvider: null,
+      userArn: null,
+      userAgent: 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+      user: null
+    },
+    domainName: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    deploymentId: '9kb2p7',
+    apiId: '4t6y6pteaa'
+  },
+  authorizer: {
+    claims: {
+      origin_jti: 'c64ef854-7060-4d52-87d3-864502a90831',
+      sub: '205cb9ac-9081-705d-7537-d9ba77c374af',
+      event_id: '9d28c4b0-a089-488f-be78-fb20fce213bd',
+      token_use: 'access',
+      scope: 'aws.cognito.signin.user.admin',
+      auth_time: '1735989899',
+      iss: 'https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw',
+      exp: 'Sat Jan 04 13:28:09 UTC 2025',
+      iat: 'Sat Jan 04 12:28:09 UTC 2025',
+      client_id: '4q5fcvpf06ouai8edm8bg02utm',
+      jti: '1a1f459b-05c7-4489-9287-a803c0ee1b01',
+      username: '205cb9ac-9081-705d-7537-d9ba77c374af'
+    }
+  },
+  claims: {
+    origin_jti: 'c64ef854-7060-4d52-87d3-864502a90831',
+    sub: '205cb9ac-9081-705d-7537-d9ba77c374af',
+    event_id: '9d28c4b0-a089-488f-be78-fb20fce213bd',
+    token_use: 'access',
+    scope: 'aws.cognito.signin.user.admin',
+    auth_time: '1735989899',
+    iss: 'https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw',
+    exp: 'Sat Jan 04 13:28:09 UTC 2025',
+    iat: 'Sat Jan 04 12:28:09 UTC 2025',
+    client_id: '4q5fcvpf06ouai8edm8bg02utm',
+    jti: '1a1f459b-05c7-4489-9287-a803c0ee1b01',
+    username: '205cb9ac-9081-705d-7537-d9ba77c374af'
+  },
+  headers: {
+    accept: '*/*',
+    'accept-encoding': 'gzip, deflate, br, zstd',
+    'accept-language': 'en-GB,en;q=0.9',
+    Authorization: 'Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA',
+    'content-type': 'application/json',
+    Host: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    origin: 'http://localhost:5174',
+    priority: 'u=1, i',
+    referer: 'http://localhost:5174/',
+    'sec-ch-ua': '\""Google Chrome\"";v=\""131\"", \""Chromium\"";v=\""131\"", \""Not_A Brand\"";v=\""24\""',
+    'sec-ch-ua-mobile': '?1',
+    'sec-ch-ua-platform': '\""Android\""',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'cross-site',
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+    'X-Amzn-Trace-Id': 'Root=1-6779295c-2f693fa34cb656ad5c49b607',
+    'X-Forwarded-For': '92.40.173.220',
+    'X-Forwarded-Port': '443',
+    'X-Forwarded-Proto': 'https'
+  },
+  userId: '205cb9ac-9081-705d-7537-d9ba77c374af'
+}""}"
+1735993693328,"{""timestamp"":""2025-01-04T12:28:13.328Z"",""level"":""INFO"",""requestId"":""c73ca73e-7058-4af2-b7de-08e608450e0b"",""message"":""Testing DynamoDB permissions...""}"
+1735993694025,"{""timestamp"":""2025-01-04T12:28:14.025Z"",""level"":""INFO"",""requestId"":""c73ca73e-7058-4af2-b7de-08e608450e0b"",""message"":""DynamoDB permissions test successful""}"
+1735993694026,"{""timestamp"":""2025-01-04T12:28:14.026Z"",""level"":""INFO"",""requestId"":""c73ca73e-7058-4af2-b7de-08e608450e0b"",""message"":""Creating DynamoDB command for user: 205cb9ac-9081-705d-7537-d9ba77c374af""}"
+1735993694026,"{""timestamp"":""2025-01-04T12:28:14.026Z"",""level"":""INFO"",""requestId"":""c73ca73e-7058-4af2-b7de-08e608450e0b"",""message"":""DynamoDB command: {
+  \""middlewareStack\"": {},
+  \""input\"": {
+    \""TableName\"": \""dropclip-events\"",
+    \""FilterExpression\"": \""user_id = :userId\"",
+    \""ExpressionAttributeValues\"": {
+      \"":userId\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\""
+    }
+  },
+  \""inputKeyNodes\"": {
+    \""ScanFilter\"": {
+      \""*\"": {
+        \""AttributeValueList\"": []
+      }
+    },
+    \""ExclusiveStartKey\"": {},
+    \""ExpressionAttributeValues\"": {}
+  },
+  \""outputKeyNodes\"": {
+    \""Items\"": {
+      \""*\"": {}
+    },
+    \""LastEvaluatedKey\"": {}
+  },
+  \""clientCommand\"": {
+    \""middlewareStack\"": {},
+    \""input\"": {
+      \""TableName\"": \""dropclip-events\"",
+      \""FilterExpression\"": \""user_id = :userId\"",
+      \""ExpressionAttributeValues\"": {
+        \"":userId\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\""
+      }
+    }
+  }
+}""}"
+1735993694026,"{""timestamp"":""2025-01-04T12:28:14.026Z"",""level"":""INFO"",""requestId"":""c73ca73e-7058-4af2-b7de-08e608450e0b"",""message"":""Sending command to DynamoDB...""}"
+1735993694107,"{""timestamp"":""2025-01-04T12:28:14.107Z"",""level"":""INFO"",""requestId"":""c73ca73e-7058-4af2-b7de-08e608450e0b"",""message"":""DynamoDB result: {
+  \""$metadata\"": {
+    \""httpStatusCode\"": 200,
+    \""requestId\"": \""CK1689R4H13FETBE9JCT3OH5GJVV4KQNSO5AEMVJF66Q9ASUAAJG\"",
+    \""attempts\"": 1,
+    \""totalRetryDelay\"": 0
+  },
+  \""Count\"": 5,
+  \""Items\"": [
+    {
+      \""location\"": \""The Lower Third\"",
+      \""created_at\"": \""2025-01-02T03:35:44.992Z\"",
+      \""ticketLink\"": \""\"",
+      \""uploadConfig\"": {
+        \""allowedTypes\"": [
+          \""image/*\"",
+          \""video/*\""
+        ],
+        \""maxFileSize\"": 100,
+        \""endDate\"": \""2025-01-09\"",
+        \""enabled\"": false,
+        \""startDate\"": \""2025-01-02\""
+      },
+      \""updated_at\"": \""2025-01-02T03:35:44.992Z\"",
+      \""startTime\"": \""23:00\"",
+      \""isAutomatic\"": false,
+      \""date\"": \""2025-03-07\"",
+      \""imageUrl\"": \""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788944992.jpg\"",
+      \""user_id\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",
+      \""endTime\"": \""04:00\"",
+      \""description\"": \""\"",
+      \""id\"": \""1735788945943\"",
+      \""title\"": \""LOVE BEYOND THE SHELL\""
+    },
+    {
+      \""location\"": \""6 Dray Walk\"",
+      \""created_at\"": \""2025-01-02T03:31:38.603Z\"",
+      \""ticketLink\"": \""\"",
+      \""uploadConfig\"": {
+        \""allowedTypes\"": [
+          \""image/*\"",
+          \""video/*\""
+        ],
+        \""endDate\"": \""2025-01-09\"",
+        \""startTime\"": \""09:00\"",
+        \""maxFileSize\"": 100,
+        \""endTime\"": \""23:00\"",
+        \""enabled\"": true,
+        \""startDate\"": \""2025-01-02\""
+      },
+      \""updated_at\"": \""2025-01-02T03:31:38.603Z\"",
+      \""startTime\"": \""19:00\"",
+      \""isAutomatic\"": false,
+      \""date\"": \""2024-11-22\"",
+      \""imageUrl\"": \""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788698604.jpg\"",
+      \""user_id\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",
+      \""endTime\"": \""23:00\"",
+      \""description\"": \""\"",
+      \""id\"": \""1735788699823\"",
+      \""title\"": \""Something Lite\""
+    },
+    {
+      \""location\"": \""Bristol Cellarss\"",
+      \""created_at\"": \""2025-01-02T03:32:57.294Z\"",
+      \""ticketLink\"": \""\"",
+      \""uploadConfig\"": {
+        \""allowedTypes\"": [
+          \""image/*\"",
+          \""video/*\""
+        ],
+        \""maxFileSize\"": 100,
+        \""endDate\"": \""2025-01-09\"",
+        \""enabled\"": false,
+        \""startDate\"": \""2025-01-02\""
+      },
+      \""updated_at\"": \""2025-01-02T03:32:57.294Z\"",
+      \""startTime\"": \""21:00\"",
+      \""isAutomatic\"": false,
+      \""date\"": \""2025-01-24\"",
+      \""imageUrl\"": \""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788777295.jpg\"",
+      \""user_id\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",
+      \""endTime\"": \""02:00\"",
+      \""description\"": \""\"",
+      \""id\"": \""1735788778160\"",
+      \""title\"": \""TOM VR LIVE UK TOUR\""
+    },
+    {
+      \""location\"": \""The Lower Third\"",
+      \""created_at\"": \""2025-01-02T03:34:33.243Z\"",
+      \""ticketLink\"": \""\"",
+      \""uploadConfig\"": {
+        \""allowedTypes\"": [
+          \""image/*\"",
+          \""video/*\""
+        ],
+        \""maxFileSize\"": 100,
+        \""endDate\"": \""2025-01-09\"",
+        \""enabled\"": false,
+        \""startDate\"": \""2025-01-02\""
+      },
+      \""updated_at\"": \""2025-01-02T03:34:33.243Z\"",
+      \""startTime\"": \""23:00\"",
+      \""isAutomatic\"": false,
+      \""date\"": \""2025-02-21\"",
+      \""imageUrl\"": \""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788873244.jpg\"",
+      \""user_id\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",
+      \""endTime\"": \""03:30\"",
+      \""description\"": \""\"",
+      \""id\"": \""1735788874252\"",
+      \""title\"": \""THE FIRST DANCE\""
+    },
+    {
+      \""location\"": \""Stokey\"",
+      \""created_at\"": \""2025-01-02T03:27:04.857Z\"",
+      \""ticketLink\"": \""\"",
+      \""uploadConfig\"": {
+        \""allowedTypes\"": [
+          \""image/*\"",
+          \""video/*\""
+        ],
+        \""endDate\"": \""2025-01-10\"",
+        \""startTime\"": \""09:00\"",
+        \""maxFileSize\"": 100,
+        \""endTime\"": \""23:00\"",
+        \""enabled\"": true,
+        \""startDate\"": \""2025-01-03\""
+      },
+      \""updated_at\"": \""2025-01-02T04:14:15.685Z\"",
+      \""startTime\"": \""21:00\"",
+      \""isAutomatic\"": false,
+      \""date\"": \""2024-12-06\"",
+      \""imageUrl\"": \""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788424859.jpg\"",
+      \""user_id\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",
+      \""endTime\"": \""02:00\"",
+      \""description\"": \""\"",
+      \""id\"": \""1735788426079\"",
+      \""title\"": \""LOUF ALBM LAUNCH\""
+    }
+  ],
+  \""ScannedCount\"": 5
+}""}"
+1735993694107,"{""timestamp"":""2025-01-04T12:28:14.107Z"",""level"":""INFO"",""requestId"":""c73ca73e-7058-4af2-b7de-08e608450e0b"",""message"":""Sending response: {
+  \""statusCode\"": 200,
+  \""headers\"": {
+    \""Access-Control-Allow-Origin\"": \""http://localhost:5174\"",
+    \""Access-Control-Allow-Headers\"": \""Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token\"",
+    \""Access-Control-Allow-Methods\"": \""GET,PUT,DELETE,OPTIONS\"",
+    \""Access-Control-Allow-Credentials\"": \""true\"",
+    \""Access-Control-Max-Age\"": \""3600\"",
+    \""Access-Control-Expose-Headers\"": \""Date,Authorization,X-Api-Key,X-Amz-Date,X-Amz-Security-Token,X-Amz-User-Agent,Content-Type,Content-Length\"",
+    \""Content-Type\"": \""application/json\""
+  },
+  \""body\"": \""{\\\""events\\\"":[{\\\""location\\\"":\\\""The Lower Third\\\"",\\\""created_at\\\"":\\\""2025-01-02T03:35:44.992Z\\\"",\\\""ticketLink\\\"":\\\""\\\"",\\\""uploadConfig\\\"":{\\\""allowedTypes\\\"":[\\\""image/*\\\"",\\\""video/*\\\""],\\\""maxFileSize\\\"":100,\\\""endDate\\\"":\\\""2025-01-09\\\"",\\\""enabled\\\"":false,\\\""startDate\\\"":\\\""2025-01-02\\\""},\\\""updated_at\\\"":\\\""2025-01-02T03:35:44.992Z\\\"",\\\""startTime\\\"":\\\""23:00\\\"",\\\""isAutomatic\\\"":false,\\\""date\\\"":\\\""2025-03-07\\\"",\\\""imageUrl\\\"":\\\""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788944992.jpg\\\"",\\\""user_id\\\"":\\\""205cb9ac-9081-705d-7537-d9ba77c374af\\\"",\\\""endTime\\\"":\\\""04:00\\\"",\\\""description\\\"":\\\""\\\"",\\\""id\\\"":\\\""1735788945943\\\"",\\\""title\\\"":\\\""LOVE BEYOND THE SHELL\\\""},{\\\""location\\\"":\\\""6 Dray Walk\\\"",\\\""created_at\\\"":\\\""2025-01-02T03:31:38.603Z\\\"",\\\""ticketLink\\\"":\\\""\\\"",\\\""uploadConfig\\\"":{\\\""allowedTypes\\\"":[\\\""image/*\\\"",\\\""video/*\\\""],\\\""endDate\\\"":\\\""2025-01-09\\\"",\\\""startTime\\\"":\\\""09:00\\\"",\\\""maxFileSize\\\"":100,\\\""endTime\\\"":\\\""23:00\\\"",\\\""enabled\\\"":true,\\\""startDate\\\"":\\\""2025-01-02\\\""},\\\""updated_at\\\"":\\\""2025-01-02T03:31:38.603Z\\\"",\\\""startTime\\\"":\\\""19:00\\\"",\\\""isAutomatic\\\"":false,\\\""date\\\"":\\\""2024-11-22\\\"",\\\""imageUrl\\\"":\\\""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788698604.jpg\\\"",\\\""user_id\\\"":\\\""205cb9ac-9081-705d-7537-d9ba77c374af\\\"",\\\""endTime\\\"":\\\""23:00\\\"",\\\""description\\\"":\\\""\\\"",\\\""id\\\"":\\\""1735788699823\\\"",\\\""title\\\"":\\\""Something Lite\\\""},{\\\""location\\\"":\\\""Bristol Cellarss\\\"",\\\""created_at\\\"":\\\""2025-01-02T03:32:57.294Z\\\"",\\\""ticketLink\\\"":\\\""\\\"",\\\""uploadConfig\\\"":{\\\""allowedTypes\\\"":[\\\""image/*\\\"",\\\""video/*\\\""],\\\""maxFileSize\\\"":100,\\\""endDate\\\"":\\\""2025-01-09\\\"",\\\""enabled\\\"":false,\\\""startDate\\\"":\\\""2025-01-02\\\""},\\\""updated_at\\\"":\\\""2025-01-02T03:32:57.294Z\\\"",\\\""startTime\\\"":\\\""21:00\\\"",\\\""isAutomatic\\\"":false,\\\""date\\\"":\\\""2025-01-24\\\"",\\\""imageUrl\\\"":\\\""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788777295.jpg\\\"",\\\""user_id\\\"":\\\""205cb9ac-9081-705d-7537-d9ba77c374af\\\"",\\\""endTime\\\"":\\\""02:00\\\"",\\\""description\\\"":\\\""\\\"",\\\""id\\\"":\\\""1735788778160\\\"",\\\""title\\\"":\\\""TOM VR LIVE UK TOUR\\\""},{\\\""location\\\"":\\\""The Lower Third\\\"",\\\""created_at\\\"":\\\""2025-01-02T03:34:33.243Z\\\"",\\\""ticketLink\\\"":\\\""\\\"",\\\""uploadConfig\\\"":{\\\""allowedTypes\\\"":[\\\""image/*\\\"",\\\""video/*\\\""],\\\""maxFileSize\\\"":100,\\\""endDate\\\"":\\\""2025-01-09\\\"",\\\""enabled\\\"":false,\\\""startDate\\\"":\\\""2025-01-02\\\""},\\\""updated_at\\\"":\\\""2025-01-02T03:34:33.243Z\\\"",\\\""startTime\\\"":\\\""23:00\\\"",\\\""isAutomatic\\\"":false,\\\""date\\\"":\\\""2025-02-21\\\"",\\\""imageUrl\\\"":\\\""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788873244.jpg\\\"",\\\""user_id\\\"":\\\""205cb9ac-9081-705d-7537-d9ba77c374af\\\"",\\\""endTime\\\"":\\\""03:30\\\"",\\\""description\\\"":\\\""\\\"",\\\""id\\\"":\\\""1735788874252\\\"",\\\""title\\\"":\\\""THE FIRST DANCE\\\""},{\\\""location\\\"":\\\""Stokey\\\"",\\\""created_at\\\"":\\\""2025-01-02T03:27:04.857Z\\\"",\\\""ticketLink\\\"":\\\""\\\"",\\\""uploadConfig\\\"":{\\\""allowedTypes\\\"":[\\\""image/*\\\"",\\\""video/*\\\""],\\\""endDate\\\"":\\\""2025-01-10\\\"",\\\""startTime\\\"":\\\""09:00\\\"",\\\""maxFileSize\\\"":100,\\\""endTime\\\"":\\\""23:00\\\"",\\\""enabled\\\"":true,\\\""startDate\\\"":\\\""2025-01-03\\\""},\\\""updated_at\\\"":\\\""2025-01-02T04:14:15.685Z\\\"",\\\""startTime\\\"":\\\""21:00\\\"",\\\""isAutomatic\\\"":false,\\\""date\\\"":\\\""2024-12-06\\\"",\\\""imageUrl\\\"":\\\""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788424859.jpg\\\"",\\\""user_id\\\"":\\\""205cb9ac-9081-705d-7537-d9ba77c374af\\\"",\\\""endTime\\\"":\\\""02:00\\\"",\\\""description\\\"":\\\""\\\"",\\\""id\\\"":\\\""1735788426079\\\"",\\\""title\\\"":\\\""LOUF ALBM LAUNCH\\\""}],\\\""message\\\"":\\\""Events retrieved successfully\\\""}\"",
+  \""isBase64Encoded\"": false
+}""}"
+1735993694146,"{""time"":""2025-01-04T12:28:14.146Z"",""type"":""platform.report"",""record"":{""requestId"":""c73ca73e-7058-4af2-b7de-08e608450e0b"",""metrics"":{""durationMs"":836.33,""billedDurationMs"":837,""memorySizeMB"":128,""maxMemoryUsedMB"":87,""initDurationMs"":446.461},""tracing"":{""spanId"":""1863547246797593"",""type"":""X-Amzn-Trace-Id"",""value"":""Root=1-6779295c-2f693fa34cb656ad5c49b607;Parent=04c36949a34ed62c;Sampled=1""},""status"":""success""}}"
+1735993729810,"{""time"":""2025-01-04T12:28:49.810Z"",""type"":""platform.start"",""record"":{""requestId"":""8bebef11-639e-4bf8-a017-01319942423b"",""version"":""$LATEST"",""tracing"":{""spanId"":""5a0d325d659465f7"",""type"":""X-Amzn-Trace-Id"",""value"":""Root=1-67792981-7e836392474867c74de4c0dd;Parent=450050fd6887db0b;Sampled=1""}}}"
+1735993730005,"{""timestamp"":""2025-01-04T12:28:50.005Z"",""level"":""INFO"",""requestId"":""8bebef11-639e-4bf8-a017-01319942423b"",""message"":""Lambda handler started with event: {
+  level: 'DEBUG',
+  event: '{\
+' +
+    '  \""resource\"": \""/events/creative/{eventId}\"",\
+' +
+    '  \""path\"": \""/events/creative/1735788778160\"",\
+' +
+    '  \""httpMethod\"": \""PUT\"",\
+' +
+    '  \""headers\"": {\
+' +
+    '    \""accept\"": \""*/*\"",\
+' +
+    '    \""accept-encoding\"": \""gzip, deflate, br, zstd\"",\
+' +
+    '    \""accept-language\"": \""en-GB,en;q=0.9\"",\
+' +
+    '    \""Authorization\"": \""Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA\"",\
+' +
+    '    \""content-type\"": \""application/json\"",\
+' +
+    '    \""Host\"": \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\"",\
+' +
+    '    \""origin\"": \""http://localhost:5174\"",\
+' +
+    '    \""priority\"": \""u=1, i\"",\
+' +
+    '    \""referer\"": \""http://localhost:5174/\"",\
+' +
+    '    \""sec-ch-ua\"": \""\\\\\""Google Chrome\\\\\"";v=\\\\\""131\\\\\"", \\\\\""Chromium\\\\\"";v=\\\\\""131\\\\\"", \\\\\""Not_A Brand\\\\\"";v=\\\\\""24\\\\\""\"",\
+' +
+    '    \""sec-ch-ua-mobile\"": \""?1\"",\
+' +
+    '    \""sec-ch-ua-platform\"": \""\\\\\""Android\\\\\""\"",\
+' +
+    '    \""sec-fetch-dest\"": \""empty\"",\
+' +
+    '    \""sec-fetch-mode\"": \""cors\"",\
+' +
+    '    \""sec-fetch-site\"": \""cross-site\"",\
+' +
+    '    \""User-Agent\"": \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\"",\
+' +
+    '    \""X-Amzn-Trace-Id\"": \""Root=1-67792981-7e836392474867c74de4c0dd\"",\
+' +
+    '    \""X-Forwarded-For\"": \""92.40.173.220\"",\
+' +
+    '    \""X-Forwarded-Port\"": \""443\"",\
+' +
+    '    \""X-Forwarded-Proto\"": \""https\""\
+' +
+    '  },\
+' +
+    '  \""multiValueHeaders\"": {\
+' +
+    '    \""accept\"": [\
+' +
+    '      \""*/*\""\
+' +
+    '    ],\
+' +
+    '    \""accept-encoding\"": [\
+' +
+    '      \""gzip, deflate, br, zstd\""\
+' +
+    '    ],\
+' +
+    '    \""accept-language\"": [\
+' +
+    '      \""en-GB,en;q=0.9\""\
+' +
+    '    ],\
+' +
+    '    \""Authorization\"": [\
+' +
+    '      \""Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA\""\
+' +
+    '    ],\
+' +
+    '    \""content-type\"": [\
+' +
+    '      \""application/json\""\
+' +
+    '    ],\
+' +
+    '    \""Host\"": [\
+' +
+    '      \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\""\
+' +
+    '    ],\
+' +
+    '    \""origin\"": [\
+' +
+    '      \""http://localhost:5174\""\
+' +
+    '    ],\
+' +
+    '    \""priority\"": [\
+' +
+    '      \""u=1, i\""\
+' +
+    '    ],\
+' +
+    '    \""referer\"": [\
+' +
+    '      \""http://localhost:5174/\""\
+' +
+    '    ],\
+' +
+    '    \""sec-ch-ua\"": [\
+' +
+    '      \""\\\\\""Google Chrome\\\\\"";v=\\\\\""131\\\\\"", \\\\\""Chromium\\\\\"";v=\\\\\""131\\\\\"", \\\\\""Not_A Brand\\\\\"";v=\\\\\""24\\\\\""\""\
+' +
+    '    ],\
+' +
+    '    \""sec-ch-ua-mobile\"": [\
+' +
+    '      \""?1\""\
+' +
+    '    ],\
+' +
+    '    \""sec-ch-ua-platform\"": [\
+' +
+    '      \""\\\\\""Android\\\\\""\""\
+' +
+    '    ],\
+' +
+    '    \""sec-fetch-dest\"": [\
+' +
+    '      \""empty\""\
+' +
+    '    ],\
+' +
+    '    \""sec-fetch-mode\"": [\
+' +
+    '      \""cors\""\
+' +
+    '    ],\
+' +
+    '    \""sec-fetch-site\"": [\
+' +
+    '      \""cross-site\""\
+' +
+    '    ],\
+' +
+    '    \""User-Agent\"": [\
+' +
+    '      \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\""\
+' +
+    '    ],\
+' +
+    '    \""X-Amzn-Trace-Id\"": [\
+' +
+    '      \""Root=1-67792981-7e836392474867c74de4c0dd\""\
+' +
+    '    ],\
+' +
+    '    \""X-Forwarded-For\"": [\
+' +
+    '      \""92.40.173.220\""\
+' +
+    '    ],\
+' +
+    '    \""X-Forwarded-Port\"": [\
+' +
+    '      \""443\""\
+' +
+    '    ],\
+' +
+    '    \""X-Forwarded-Proto\"": [\
+' +
+    '      \""https\""\
+' +
+    '    ]\
+' +
+    '  },\
+' +
+    '  \""queryStringParameters\"": null,\
+' +
+    '  \""multiValueQueryStringParameters\"": null,\
+' +
+    '  \""pathParameters\"": {\
+' +
+    '    \""eventId\"": \""1735788778160\""\
+' +
+    '  },\
+' +
+    '  \""stageVariables\"": null,\
+' +
+    '  \""requestContext\"": {\
+' +
+    '    \""resourceId\"": \""ox4wql\"",\
+' +
+    '    \""authorizer\"": {\
+' +
+    '      \""claims\"": {\
+' +
+    '        \""origin_jti\"": \""c64ef854-7060-4d52-87d3-864502a90831\"",\
+' +
+    '        \""sub\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",\
+' +
+    '        \""event_id\"": \""9d28c4b0-a089-488f-be78-fb20fce213bd\"",\
+' +
+    '        \""token_use\"": \""access\"",\
+' +
+    '        \""scope\"": \""aws.cognito.signin.user.admin\"",\
+' +
+    '        \""auth_time\"": \""1735989899\"",\
+' +
+    '        \""iss\"": \""https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw\"",\
+' +
+    '        \""exp\"": \""Sat Jan 04 13:28:09 UTC 2025\"",\
+' +
+    '        \""iat\"": \""Sat Jan 04 12:28:09 UTC 2025\"",\
+' +
+    '        \""client_id\"": \""4q5fcvpf06ouai8edm8bg02utm\"",\
+' +
+    '        \""jti\"": \""1a1f459b-05c7-4489-9287-a803c0ee1b01\"",\
+' +
+    '        \""username\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\""\
+' +
+    '      }\
+' +
+    '    },\
+' +
+    '    \""resourcePath\"": \""/events/creative/{eventId}\"",\
+' +
+    '    \""httpMethod\"": \""PUT\"",\
+' +
+    '    \""extendedRequestId\"": \""D3NsVGQMgi0Eg-g=\"",\
+' +
+    '    \""requestTime\"": \""04/Jan/2025:12:28:49 +0000\"",\
+' +
+    '    \""path\"": \""/dev/events/creative/1735788778160\"",\
+' +
+    '    \""accountId\"": \""872515266409\"",\
+' +
+    '    \""protocol\"": \""HTTP/1.1\"",\
+' +
+    '    \""stage\"": \""dev\"",\
+' +
+    '    \""domainPrefix\"": \""4t6y6pteaa\"",\
+' +
+    '    \""requestTimeEpoch\"": 1735993729777,\
+' +
+    '    \""requestId\"": \""3c114db9-26a9-4cd6-99ed-322661ed0096\"",\
+' +
+    '    \""identity\"": {\
+' +
+    '      \""cognitoIdentityPoolId\"": null,\
+' +
+    '      \""accountId\"": null,\
+' +
+    '      \""cognitoIdentityId\"": null,\
+' +
+    '      \""caller\"": null,\
+' +
+    '      \""sourceIp\"": \""92.40.173.220\"",\
+' +
+    '      \""principalOrgId\"": null,\
+' +
+    '      \""accessKey\"": null,\
+' +
+    '      \""cognitoAuthenticationType\"": null,\
+' +
+    '      \""cognitoAuthenticationProvider\"": null,\
+' +
+    '      \""userArn\"": null,\
+' +
+    '      \""userAgent\"": \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\"",\
+' +
+    '      \""user\"": null\
+' +
+    '    },\
+' +
+    '    \""domainName\"": \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\"",\
+' +
+    '    \""deploymentId\"": \""9kb2p7\"",\
+' +
+    '    \""apiId\"": \""4t6y6pteaa\""\
+' +
+    '  },\
+' +
+    '  \""body\"": \""{\\\\\""location\\\\\"":\\\\\""Bristol Cellarss\\\\\"",\\\\\""created_at\\\\\"":\\\\\""2025-01-02T03:32:57.294Z\\\\\"",\\\\\""ticketLink\\\\\"":\\\\\""\\\\\"",\\\\\""uploadConfig\\\\\"":{\\\\\""allowedTypes\\\\\"":[\\\\\""image/*\\\\\"",\\\\\""video/*\\\\\""],\\\\\""maxFileSize\\\\\"":100,\\\\\""endDate\\\\\"":\\\\\""2025-01-09\\\\\"",\\\\\""enabled\\\\\"":false,\\\\\""startDate\\\\\"":\\\\\""2025-01-02\\\\\""},\\\\\""updated_at\\\\\"":\\\\\""2025-01-02T03:32:57.294Z\\\\\"",\\\\\""startTime\\\\\"":\\\\\""21:00\\\\\"",\\\\\""isAutomatic\\\\\"":false,\\\\\""date\\\\\"":\\\\\""2025-01-24\\\\\"",\\\\\""imageUrl\\\\\"":\\\\\""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788777295.jpg\\\\\"",\\\\\""user_id\\\\\"":\\\\\""205cb9ac-9081-705d-7537-d9ba77c374af\\\\\"",\\\\\""endTime\\\\\"":\\\\\""02:00\\\\\"",\\\\\""description\\\\\"":\\\\\""\\\\\"",\\\\\""id\\\\\"":\\\\\""1735788778160\\\\\"",\\\\\""title\\\\\"":\\\\\""TOM VR LIVE UK TOUR\\\\\""}\"",\
+' +
+    '  \""isBase64Encoded\"": false\
+' +
+    '}',
+  eventType: 'object',
+  headers: {
+    accept: '*/*',
+    'accept-encoding': 'gzip, deflate, br, zstd',
+    'accept-language': 'en-GB,en;q=0.9',
+    Authorization: 'Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA',
+    'content-type': 'application/json',
+    Host: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    origin: 'http://localhost:5174',
+    priority: 'u=1, i',
+    referer: 'http://localhost:5174/',
+    'sec-ch-ua': '\""Google Chrome\"";v=\""131\"", \""Chromium\"";v=\""131\"", \""Not_A Brand\"";v=\""24\""',
+    'sec-ch-ua-mobile': '?1',
+    'sec-ch-ua-platform': '\""Android\""',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'cross-site',
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+    'X-Amzn-Trace-Id': 'Root=1-67792981-7e836392474867c74de4c0dd',
+    'X-Forwarded-For': '92.40.173.220',
+    'X-Forwarded-Port': '443',
+    'X-Forwarded-Proto': 'https'
+  },
+  requestContext: {
+    resourceId: 'ox4wql',
+    authorizer: { claims: [Object] },
+    resourcePath: '/events/creative/{eventId}',
+    httpMethod: 'PUT',
+    extendedRequestId: 'D3NsVGQMgi0Eg-g=',
+    requestTime: '04/Jan/2025:12:28:49 +0000',
+    path: '/dev/events/creative/1735788778160',
+    accountId: '872515266409',
+    protocol: 'HTTP/1.1',
+    stage: 'dev',
+    domainPrefix: '4t6y6pteaa',
+    requestTimeEpoch: 1735993729777,
+    requestId: '3c114db9-26a9-4cd6-99ed-322661ed0096',
+    identity: {
+      cognitoIdentityPoolId: null,
+      accountId: null,
+      cognitoIdentityId: null,
+      caller: null,
+      sourceIp: '92.40.173.220',
+      principalOrgId: null,
+      accessKey: null,
+      cognitoAuthenticationType: null,
+      cognitoAuthenticationProvider: null,
+      userArn: null,
+      userAgent: 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+      user: null
+    },
+    domainName: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    deploymentId: '9kb2p7',
+    apiId: '4t6y6pteaa'
+  },
+  httpMethod: 'PUT'
+}""}"
+1735993730007,"{""timestamp"":""2025-01-04T12:28:50.007Z"",""level"":""INFO"",""requestId"":""8bebef11-639e-4bf8-a017-01319942423b"",""message"":""Full event for debugging: {
+  \""resource\"": \""/events/creative/{eventId}\"",
+  \""path\"": \""/events/creative/1735788778160\"",
+  \""httpMethod\"": \""PUT\"",
+  \""headers\"": {
+    \""accept\"": \""*/*\"",
+    \""accept-encoding\"": \""gzip, deflate, br, zstd\"",
+    \""accept-language\"": \""en-GB,en;q=0.9\"",
+    \""Authorization\"": \""Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA\"",
+    \""content-type\"": \""application/json\"",
+    \""Host\"": \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\"",
+    \""origin\"": \""http://localhost:5174\"",
+    \""priority\"": \""u=1, i\"",
+    \""referer\"": \""http://localhost:5174/\"",
+    \""sec-ch-ua\"": \""\\\""Google Chrome\\\"";v=\\\""131\\\"", \\\""Chromium\\\"";v=\\\""131\\\"", \\\""Not_A Brand\\\"";v=\\\""24\\\""\"",
+    \""sec-ch-ua-mobile\"": \""?1\"",
+    \""sec-ch-ua-platform\"": \""\\\""Android\\\""\"",
+    \""sec-fetch-dest\"": \""empty\"",
+    \""sec-fetch-mode\"": \""cors\"",
+    \""sec-fetch-site\"": \""cross-site\"",
+    \""User-Agent\"": \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\"",
+    \""X-Amzn-Trace-Id\"": \""Root=1-67792981-7e836392474867c74de4c0dd\"",
+    \""X-Forwarded-For\"": \""92.40.173.220\"",
+    \""X-Forwarded-Port\"": \""443\"",
+    \""X-Forwarded-Proto\"": \""https\""
+  },
+  \""multiValueHeaders\"": {
+    \""accept\"": [
+      \""*/*\""
+    ],
+    \""accept-encoding\"": [
+      \""gzip, deflate, br, zstd\""
+    ],
+    \""accept-language\"": [
+      \""en-GB,en;q=0.9\""
+    ],
+    \""Authorization\"": [
+      \""Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA\""
+    ],
+    \""content-type\"": [
+      \""application/json\""
+    ],
+    \""Host\"": [
+      \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\""
+    ],
+    \""origin\"": [
+      \""http://localhost:5174\""
+    ],
+    \""priority\"": [
+      \""u=1, i\""
+    ],
+    \""referer\"": [
+      \""http://localhost:5174/\""
+    ],
+    \""sec-ch-ua\"": [
+      \""\\\""Google Chrome\\\"";v=\\\""131\\\"", \\\""Chromium\\\"";v=\\\""131\\\"", \\\""Not_A Brand\\\"";v=\\\""24\\\""\""
+    ],
+    \""sec-ch-ua-mobile\"": [
+      \""?1\""
+    ],
+    \""sec-ch-ua-platform\"": [
+      \""\\\""Android\\\""\""
+    ],
+    \""sec-fetch-dest\"": [
+      \""empty\""
+    ],
+    \""sec-fetch-mode\"": [
+      \""cors\""
+    ],
+    \""sec-fetch-site\"": [
+      \""cross-site\""
+    ],
+    \""User-Agent\"": [
+      \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\""
+    ],
+    \""X-Amzn-Trace-Id\"": [
+      \""Root=1-67792981-7e836392474867c74de4c0dd\""
+    ],
+    \""X-Forwarded-For\"": [
+      \""92.40.173.220\""
+    ],
+    \""X-Forwarded-Port\"": [
+      \""443\""
+    ],
+    \""X-Forwarded-Proto\"": [
+      \""https\""
+    ]
+  },
+  \""queryStringParameters\"": null,
+  \""multiValueQueryStringParameters\"": null,
+  \""pathParameters\"": {
+    \""eventId\"": \""1735788778160\""
+  },
+  \""stageVariables\"": null,
+  \""requestContext\"": {
+    \""resourceId\"": \""ox4wql\"",
+    \""authorizer\"": {
+      \""claims\"": {
+        \""origin_jti\"": \""c64ef854-7060-4d52-87d3-864502a90831\"",
+        \""sub\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",
+        \""event_id\"": \""9d28c4b0-a089-488f-be78-fb20fce213bd\"",
+        \""token_use\"": \""access\"",
+        \""scope\"": \""aws.cognito.signin.user.admin\"",
+        \""auth_time\"": \""1735989899\"",
+        \""iss\"": \""https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw\"",
+        \""exp\"": \""Sat Jan 04 13:28:09 UTC 2025\"",
+        \""iat\"": \""Sat Jan 04 12:28:09 UTC 2025\"",
+        \""client_id\"": \""4q5fcvpf06ouai8edm8bg02utm\"",
+        \""jti\"": \""1a1f459b-05c7-4489-9287-a803c0ee1b01\"",
+        \""username\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\""
+      }
+    },
+    \""resourcePath\"": \""/events/creative/{eventId}\"",
+    \""httpMethod\"": \""PUT\"",
+    \""extendedRequestId\"": \""D3NsVGQMgi0Eg-g=\"",
+    \""requestTime\"": \""04/Jan/2025:12:28:49 +0000\"",
+    \""path\"": \""/dev/events/creative/1735788778160\"",
+    \""accountId\"": \""872515266409\"",
+    \""protocol\"": \""HTTP/1.1\"",
+    \""stage\"": \""dev\"",
+    \""domainPrefix\"": \""4t6y6pteaa\"",
+    \""requestTimeEpoch\"": 1735993729777,
+    \""requestId\"": \""3c114db9-26a9-4cd6-99ed-322661ed0096\"",
+    \""identity\"": {
+      \""cognitoIdentityPoolId\"": null,
+      \""accountId\"": null,
+      \""cognitoIdentityId\"": null,
+      \""caller\"": null,
+      \""sourceIp\"": \""92.40.173.220\"",
+      \""principalOrgId\"": null,
+      \""accessKey\"": null,
+      \""cognitoAuthenticationType\"": null,
+      \""cognitoAuthenticationProvider\"": null,
+      \""userArn\"": null,
+      \""userAgent\"": \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\"",
+      \""user\"": null
+    },
+    \""domainName\"": \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\"",
+    \""deploymentId\"": \""9kb2p7\"",
+    \""apiId\"": \""4t6y6pteaa\""
+  },
+  \""body\"": \""{\\\""location\\\"":\\\""Bristol Cellarss\\\"",\\\""created_at\\\"":\\\""2025-01-02T03:32:57.294Z\\\"",\\\""ticketLink\\\"":\\\""\\\"",\\\""uploadConfig\\\"":{\\\""allowedTypes\\\"":[\\\""image/*\\\"",\\\""video/*\\\""],\\\""maxFileSize\\\"":100,\\\""endDate\\\"":\\\""2025-01-09\\\"",\\\""enabled\\\"":false,\\\""startDate\\\"":\\\""2025-01-02\\\""},\\\""updated_at\\\"":\\\""2025-01-02T03:32:57.294Z\\\"",\\\""startTime\\\"":\\\""21:00\\\"",\\\""isAutomatic\\\"":false,\\\""date\\\"":\\\""2025-01-24\\\"",\\\""imageUrl\\\"":\\\""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788777295.jpg\\\"",\\\""user_id\\\"":\\\""205cb9ac-9081-705d-7537-d9ba77c374af\\\"",\\\""endTime\\\"":\\\""02:00\\\"",\\\""description\\\"":\\\""\\\"",\\\""id\\\"":\\\""1735788778160\\\"",\\\""title\\\"":\\\""TOM VR LIVE UK TOUR\\\""}\"",
+  \""isBase64Encoded\"": false
+}""}"
+1735993730007,"{""timestamp"":""2025-01-04T12:28:50.007Z"",""level"":""INFO"",""requestId"":""8bebef11-639e-4bf8-a017-01319942423b"",""message"":""Found user ID in Cognito claims: 205cb9ac-9081-705d-7537-d9ba77c374af""}"
+1735993730007,"{""timestamp"":""2025-01-04T12:28:50.007Z"",""level"":""INFO"",""requestId"":""8bebef11-639e-4bf8-a017-01319942423b"",""message"":""Auth debug: {
+  requestContext: {
+    resourceId: 'ox4wql',
+    authorizer: { claims: [Object] },
+    resourcePath: '/events/creative/{eventId}',
+    httpMethod: 'PUT',
+    extendedRequestId: 'D3NsVGQMgi0Eg-g=',
+    requestTime: '04/Jan/2025:12:28:49 +0000',
+    path: '/dev/events/creative/1735788778160',
+    accountId: '872515266409',
+    protocol: 'HTTP/1.1',
+    stage: 'dev',
+    domainPrefix: '4t6y6pteaa',
+    requestTimeEpoch: 1735993729777,
+    requestId: '3c114db9-26a9-4cd6-99ed-322661ed0096',
+    identity: {
+      cognitoIdentityPoolId: null,
+      accountId: null,
+      cognitoIdentityId: null,
+      caller: null,
+      sourceIp: '92.40.173.220',
+      principalOrgId: null,
+      accessKey: null,
+      cognitoAuthenticationType: null,
+      cognitoAuthenticationProvider: null,
+      userArn: null,
+      userAgent: 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+      user: null
+    },
+    domainName: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    deploymentId: '9kb2p7',
+    apiId: '4t6y6pteaa'
+  },
+  authorizer: {
+    claims: {
+      origin_jti: 'c64ef854-7060-4d52-87d3-864502a90831',
+      sub: '205cb9ac-9081-705d-7537-d9ba77c374af',
+      event_id: '9d28c4b0-a089-488f-be78-fb20fce213bd',
+      token_use: 'access',
+      scope: 'aws.cognito.signin.user.admin',
+      auth_time: '1735989899',
+      iss: 'https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw',
+      exp: 'Sat Jan 04 13:28:09 UTC 2025',
+      iat: 'Sat Jan 04 12:28:09 UTC 2025',
+      client_id: '4q5fcvpf06ouai8edm8bg02utm',
+      jti: '1a1f459b-05c7-4489-9287-a803c0ee1b01',
+      username: '205cb9ac-9081-705d-7537-d9ba77c374af'
+    }
+  },
+  claims: {
+    origin_jti: 'c64ef854-7060-4d52-87d3-864502a90831',
+    sub: '205cb9ac-9081-705d-7537-d9ba77c374af',
+    event_id: '9d28c4b0-a089-488f-be78-fb20fce213bd',
+    token_use: 'access',
+    scope: 'aws.cognito.signin.user.admin',
+    auth_time: '1735989899',
+    iss: 'https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw',
+    exp: 'Sat Jan 04 13:28:09 UTC 2025',
+    iat: 'Sat Jan 04 12:28:09 UTC 2025',
+    client_id: '4q5fcvpf06ouai8edm8bg02utm',
+    jti: '1a1f459b-05c7-4489-9287-a803c0ee1b01',
+    username: '205cb9ac-9081-705d-7537-d9ba77c374af'
+  },
+  headers: {
+    accept: '*/*',
+    'accept-encoding': 'gzip, deflate, br, zstd',
+    'accept-language': 'en-GB,en;q=0.9',
+    Authorization: 'Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA',
+    'content-type': 'application/json',
+    Host: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    origin: 'http://localhost:5174',
+    priority: 'u=1, i',
+    referer: 'http://localhost:5174/',
+    'sec-ch-ua': '\""Google Chrome\"";v=\""131\"", \""Chromium\"";v=\""131\"", \""Not_A Brand\"";v=\""24\""',
+    'sec-ch-ua-mobile': '?1',
+    'sec-ch-ua-platform': '\""Android\""',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'cross-site',
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+    'X-Amzn-Trace-Id': 'Root=1-67792981-7e836392474867c74de4c0dd',
+    'X-Forwarded-For': '92.40.173.220',
+    'X-Forwarded-Port': '443',
+    'X-Forwarded-Proto': 'https'
+  },
+  userId: '205cb9ac-9081-705d-7537-d9ba77c374af'
+}""}"
+1735993730008,"{""timestamp"":""2025-01-04T12:28:50.008Z"",""level"":""INFO"",""requestId"":""8bebef11-639e-4bf8-a017-01319942423b"",""message"":""🛠️ Processing PUT/DELETE request: {
+  method: 'PUT',
+  pathParameters: { eventId: '1735788778160' },
+  userId: '205cb9ac-9081-705d-7537-d9ba77c374af',
+  authorizerClaims: {
+    origin_jti: 'c64ef854-7060-4d52-87d3-864502a90831',
+    sub: '205cb9ac-9081-705d-7537-d9ba77c374af',
+    event_id: '9d28c4b0-a089-488f-be78-fb20fce213bd',
+    token_use: 'access',
+    scope: 'aws.cognito.signin.user.admin',
+    auth_time: '1735989899',
+    iss: 'https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw',
+    exp: 'Sat Jan 04 13:28:09 UTC 2025',
+    iat: 'Sat Jan 04 12:28:09 UTC 2025',
+    client_id: '4q5fcvpf06ouai8edm8bg02utm',
+    jti: '1a1f459b-05c7-4489-9287-a803c0ee1b01',
+    username: '205cb9ac-9081-705d-7537-d9ba77c374af'
+  },
+  authHeader: 'Bearer eyJraWQiOiJuQ...'
+}""}"
+1735993730008,"{""timestamp"":""2025-01-04T12:28:50.008Z"",""level"":""INFO"",""requestId"":""8bebef11-639e-4bf8-a017-01319942423b"",""message"":""🔒 Verifying authorization: {
+  claims: {
+    origin_jti: 'c64ef854-7060-4d52-87d3-864502a90831',
+    sub: '205cb9ac-9081-705d-7537-d9ba77c374af',
+    event_id: '9d28c4b0-a089-488f-be78-fb20fce213bd',
+    token_use: 'access',
+    scope: 'aws.cognito.signin.user.admin',
+    auth_time: '1735989899',
+    iss: 'https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw',
+    exp: 'Sat Jan 04 13:28:09 UTC 2025',
+    iat: 'Sat Jan 04 12:28:09 UTC 2025',
+    client_id: '4q5fcvpf06ouai8edm8bg02utm',
+    jti: '1a1f459b-05c7-4489-9287-a803c0ee1b01',
+    username: '205cb9ac-9081-705d-7537-d9ba77c374af'
+  },
+  scopes: 'aws.cognito.signin.user.admin',
+  requiredScope: 'aws.cognito.signin.user.admin'
+}""}"
+1735993730008,"{""timestamp"":""2025-01-04T12:28:50.008Z"",""level"":""INFO"",""requestId"":""8bebef11-639e-4bf8-a017-01319942423b"",""message"":""🔑 Starting ownership verification for: {
+  eventId: '1735788778160',
+  userId: '205cb9ac-9081-705d-7537-d9ba77c374af',
+  headers: {
+    accept: '*/*',
+    'accept-encoding': 'gzip, deflate, br, zstd',
+    'accept-language': 'en-GB,en;q=0.9',
+    Authorization: 'Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA',
+    'content-type': 'application/json',
+    Host: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    origin: 'http://localhost:5174',
+    priority: 'u=1, i',
+    referer: 'http://localhost:5174/',
+    'sec-ch-ua': '\""Google Chrome\"";v=\""131\"", \""Chromium\"";v=\""131\"", \""Not_A Brand\"";v=\""24\""',
+    'sec-ch-ua-mobile': '?1',
+    'sec-ch-ua-platform': '\""Android\""',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'cross-site',
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+    'X-Amzn-Trace-Id': 'Root=1-67792981-7e836392474867c74de4c0dd',
+    'X-Forwarded-For': '92.40.173.220',
+    'X-Forwarded-Port': '443',
+    'X-Forwarded-Proto': 'https'
+  },
+  claims: {
+    origin_jti: 'c64ef854-7060-4d52-87d3-864502a90831',
+    sub: '205cb9ac-9081-705d-7537-d9ba77c374af',
+    event_id: '9d28c4b0-a089-488f-be78-fb20fce213bd',
+    token_use: 'access',
+    scope: 'aws.cognito.signin.user.admin',
+    auth_time: '1735989899',
+    iss: 'https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw',
+    exp: 'Sat Jan 04 13:28:09 UTC 2025',
+    iat: 'Sat Jan 04 12:28:09 UTC 2025',
+    client_id: '4q5fcvpf06ouai8edm8bg02utm',
+    jti: '1a1f459b-05c7-4489-9287-a803c0ee1b01',
+    username: '205cb9ac-9081-705d-7537-d9ba77c374af'
+  }
+}""}"
+1735993730008,"{""timestamp"":""2025-01-04T12:28:50.008Z"",""level"":""INFO"",""requestId"":""8bebef11-639e-4bf8-a017-01319942423b"",""message"":""🔍 Ownership verification started: {
+  eventId: '1735788778160',
+  userId: '205cb9ac-9081-705d-7537-d9ba77c374af'
+}""}"
+1735993730208,"{""timestamp"":""2025-01-04T12:28:50.208Z"",""level"":""ERROR"",""requestId"":""8bebef11-639e-4bf8-a017-01319942423b"",""message"":""❌ Error verifying event ownership: AccessDeniedException: User: arn:aws:sts::872515266409:assumed-role/dropclip-lambda-apigateway-role/dropclip-get-creative-events is not authorized to perform: dynamodb:GetItem on resource: arn:aws:dynamodb:eu-north-1:872515266409:table/dropclip-events because no identity-based policy allows the dynamodb:GetItem action
+    at throwDefaultError (/opt/nodejs/node_modules/@smithy/smithy-client/dist-cjs/index.js:847:20)
+    at /opt/nodejs/node_modules/@smithy/smithy-client/dist-cjs/index.js:856:5
+    at de_CommandError (/opt/nodejs/node_modules/@aws-sdk/client-dynamodb/dist-cjs/index.js:2259:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async /opt/nodejs/node_modules/@smithy/middleware-serde/dist-cjs/index.js:35:20
+    at async /opt/nodejs/node_modules/@aws-sdk/lib-dynamodb/dist-cjs/index.js:166:30
+    at async /opt/nodejs/node_modules/@smithy/core/dist-cjs/index.js:168:18
+    at async /opt/nodejs/node_modules/@smithy/middleware-retry/dist-cjs/index.js:320:38
+    at async /opt/nodejs/node_modules/@aws-sdk/middleware-logger/dist-cjs/index.js:34:22
+    at async verifyEventOwnership (file:///var/task/index.mjs:111:20) {
+  '$fault': 'client',
+  '$metadata': {
+    httpStatusCode: 400,
+    requestId: 'GHN1741RE2F3EP67MBNJPOC3QBVV4KQNSO5AEMVJF66Q9ASUAAJG',
+    extendedRequestId: undefined,
+    cfId: undefined,
+    attempts: 1,
+    totalRetryDelay: 0
+  },
+  __type: 'com.amazon.coral.service#AccessDeniedException'
+}"",""errorType"":""DynamoDBServiceException"",""errorMessage"":""User: arn:aws:sts::872515266409:assumed-role/dropclip-lambda-apigateway-role/dropclip-get-creative-events is not authorized to perform: dynamodb:GetItem on resource: arn:aws:dynamodb:eu-north-1:872515266409:table/dropclip-events because no identity-based policy allows the dynamodb:GetItem action"",""stackTrace"":[""AccessDeniedException: User: arn:aws:sts::872515266409:assumed-role/dropclip-lambda-apigateway-role/dropclip-get-creative-events is not authorized to perform: dynamodb:GetItem on resource: arn:aws:dynamodb:eu-north-1:872515266409:table/dropclip-events because no identity-based policy allows the dynamodb:GetItem action"",""    at throwDefaultError (/opt/nodejs/node_modules/@smithy/smithy-client/dist-cjs/index.js:847:20)"",""    at /opt/nodejs/node_modules/@smithy/smithy-client/dist-cjs/index.js:856:5"",""    at de_CommandError (/opt/nodejs/node_modules/@aws-sdk/client-dynamodb/dist-cjs/index.js:2259:14)"",""    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"",""    at async /opt/nodejs/node_modules/@smithy/middleware-serde/dist-cjs/index.js:35:20"",""    at async /opt/nodejs/node_modules/@aws-sdk/lib-dynamodb/dist-cjs/index.js:166:30"",""    at async /opt/nodejs/node_modules/@smithy/core/dist-cjs/index.js:168:18"",""    at async /opt/nodejs/node_modules/@smithy/middleware-retry/dist-cjs/index.js:320:38"",""    at async /opt/nodejs/node_modules/@aws-sdk/middleware-logger/dist-cjs/index.js:34:22"",""    at async verifyEventOwnership (file:///var/task/index.mjs:111:20)""]}"
+1735993730286,"{""timestamp"":""2025-01-04T12:28:50.286Z"",""level"":""INFO"",""requestId"":""8bebef11-639e-4bf8-a017-01319942423b"",""message"":""✅ Ownership verification result: {
+  isOwner: false,
+  eventId: '1735788778160',
+  userId: '205cb9ac-9081-705d-7537-d9ba77c374af'
+}""}"
+1735993730306,"{""time"":""2025-01-04T12:28:50.306Z"",""type"":""platform.report"",""record"":{""requestId"":""8bebef11-639e-4bf8-a017-01319942423b"",""metrics"":{""durationMs"":495.335,""billedDurationMs"":496,""memorySizeMB"":128,""maxMemoryUsedMB"":88},""tracing"":{""spanId"":""5a0d325d659465f7"",""type"":""X-Amzn-Trace-Id"",""value"":""Root=1-67792981-7e836392474867c74de4c0dd;Parent=450050fd6887db0b;Sampled=1""},""status"":""success""}}"
+1735994027564,"{""time"":""2025-01-04T12:33:47.564Z"",""type"":""platform.start"",""record"":{""requestId"":""d52ceeaf-1319-4cfb-8d23-7e22204b8c3d"",""version"":""$LATEST"",""tracing"":{""spanId"":""0700dede625e4bb8"",""type"":""X-Amzn-Trace-Id"",""value"":""Root=1-67792aab-5557825428a499905af8fd0e;Parent=0d1ce035afd30135;Sampled=1""}}}"
+1735994027645,"{""timestamp"":""2025-01-04T12:33:47.645Z"",""level"":""INFO"",""requestId"":""d52ceeaf-1319-4cfb-8d23-7e22204b8c3d"",""message"":""Lambda handler started with event: {
+  level: 'DEBUG',
+  event: '{\
+' +
+    '  \""resource\"": \""/events/creative\"",\
+' +
+    '  \""path\"": \""/events/creative\"",\
+' +
+    '  \""httpMethod\"": \""GET\"",\
+' +
+    '  \""headers\"": {\
+' +
+    '    \""accept\"": \""*/*\"",\
+' +
+    '    \""accept-encoding\"": \""gzip, deflate, br, zstd\"",\
+' +
+    '    \""accept-language\"": \""en-GB,en;q=0.9\"",\
+' +
+    '    \""Authorization\"": \""Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA\"",\
+' +
+    '    \""content-type\"": \""application/json\"",\
+' +
+    '    \""Host\"": \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\"",\
+' +
+    '    \""origin\"": \""http://localhost:5174\"",\
+' +
+    '    \""priority\"": \""u=1, i\"",\
+' +
+    '    \""referer\"": \""http://localhost:5174/\"",\
+' +
+    '    \""sec-ch-ua\"": \""\\\\\""Google Chrome\\\\\"";v=\\\\\""131\\\\\"", \\\\\""Chromium\\\\\"";v=\\\\\""131\\\\\"", \\\\\""Not_A Brand\\\\\"";v=\\\\\""24\\\\\""\"",\
+' +
+    '    \""sec-ch-ua-mobile\"": \""?1\"",\
+' +
+    '    \""sec-ch-ua-platform\"": \""\\\\\""Android\\\\\""\"",\
+' +
+    '    \""sec-fetch-dest\"": \""empty\"",\
+' +
+    '    \""sec-fetch-mode\"": \""cors\"",\
+' +
+    '    \""sec-fetch-site\"": \""cross-site\"",\
+' +
+    '    \""User-Agent\"": \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\"",\
+' +
+    '    \""X-Amzn-Trace-Id\"": \""Root=1-67792aab-5557825428a499905af8fd0e\"",\
+' +
+    '    \""X-Forwarded-For\"": \""92.40.173.220\"",\
+' +
+    '    \""X-Forwarded-Port\"": \""443\"",\
+' +
+    '    \""X-Forwarded-Proto\"": \""https\""\
+' +
+    '  },\
+' +
+    '  \""multiValueHeaders\"": {\
+' +
+    '    \""accept\"": [\
+' +
+    '      \""*/*\""\
+' +
+    '    ],\
+' +
+    '    \""accept-encoding\"": [\
+' +
+    '      \""gzip, deflate, br, zstd\""\
+' +
+    '    ],\
+' +
+    '    \""accept-language\"": [\
+' +
+    '      \""en-GB,en;q=0.9\""\
+' +
+    '    ],\
+' +
+    '    \""Authorization\"": [\
+' +
+    '      \""Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA\""\
+' +
+    '    ],\
+' +
+    '    \""content-type\"": [\
+' +
+    '      \""application/json\""\
+' +
+    '    ],\
+' +
+    '    \""Host\"": [\
+' +
+    '      \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\""\
+' +
+    '    ],\
+' +
+    '    \""origin\"": [\
+' +
+    '      \""http://localhost:5174\""\
+' +
+    '    ],\
+' +
+    '    \""priority\"": [\
+' +
+    '      \""u=1, i\""\
+' +
+    '    ],\
+' +
+    '    \""referer\"": [\
+' +
+    '      \""http://localhost:5174/\""\
+' +
+    '    ],\
+' +
+    '    \""sec-ch-ua\"": [\
+' +
+    '      \""\\\\\""Google Chrome\\\\\"";v=\\\\\""131\\\\\"", \\\\\""Chromium\\\\\"";v=\\\\\""131\\\\\"", \\\\\""Not_A Brand\\\\\"";v=\\\\\""24\\\\\""\""\
+' +
+    '    ],\
+' +
+    '    \""sec-ch-ua-mobile\"": [\
+' +
+    '      \""?1\""\
+' +
+    '    ],\
+' +
+    '    \""sec-ch-ua-platform\"": [\
+' +
+    '      \""\\\\\""Android\\\\\""\""\
+' +
+    '    ],\
+' +
+    '    \""sec-fetch-dest\"": [\
+' +
+    '      \""empty\""\
+' +
+    '    ],\
+' +
+    '    \""sec-fetch-mode\"": [\
+' +
+    '      \""cors\""\
+' +
+    '    ],\
+' +
+    '    \""sec-fetch-site\"": [\
+' +
+    '      \""cross-site\""\
+' +
+    '    ],\
+' +
+    '    \""User-Agent\"": [\
+' +
+    '      \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\""\
+' +
+    '    ],\
+' +
+    '    \""X-Amzn-Trace-Id\"": [\
+' +
+    '      \""Root=1-67792aab-5557825428a499905af8fd0e\""\
+' +
+    '    ],\
+' +
+    '    \""X-Forwarded-For\"": [\
+' +
+    '      \""92.40.173.220\""\
+' +
+    '    ],\
+' +
+    '    \""X-Forwarded-Port\"": [\
+' +
+    '      \""443\""\
+' +
+    '    ],\
+' +
+    '    \""X-Forwarded-Proto\"": [\
+' +
+    '      \""https\""\
+' +
+    '    ]\
+' +
+    '  },\
+' +
+    '  \""queryStringParameters\"": null,\
+' +
+    '  \""multiValueQueryStringParameters\"": null,\
+' +
+    '  \""pathParameters\"": null,\
+' +
+    '  \""stageVariables\"": null,\
+' +
+    '  \""requestContext\"": {\
+' +
+    '    \""resourceId\"": \""lvn15a\"",\
+' +
+    '    \""authorizer\"": {\
+' +
+    '      \""claims\"": {\
+' +
+    '        \""origin_jti\"": \""c64ef854-7060-4d52-87d3-864502a90831\"",\
+' +
+    '        \""sub\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",\
+' +
+    '        \""event_id\"": \""9d28c4b0-a089-488f-be78-fb20fce213bd\"",\
+' +
+    '        \""token_use\"": \""access\"",\
+' +
+    '        \""scope\"": \""aws.cognito.signin.user.admin\"",\
+' +
+    '        \""auth_time\"": \""1735989899\"",\
+' +
+    '        \""iss\"": \""https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw\"",\
+' +
+    '        \""exp\"": \""Sat Jan 04 13:28:09 UTC 2025\"",\
+' +
+    '        \""iat\"": \""Sat Jan 04 12:28:09 UTC 2025\"",\
+' +
+    '        \""client_id\"": \""4q5fcvpf06ouai8edm8bg02utm\"",\
+' +
+    '        \""jti\"": \""1a1f459b-05c7-4489-9287-a803c0ee1b01\"",\
+' +
+    '        \""username\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\""\
+' +
+    '      }\
+' +
+    '    },\
+' +
+    '    \""resourcePath\"": \""/events/creative\"",\
+' +
+    '    \""httpMethod\"": \""GET\"",\
+' +
+    '    \""extendedRequestId\"": \""D3Oa2E3Bgi0EPBw=\"",\
+' +
+    '    \""requestTime\"": \""04/Jan/2025:12:33:47 +0000\"",\
+' +
+    '    \""path\"": \""/dev/events/creative\"",\
+' +
+    '    \""accountId\"": \""872515266409\"",\
+' +
+    '    \""protocol\"": \""HTTP/1.1\"",\
+' +
+    '    \""stage\"": \""dev\"",\
+' +
+    '    \""domainPrefix\"": \""4t6y6pteaa\"",\
+' +
+    '    \""requestTimeEpoch\"": 1735994027496,\
+' +
+    '    \""requestId\"": \""f4a5f7cf-5b00-4d8f-99ee-cb08849d3354\"",\
+' +
+    '    \""identity\"": {\
+' +
+    '      \""cognitoIdentityPoolId\"": null,\
+' +
+    '      \""accountId\"": null,\
+' +
+    '      \""cognitoIdentityId\"": null,\
+' +
+    '      \""caller\"": null,\
+' +
+    '      \""sourceIp\"": \""92.40.173.220\"",\
+' +
+    '      \""principalOrgId\"": null,\
+' +
+    '      \""accessKey\"": null,\
+' +
+    '      \""cognitoAuthenticationType\"": null,\
+' +
+    '      \""cognitoAuthenticationProvider\"": null,\
+' +
+    '      \""userArn\"": null,\
+' +
+    '      \""userAgent\"": \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\"",\
+' +
+    '      \""user\"": null\
+' +
+    '    },\
+' +
+    '    \""domainName\"": \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\"",\
+' +
+    '    \""deploymentId\"": \""64oaqg\"",\
+' +
+    '    \""apiId\"": \""4t6y6pteaa\""\
+' +
+    '  },\
+' +
+    '  \""body\"": null,\
+' +
+    '  \""isBase64Encoded\"": false\
+' +
+    '}',
+  eventType: 'object',
+  headers: {
+    accept: '*/*',
+    'accept-encoding': 'gzip, deflate, br, zstd',
+    'accept-language': 'en-GB,en;q=0.9',
+    Authorization: 'Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA',
+    'content-type': 'application/json',
+    Host: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    origin: 'http://localhost:5174',
+    priority: 'u=1, i',
+    referer: 'http://localhost:5174/',
+    'sec-ch-ua': '\""Google Chrome\"";v=\""131\"", \""Chromium\"";v=\""131\"", \""Not_A Brand\"";v=\""24\""',
+    'sec-ch-ua-mobile': '?1',
+    'sec-ch-ua-platform': '\""Android\""',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'cross-site',
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+    'X-Amzn-Trace-Id': 'Root=1-67792aab-5557825428a499905af8fd0e',
+    'X-Forwarded-For': '92.40.173.220',
+    'X-Forwarded-Port': '443',
+    'X-Forwarded-Proto': 'https'
+  },
+  requestContext: {
+    resourceId: 'lvn15a',
+    authorizer: { claims: [Object] },
+    resourcePath: '/events/creative',
+    httpMethod: 'GET',
+    extendedRequestId: 'D3Oa2E3Bgi0EPBw=',
+    requestTime: '04/Jan/2025:12:33:47 +0000',
+    path: '/dev/events/creative',
+    accountId: '872515266409',
+    protocol: 'HTTP/1.1',
+    stage: 'dev',
+    domainPrefix: '4t6y6pteaa',
+    requestTimeEpoch: 1735994027496,
+    requestId: 'f4a5f7cf-5b00-4d8f-99ee-cb08849d3354',
+    identity: {
+      cognitoIdentityPoolId: null,
+      accountId: null,
+      cognitoIdentityId: null,
+      caller: null,
+      sourceIp: '92.40.173.220',
+      principalOrgId: null,
+      accessKey: null,
+      cognitoAuthenticationType: null,
+      cognitoAuthenticationProvider: null,
+      userArn: null,
+      userAgent: 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+      user: null
+    },
+    domainName: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    deploymentId: '64oaqg',
+    apiId: '4t6y6pteaa'
+  },
+  httpMethod: 'GET'
+}""}"
+1735994027646,"{""timestamp"":""2025-01-04T12:33:47.646Z"",""level"":""INFO"",""requestId"":""d52ceeaf-1319-4cfb-8d23-7e22204b8c3d"",""message"":""Full event for debugging: {
+  \""resource\"": \""/events/creative\"",
+  \""path\"": \""/events/creative\"",
+  \""httpMethod\"": \""GET\"",
+  \""headers\"": {
+    \""accept\"": \""*/*\"",
+    \""accept-encoding\"": \""gzip, deflate, br, zstd\"",
+    \""accept-language\"": \""en-GB,en;q=0.9\"",
+    \""Authorization\"": \""Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA\"",
+    \""content-type\"": \""application/json\"",
+    \""Host\"": \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\"",
+    \""origin\"": \""http://localhost:5174\"",
+    \""priority\"": \""u=1, i\"",
+    \""referer\"": \""http://localhost:5174/\"",
+    \""sec-ch-ua\"": \""\\\""Google Chrome\\\"";v=\\\""131\\\"", \\\""Chromium\\\"";v=\\\""131\\\"", \\\""Not_A Brand\\\"";v=\\\""24\\\""\"",
+    \""sec-ch-ua-mobile\"": \""?1\"",
+    \""sec-ch-ua-platform\"": \""\\\""Android\\\""\"",
+    \""sec-fetch-dest\"": \""empty\"",
+    \""sec-fetch-mode\"": \""cors\"",
+    \""sec-fetch-site\"": \""cross-site\"",
+    \""User-Agent\"": \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\"",
+    \""X-Amzn-Trace-Id\"": \""Root=1-67792aab-5557825428a499905af8fd0e\"",
+    \""X-Forwarded-For\"": \""92.40.173.220\"",
+    \""X-Forwarded-Port\"": \""443\"",
+    \""X-Forwarded-Proto\"": \""https\""
+  },
+  \""multiValueHeaders\"": {
+    \""accept\"": [
+      \""*/*\""
+    ],
+    \""accept-encoding\"": [
+      \""gzip, deflate, br, zstd\""
+    ],
+    \""accept-language\"": [
+      \""en-GB,en;q=0.9\""
+    ],
+    \""Authorization\"": [
+      \""Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA\""
+    ],
+    \""content-type\"": [
+      \""application/json\""
+    ],
+    \""Host\"": [
+      \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\""
+    ],
+    \""origin\"": [
+      \""http://localhost:5174\""
+    ],
+    \""priority\"": [
+      \""u=1, i\""
+    ],
+    \""referer\"": [
+      \""http://localhost:5174/\""
+    ],
+    \""sec-ch-ua\"": [
+      \""\\\""Google Chrome\\\"";v=\\\""131\\\"", \\\""Chromium\\\"";v=\\\""131\\\"", \\\""Not_A Brand\\\"";v=\\\""24\\\""\""
+    ],
+    \""sec-ch-ua-mobile\"": [
+      \""?1\""
+    ],
+    \""sec-ch-ua-platform\"": [
+      \""\\\""Android\\\""\""
+    ],
+    \""sec-fetch-dest\"": [
+      \""empty\""
+    ],
+    \""sec-fetch-mode\"": [
+      \""cors\""
+    ],
+    \""sec-fetch-site\"": [
+      \""cross-site\""
+    ],
+    \""User-Agent\"": [
+      \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\""
+    ],
+    \""X-Amzn-Trace-Id\"": [
+      \""Root=1-67792aab-5557825428a499905af8fd0e\""
+    ],
+    \""X-Forwarded-For\"": [
+      \""92.40.173.220\""
+    ],
+    \""X-Forwarded-Port\"": [
+      \""443\""
+    ],
+    \""X-Forwarded-Proto\"": [
+      \""https\""
+    ]
+  },
+  \""queryStringParameters\"": null,
+  \""multiValueQueryStringParameters\"": null,
+  \""pathParameters\"": null,
+  \""stageVariables\"": null,
+  \""requestContext\"": {
+    \""resourceId\"": \""lvn15a\"",
+    \""authorizer\"": {
+      \""claims\"": {
+        \""origin_jti\"": \""c64ef854-7060-4d52-87d3-864502a90831\"",
+        \""sub\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",
+        \""event_id\"": \""9d28c4b0-a089-488f-be78-fb20fce213bd\"",
+        \""token_use\"": \""access\"",
+        \""scope\"": \""aws.cognito.signin.user.admin\"",
+        \""auth_time\"": \""1735989899\"",
+        \""iss\"": \""https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw\"",
+        \""exp\"": \""Sat Jan 04 13:28:09 UTC 2025\"",
+        \""iat\"": \""Sat Jan 04 12:28:09 UTC 2025\"",
+        \""client_id\"": \""4q5fcvpf06ouai8edm8bg02utm\"",
+        \""jti\"": \""1a1f459b-05c7-4489-9287-a803c0ee1b01\"",
+        \""username\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\""
+      }
+    },
+    \""resourcePath\"": \""/events/creative\"",
+    \""httpMethod\"": \""GET\"",
+    \""extendedRequestId\"": \""D3Oa2E3Bgi0EPBw=\"",
+    \""requestTime\"": \""04/Jan/2025:12:33:47 +0000\"",
+    \""path\"": \""/dev/events/creative\"",
+    \""accountId\"": \""872515266409\"",
+    \""protocol\"": \""HTTP/1.1\"",
+    \""stage\"": \""dev\"",
+    \""domainPrefix\"": \""4t6y6pteaa\"",
+    \""requestTimeEpoch\"": 1735994027496,
+    \""requestId\"": \""f4a5f7cf-5b00-4d8f-99ee-cb08849d3354\"",
+    \""identity\"": {
+      \""cognitoIdentityPoolId\"": null,
+      \""accountId\"": null,
+      \""cognitoIdentityId\"": null,
+      \""caller\"": null,
+      \""sourceIp\"": \""92.40.173.220\"",
+      \""principalOrgId\"": null,
+      \""accessKey\"": null,
+      \""cognitoAuthenticationType\"": null,
+      \""cognitoAuthenticationProvider\"": null,
+      \""userArn\"": null,
+      \""userAgent\"": \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\"",
+      \""user\"": null
+    },
+    \""domainName\"": \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\"",
+    \""deploymentId\"": \""64oaqg\"",
+    \""apiId\"": \""4t6y6pteaa\""
+  },
+  \""body\"": null,
+  \""isBase64Encoded\"": false
+}""}"
+1735994027804,"{""timestamp"":""2025-01-04T12:33:47.804Z"",""level"":""INFO"",""requestId"":""d52ceeaf-1319-4cfb-8d23-7e22204b8c3d"",""message"":""Found user ID in Cognito claims: 205cb9ac-9081-705d-7537-d9ba77c374af""}"
+1735994027804,"{""timestamp"":""2025-01-04T12:33:47.804Z"",""level"":""INFO"",""requestId"":""d52ceeaf-1319-4cfb-8d23-7e22204b8c3d"",""message"":""Auth debug: {
+  requestContext: {
+    resourceId: 'lvn15a',
+    authorizer: { claims: [Object] },
+    resourcePath: '/events/creative',
+    httpMethod: 'GET',
+    extendedRequestId: 'D3Oa2E3Bgi0EPBw=',
+    requestTime: '04/Jan/2025:12:33:47 +0000',
+    path: '/dev/events/creative',
+    accountId: '872515266409',
+    protocol: 'HTTP/1.1',
+    stage: 'dev',
+    domainPrefix: '4t6y6pteaa',
+    requestTimeEpoch: 1735994027496,
+    requestId: 'f4a5f7cf-5b00-4d8f-99ee-cb08849d3354',
+    identity: {
+      cognitoIdentityPoolId: null,
+      accountId: null,
+      cognitoIdentityId: null,
+      caller: null,
+      sourceIp: '92.40.173.220',
+      principalOrgId: null,
+      accessKey: null,
+      cognitoAuthenticationType: null,
+      cognitoAuthenticationProvider: null,
+      userArn: null,
+      userAgent: 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+      user: null
+    },
+    domainName: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    deploymentId: '64oaqg',
+    apiId: '4t6y6pteaa'
+  },
+  authorizer: {
+    claims: {
+      origin_jti: 'c64ef854-7060-4d52-87d3-864502a90831',
+      sub: '205cb9ac-9081-705d-7537-d9ba77c374af',
+      event_id: '9d28c4b0-a089-488f-be78-fb20fce213bd',
+      token_use: 'access',
+      scope: 'aws.cognito.signin.user.admin',
+      auth_time: '1735989899',
+      iss: 'https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw',
+      exp: 'Sat Jan 04 13:28:09 UTC 2025',
+      iat: 'Sat Jan 04 12:28:09 UTC 2025',
+      client_id: '4q5fcvpf06ouai8edm8bg02utm',
+      jti: '1a1f459b-05c7-4489-9287-a803c0ee1b01',
+      username: '205cb9ac-9081-705d-7537-d9ba77c374af'
+    }
+  },
+  claims: {
+    origin_jti: 'c64ef854-7060-4d52-87d3-864502a90831',
+    sub: '205cb9ac-9081-705d-7537-d9ba77c374af',
+    event_id: '9d28c4b0-a089-488f-be78-fb20fce213bd',
+    token_use: 'access',
+    scope: 'aws.cognito.signin.user.admin',
+    auth_time: '1735989899',
+    iss: 'https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw',
+    exp: 'Sat Jan 04 13:28:09 UTC 2025',
+    iat: 'Sat Jan 04 12:28:09 UTC 2025',
+    client_id: '4q5fcvpf06ouai8edm8bg02utm',
+    jti: '1a1f459b-05c7-4489-9287-a803c0ee1b01',
+    username: '205cb9ac-9081-705d-7537-d9ba77c374af'
+  },
+  headers: {
+    accept: '*/*',
+    'accept-encoding': 'gzip, deflate, br, zstd',
+    'accept-language': 'en-GB,en;q=0.9',
+    Authorization: 'Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA',
+    'content-type': 'application/json',
+    Host: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    origin: 'http://localhost:5174',
+    priority: 'u=1, i',
+    referer: 'http://localhost:5174/',
+    'sec-ch-ua': '\""Google Chrome\"";v=\""131\"", \""Chromium\"";v=\""131\"", \""Not_A Brand\"";v=\""24\""',
+    'sec-ch-ua-mobile': '?1',
+    'sec-ch-ua-platform': '\""Android\""',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'cross-site',
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+    'X-Amzn-Trace-Id': 'Root=1-67792aab-5557825428a499905af8fd0e',
+    'X-Forwarded-For': '92.40.173.220',
+    'X-Forwarded-Port': '443',
+    'X-Forwarded-Proto': 'https'
+  },
+  userId: '205cb9ac-9081-705d-7537-d9ba77c374af'
+}""}"
+1735994027824,"{""timestamp"":""2025-01-04T12:33:47.824Z"",""level"":""INFO"",""requestId"":""d52ceeaf-1319-4cfb-8d23-7e22204b8c3d"",""message"":""Testing DynamoDB permissions...""}"
+1735994028065,"{""timestamp"":""2025-01-04T12:33:48.065Z"",""level"":""INFO"",""requestId"":""d52ceeaf-1319-4cfb-8d23-7e22204b8c3d"",""message"":""DynamoDB permissions test successful""}"
+1735994028065,"{""timestamp"":""2025-01-04T12:33:48.065Z"",""level"":""INFO"",""requestId"":""d52ceeaf-1319-4cfb-8d23-7e22204b8c3d"",""message"":""Creating DynamoDB command for user: 205cb9ac-9081-705d-7537-d9ba77c374af""}"
+1735994028065,"{""timestamp"":""2025-01-04T12:33:48.065Z"",""level"":""INFO"",""requestId"":""d52ceeaf-1319-4cfb-8d23-7e22204b8c3d"",""message"":""DynamoDB command: {
+  \""middlewareStack\"": {},
+  \""input\"": {
+    \""TableName\"": \""dropclip-events\"",
+    \""FilterExpression\"": \""user_id = :userId\"",
+    \""ExpressionAttributeValues\"": {
+      \"":userId\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\""
+    }
+  },
+  \""inputKeyNodes\"": {
+    \""ScanFilter\"": {
+      \""*\"": {
+        \""AttributeValueList\"": []
+      }
+    },
+    \""ExclusiveStartKey\"": {},
+    \""ExpressionAttributeValues\"": {}
+  },
+  \""outputKeyNodes\"": {
+    \""Items\"": {
+      \""*\"": {}
+    },
+    \""LastEvaluatedKey\"": {}
+  },
+  \""clientCommand\"": {
+    \""middlewareStack\"": {},
+    \""input\"": {
+      \""TableName\"": \""dropclip-events\"",
+      \""FilterExpression\"": \""user_id = :userId\"",
+      \""ExpressionAttributeValues\"": {
+        \"":userId\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\""
+      }
+    }
+  }
+}""}"
+1735994028065,"{""timestamp"":""2025-01-04T12:33:48.065Z"",""level"":""INFO"",""requestId"":""d52ceeaf-1319-4cfb-8d23-7e22204b8c3d"",""message"":""Sending command to DynamoDB...""}"
+1735994028125,"{""timestamp"":""2025-01-04T12:33:48.125Z"",""level"":""INFO"",""requestId"":""d52ceeaf-1319-4cfb-8d23-7e22204b8c3d"",""message"":""DynamoDB result: {
+  \""$metadata\"": {
+    \""httpStatusCode\"": 200,
+    \""requestId\"": \""P211GLKN471BCLIKU99GAM57PVVV4KQNSO5AEMVJF66Q9ASUAAJG\"",
+    \""attempts\"": 1,
+    \""totalRetryDelay\"": 0
+  },
+  \""Count\"": 5,
+  \""Items\"": [
+    {
+      \""location\"": \""The Lower Third\"",
+      \""created_at\"": \""2025-01-02T03:35:44.992Z\"",
+      \""ticketLink\"": \""\"",
+      \""uploadConfig\"": {
+        \""allowedTypes\"": [
+          \""image/*\"",
+          \""video/*\""
+        ],
+        \""maxFileSize\"": 100,
+        \""endDate\"": \""2025-01-09\"",
+        \""enabled\"": false,
+        \""startDate\"": \""2025-01-02\""
+      },
+      \""updated_at\"": \""2025-01-02T03:35:44.992Z\"",
+      \""startTime\"": \""23:00\"",
+      \""isAutomatic\"": false,
+      \""date\"": \""2025-03-07\"",
+      \""imageUrl\"": \""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788944992.jpg\"",
+      \""user_id\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",
+      \""endTime\"": \""04:00\"",
+      \""description\"": \""\"",
+      \""id\"": \""1735788945943\"",
+      \""title\"": \""LOVE BEYOND THE SHELL\""
+    },
+    {
+      \""location\"": \""6 Dray Walk\"",
+      \""created_at\"": \""2025-01-02T03:31:38.603Z\"",
+      \""ticketLink\"": \""\"",
+      \""uploadConfig\"": {
+        \""allowedTypes\"": [
+          \""image/*\"",
+          \""video/*\""
+        ],
+        \""endDate\"": \""2025-01-09\"",
+        \""startTime\"": \""09:00\"",
+        \""maxFileSize\"": 100,
+        \""endTime\"": \""23:00\"",
+        \""enabled\"": true,
+        \""startDate\"": \""2025-01-02\""
+      },
+      \""updated_at\"": \""2025-01-02T03:31:38.603Z\"",
+      \""startTime\"": \""19:00\"",
+      \""isAutomatic\"": false,
+      \""date\"": \""2024-11-22\"",
+      \""imageUrl\"": \""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788698604.jpg\"",
+      \""user_id\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",
+      \""endTime\"": \""23:00\"",
+      \""description\"": \""\"",
+      \""id\"": \""1735788699823\"",
+      \""title\"": \""Something Lite\""
+    },
+    {
+      \""location\"": \""Bristol Cellarss\"",
+      \""created_at\"": \""2025-01-02T03:32:57.294Z\"",
+      \""ticketLink\"": \""\"",
+      \""uploadConfig\"": {
+        \""allowedTypes\"": [
+          \""image/*\"",
+          \""video/*\""
+        ],
+        \""maxFileSize\"": 100,
+        \""endDate\"": \""2025-01-09\"",
+        \""enabled\"": false,
+        \""startDate\"": \""2025-01-02\""
+      },
+      \""updated_at\"": \""2025-01-02T03:32:57.294Z\"",
+      \""startTime\"": \""21:00\"",
+      \""isAutomatic\"": false,
+      \""date\"": \""2025-01-24\"",
+      \""imageUrl\"": \""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788777295.jpg\"",
+      \""user_id\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",
+      \""endTime\"": \""02:00\"",
+      \""description\"": \""\"",
+      \""id\"": \""1735788778160\"",
+      \""title\"": \""TOM VR LIVE UK TOUR\""
+    },
+    {
+      \""location\"": \""The Lower Third\"",
+      \""created_at\"": \""2025-01-02T03:34:33.243Z\"",
+      \""ticketLink\"": \""\"",
+      \""uploadConfig\"": {
+        \""allowedTypes\"": [
+          \""image/*\"",
+          \""video/*\""
+        ],
+        \""maxFileSize\"": 100,
+        \""endDate\"": \""2025-01-09\"",
+        \""enabled\"": false,
+        \""startDate\"": \""2025-01-02\""
+      },
+      \""updated_at\"": \""2025-01-02T03:34:33.243Z\"",
+      \""startTime\"": \""23:00\"",
+      \""isAutomatic\"": false,
+      \""date\"": \""2025-02-21\"",
+      \""imageUrl\"": \""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788873244.jpg\"",
+      \""user_id\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",
+      \""endTime\"": \""03:30\"",
+      \""description\"": \""\"",
+      \""id\"": \""1735788874252\"",
+      \""title\"": \""THE FIRST DANCE\""
+    },
+    {
+      \""location\"": \""Stokey\"",
+      \""created_at\"": \""2025-01-02T03:27:04.857Z\"",
+      \""ticketLink\"": \""\"",
+      \""uploadConfig\"": {
+        \""allowedTypes\"": [
+          \""image/*\"",
+          \""video/*\""
+        ],
+        \""endDate\"": \""2025-01-10\"",
+        \""startTime\"": \""09:00\"",
+        \""maxFileSize\"": 100,
+        \""endTime\"": \""23:00\"",
+        \""enabled\"": true,
+        \""startDate\"": \""2025-01-03\""
+      },
+      \""updated_at\"": \""2025-01-02T04:14:15.685Z\"",
+      \""startTime\"": \""21:00\"",
+      \""isAutomatic\"": false,
+      \""date\"": \""2024-12-06\"",
+      \""imageUrl\"": \""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788424859.jpg\"",
+      \""user_id\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",
+      \""endTime\"": \""02:00\"",
+      \""description\"": \""\"",
+      \""id\"": \""1735788426079\"",
+      \""title\"": \""LOUF ALBM LAUNCH\""
+    }
+  ],
+  \""ScannedCount\"": 5
+}""}"
+1735994028126,"{""timestamp"":""2025-01-04T12:33:48.126Z"",""level"":""INFO"",""requestId"":""d52ceeaf-1319-4cfb-8d23-7e22204b8c3d"",""message"":""Sending response: {
+  \""statusCode\"": 200,
+  \""headers\"": {
+    \""Access-Control-Allow-Origin\"": \""http://localhost:5174\"",
+    \""Access-Control-Allow-Headers\"": \""Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token\"",
+    \""Access-Control-Allow-Methods\"": \""GET,PUT,DELETE,OPTIONS\"",
+    \""Access-Control-Allow-Credentials\"": \""true\"",
+    \""Access-Control-Max-Age\"": \""3600\"",
+    \""Access-Control-Expose-Headers\"": \""Date,Authorization,X-Api-Key,X-Amz-Date,X-Amz-Security-Token,X-Amz-User-Agent,Content-Type,Content-Length\"",
+    \""Content-Type\"": \""application/json\""
+  },
+  \""body\"": \""{\\\""events\\\"":[{\\\""location\\\"":\\\""The Lower Third\\\"",\\\""created_at\\\"":\\\""2025-01-02T03:35:44.992Z\\\"",\\\""ticketLink\\\"":\\\""\\\"",\\\""uploadConfig\\\"":{\\\""allowedTypes\\\"":[\\\""image/*\\\"",\\\""video/*\\\""],\\\""maxFileSize\\\"":100,\\\""endDate\\\"":\\\""2025-01-09\\\"",\\\""enabled\\\"":false,\\\""startDate\\\"":\\\""2025-01-02\\\""},\\\""updated_at\\\"":\\\""2025-01-02T03:35:44.992Z\\\"",\\\""startTime\\\"":\\\""23:00\\\"",\\\""isAutomatic\\\"":false,\\\""date\\\"":\\\""2025-03-07\\\"",\\\""imageUrl\\\"":\\\""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788944992.jpg\\\"",\\\""user_id\\\"":\\\""205cb9ac-9081-705d-7537-d9ba77c374af\\\"",\\\""endTime\\\"":\\\""04:00\\\"",\\\""description\\\"":\\\""\\\"",\\\""id\\\"":\\\""1735788945943\\\"",\\\""title\\\"":\\\""LOVE BEYOND THE SHELL\\\""},{\\\""location\\\"":\\\""6 Dray Walk\\\"",\\\""created_at\\\"":\\\""2025-01-02T03:31:38.603Z\\\"",\\\""ticketLink\\\"":\\\""\\\"",\\\""uploadConfig\\\"":{\\\""allowedTypes\\\"":[\\\""image/*\\\"",\\\""video/*\\\""],\\\""endDate\\\"":\\\""2025-01-09\\\"",\\\""startTime\\\"":\\\""09:00\\\"",\\\""maxFileSize\\\"":100,\\\""endTime\\\"":\\\""23:00\\\"",\\\""enabled\\\"":true,\\\""startDate\\\"":\\\""2025-01-02\\\""},\\\""updated_at\\\"":\\\""2025-01-02T03:31:38.603Z\\\"",\\\""startTime\\\"":\\\""19:00\\\"",\\\""isAutomatic\\\"":false,\\\""date\\\"":\\\""2024-11-22\\\"",\\\""imageUrl\\\"":\\\""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788698604.jpg\\\"",\\\""user_id\\\"":\\\""205cb9ac-9081-705d-7537-d9ba77c374af\\\"",\\\""endTime\\\"":\\\""23:00\\\"",\\\""description\\\"":\\\""\\\"",\\\""id\\\"":\\\""1735788699823\\\"",\\\""title\\\"":\\\""Something Lite\\\""},{\\\""location\\\"":\\\""Bristol Cellarss\\\"",\\\""created_at\\\"":\\\""2025-01-02T03:32:57.294Z\\\"",\\\""ticketLink\\\"":\\\""\\\"",\\\""uploadConfig\\\"":{\\\""allowedTypes\\\"":[\\\""image/*\\\"",\\\""video/*\\\""],\\\""maxFileSize\\\"":100,\\\""endDate\\\"":\\\""2025-01-09\\\"",\\\""enabled\\\"":false,\\\""startDate\\\"":\\\""2025-01-02\\\""},\\\""updated_at\\\"":\\\""2025-01-02T03:32:57.294Z\\\"",\\\""startTime\\\"":\\\""21:00\\\"",\\\""isAutomatic\\\"":false,\\\""date\\\"":\\\""2025-01-24\\\"",\\\""imageUrl\\\"":\\\""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788777295.jpg\\\"",\\\""user_id\\\"":\\\""205cb9ac-9081-705d-7537-d9ba77c374af\\\"",\\\""endTime\\\"":\\\""02:00\\\"",\\\""description\\\"":\\\""\\\"",\\\""id\\\"":\\\""1735788778160\\\"",\\\""title\\\"":\\\""TOM VR LIVE UK TOUR\\\""},{\\\""location\\\"":\\\""The Lower Third\\\"",\\\""created_at\\\"":\\\""2025-01-02T03:34:33.243Z\\\"",\\\""ticketLink\\\"":\\\""\\\"",\\\""uploadConfig\\\"":{\\\""allowedTypes\\\"":[\\\""image/*\\\"",\\\""video/*\\\""],\\\""maxFileSize\\\"":100,\\\""endDate\\\"":\\\""2025-01-09\\\"",\\\""enabled\\\"":false,\\\""startDate\\\"":\\\""2025-01-02\\\""},\\\""updated_at\\\"":\\\""2025-01-02T03:34:33.243Z\\\"",\\\""startTime\\\"":\\\""23:00\\\"",\\\""isAutomatic\\\"":false,\\\""date\\\"":\\\""2025-02-21\\\"",\\\""imageUrl\\\"":\\\""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788873244.jpg\\\"",\\\""user_id\\\"":\\\""205cb9ac-9081-705d-7537-d9ba77c374af\\\"",\\\""endTime\\\"":\\\""03:30\\\"",\\\""description\\\"":\\\""\\\"",\\\""id\\\"":\\\""1735788874252\\\"",\\\""title\\\"":\\\""THE FIRST DANCE\\\""},{\\\""location\\\"":\\\""Stokey\\\"",\\\""created_at\\\"":\\\""2025-01-02T03:27:04.857Z\\\"",\\\""ticketLink\\\"":\\\""\\\"",\\\""uploadConfig\\\"":{\\\""allowedTypes\\\"":[\\\""image/*\\\"",\\\""video/*\\\""],\\\""endDate\\\"":\\\""2025-01-10\\\"",\\\""startTime\\\"":\\\""09:00\\\"",\\\""maxFileSize\\\"":100,\\\""endTime\\\"":\\\""23:00\\\"",\\\""enabled\\\"":true,\\\""startDate\\\"":\\\""2025-01-03\\\""},\\\""updated_at\\\"":\\\""2025-01-02T04:14:15.685Z\\\"",\\\""startTime\\\"":\\\""21:00\\\"",\\\""isAutomatic\\\"":false,\\\""date\\\"":\\\""2024-12-06\\\"",\\\""imageUrl\\\"":\\\""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788424859.jpg\\\"",\\\""user_id\\\"":\\\""205cb9ac-9081-705d-7537-d9ba77c374af\\\"",\\\""endTime\\\"":\\\""02:00\\\"",\\\""description\\\"":\\\""\\\"",\\\""id\\\"":\\\""1735788426079\\\"",\\\""title\\\"":\\\""LOUF ALBM LAUNCH\\\""}],\\\""message\\\"":\\\""Events retrieved successfully\\\""}\"",
+  \""isBase64Encoded\"": false
+}""}"
+1735994028165,"{""time"":""2025-01-04T12:33:48.165Z"",""type"":""platform.report"",""record"":{""requestId"":""d52ceeaf-1319-4cfb-8d23-7e22204b8c3d"",""metrics"":{""durationMs"":601.124,""billedDurationMs"":602,""memorySizeMB"":128,""maxMemoryUsedMB"":88},""tracing"":{""spanId"":""0700dede625e4bb8"",""type"":""X-Amzn-Trace-Id"",""value"":""Root=1-67792aab-5557825428a499905af8fd0e;Parent=0d1ce035afd30135;Sampled=1""},""status"":""success""}}"
+1735994028334,"{""time"":""2025-01-04T12:33:48.334Z"",""type"":""platform.start"",""record"":{""requestId"":""b114378b-3c34-4182-bdfc-a666ec467018"",""version"":""$LATEST"",""tracing"":{""spanId"":""094910504c856c12"",""type"":""X-Amzn-Trace-Id"",""value"":""Root=1-67792aac-7204c1a60c4d30ce4dfc9861;Parent=6fbb5af925590da9;Sampled=1""}}}"
+1735994028335,"{""timestamp"":""2025-01-04T12:33:48.335Z"",""level"":""INFO"",""requestId"":""b114378b-3c34-4182-bdfc-a666ec467018"",""message"":""Lambda handler started with event: {
+  level: 'DEBUG',
+  event: '{\
+' +
+    '  \""resource\"": \""/events/creative\"",\
+' +
+    '  \""path\"": \""/events/creative\"",\
+' +
+    '  \""httpMethod\"": \""GET\"",\
+' +
+    '  \""headers\"": {\
+' +
+    '    \""accept\"": \""*/*\"",\
+' +
+    '    \""accept-encoding\"": \""gzip, deflate, br, zstd\"",\
+' +
+    '    \""accept-language\"": \""en-GB,en;q=0.9\"",\
+' +
+    '    \""Authorization\"": \""Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA\"",\
+' +
+    '    \""content-type\"": \""application/json\"",\
+' +
+    '    \""Host\"": \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\"",\
+' +
+    '    \""origin\"": \""http://localhost:5174\"",\
+' +
+    '    \""priority\"": \""u=1, i\"",\
+' +
+    '    \""referer\"": \""http://localhost:5174/\"",\
+' +
+    '    \""sec-ch-ua\"": \""\\\\\""Google Chrome\\\\\"";v=\\\\\""131\\\\\"", \\\\\""Chromium\\\\\"";v=\\\\\""131\\\\\"", \\\\\""Not_A Brand\\\\\"";v=\\\\\""24\\\\\""\"",\
+' +
+    '    \""sec-ch-ua-mobile\"": \""?1\"",\
+' +
+    '    \""sec-ch-ua-platform\"": \""\\\\\""Android\\\\\""\"",\
+' +
+    '    \""sec-fetch-dest\"": \""empty\"",\
+' +
+    '    \""sec-fetch-mode\"": \""cors\"",\
+' +
+    '    \""sec-fetch-site\"": \""cross-site\"",\
+' +
+    '    \""User-Agent\"": \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\"",\
+' +
+    '    \""X-Amzn-Trace-Id\"": \""Root=1-67792aac-7204c1a60c4d30ce4dfc9861\"",\
+' +
+    '    \""X-Forwarded-For\"": \""92.40.173.220\"",\
+' +
+    '    \""X-Forwarded-Port\"": \""443\"",\
+' +
+    '    \""X-Forwarded-Proto\"": \""https\""\
+' +
+    '  },\
+' +
+    '  \""multiValueHeaders\"": {\
+' +
+    '    \""accept\"": [\
+' +
+    '      \""*/*\""\
+' +
+    '    ],\
+' +
+    '    \""accept-encoding\"": [\
+' +
+    '      \""gzip, deflate, br, zstd\""\
+' +
+    '    ],\
+' +
+    '    \""accept-language\"": [\
+' +
+    '      \""en-GB,en;q=0.9\""\
+' +
+    '    ],\
+' +
+    '    \""Authorization\"": [\
+' +
+    '      \""Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA\""\
+' +
+    '    ],\
+' +
+    '    \""content-type\"": [\
+' +
+    '      \""application/json\""\
+' +
+    '    ],\
+' +
+    '    \""Host\"": [\
+' +
+    '      \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\""\
+' +
+    '    ],\
+' +
+    '    \""origin\"": [\
+' +
+    '      \""http://localhost:5174\""\
+' +
+    '    ],\
+' +
+    '    \""priority\"": [\
+' +
+    '      \""u=1, i\""\
+' +
+    '    ],\
+' +
+    '    \""referer\"": [\
+' +
+    '      \""http://localhost:5174/\""\
+' +
+    '    ],\
+' +
+    '    \""sec-ch-ua\"": [\
+' +
+    '      \""\\\\\""Google Chrome\\\\\"";v=\\\\\""131\\\\\"", \\\\\""Chromium\\\\\"";v=\\\\\""131\\\\\"", \\\\\""Not_A Brand\\\\\"";v=\\\\\""24\\\\\""\""\
+' +
+    '    ],\
+' +
+    '    \""sec-ch-ua-mobile\"": [\
+' +
+    '      \""?1\""\
+' +
+    '    ],\
+' +
+    '    \""sec-ch-ua-platform\"": [\
+' +
+    '      \""\\\\\""Android\\\\\""\""\
+' +
+    '    ],\
+' +
+    '    \""sec-fetch-dest\"": [\
+' +
+    '      \""empty\""\
+' +
+    '    ],\
+' +
+    '    \""sec-fetch-mode\"": [\
+' +
+    '      \""cors\""\
+' +
+    '    ],\
+' +
+    '    \""sec-fetch-site\"": [\
+' +
+    '      \""cross-site\""\
+' +
+    '    ],\
+' +
+    '    \""User-Agent\"": [\
+' +
+    '      \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\""\
+' +
+    '    ],\
+' +
+    '    \""X-Amzn-Trace-Id\"": [\
+' +
+    '      \""Root=1-67792aac-7204c1a60c4d30ce4dfc9861\""\
+' +
+    '    ],\
+' +
+    '    \""X-Forwarded-For\"": [\
+' +
+    '      \""92.40.173.220\""\
+' +
+    '    ],\
+' +
+    '    \""X-Forwarded-Port\"": [\
+' +
+    '      \""443\""\
+' +
+    '    ],\
+' +
+    '    \""X-Forwarded-Proto\"": [\
+' +
+    '      \""https\""\
+' +
+    '    ]\
+' +
+    '  },\
+' +
+    '  \""queryStringParameters\"": null,\
+' +
+    '  \""multiValueQueryStringParameters\"": null,\
+' +
+    '  \""pathParameters\"": null,\
+' +
+    '  \""stageVariables\"": null,\
+' +
+    '  \""requestContext\"": {\
+' +
+    '    \""resourceId\"": \""lvn15a\"",\
+' +
+    '    \""authorizer\"": {\
+' +
+    '      \""claims\"": {\
+' +
+    '        \""origin_jti\"": \""c64ef854-7060-4d52-87d3-864502a90831\"",\
+' +
+    '        \""sub\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",\
+' +
+    '        \""event_id\"": \""9d28c4b0-a089-488f-be78-fb20fce213bd\"",\
+' +
+    '        \""token_use\"": \""access\"",\
+' +
+    '        \""scope\"": \""aws.cognito.signin.user.admin\"",\
+' +
+    '        \""auth_time\"": \""1735989899\"",\
+' +
+    '        \""iss\"": \""https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw\"",\
+' +
+    '        \""exp\"": \""Sat Jan 04 13:28:09 UTC 2025\"",\
+' +
+    '        \""iat\"": \""Sat Jan 04 12:28:09 UTC 2025\"",\
+' +
+    '        \""client_id\"": \""4q5fcvpf06ouai8edm8bg02utm\"",\
+' +
+    '        \""jti\"": \""1a1f459b-05c7-4489-9287-a803c0ee1b01\"",\
+' +
+    '        \""username\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\""\
+' +
+    '      }\
+' +
+    '    },\
+' +
+    '    \""resourcePath\"": \""/events/creative\"",\
+' +
+    '    \""httpMethod\"": \""GET\"",\
+' +
+    '    \""extendedRequestId\"": \""D3Oa_EB0Ai0ECDA=\"",\
+' +
+    '    \""requestTime\"": \""04/Jan/2025:12:33:48 +0000\"",\
+' +
+    '    \""path\"": \""/dev/events/creative\"",\
+' +
+    '    \""accountId\"": \""872515266409\"",\
+' +
+    '    \""protocol\"": \""HTTP/1.1\"",\
+' +
+    '    \""stage\"": \""dev\"",\
+' +
+    '    \""domainPrefix\"": \""4t6y6pteaa\"",\
+' +
+    '    \""requestTimeEpoch\"": 1735994028308,\
+' +
+    '    \""requestId\"": \""22a9e851-5637-4aba-b185-20b0e6fedfe1\"",\
+' +
+    '    \""identity\"": {\
+' +
+    '      \""cognitoIdentityPoolId\"": null,\
+' +
+    '      \""accountId\"": null,\
+' +
+    '      \""cognitoIdentityId\"": null,\
+' +
+    '      \""caller\"": null,\
+' +
+    '      \""sourceIp\"": \""92.40.173.220\"",\
+' +
+    '      \""principalOrgId\"": null,\
+' +
+    '      \""accessKey\"": null,\
+' +
+    '      \""cognitoAuthenticationType\"": null,\
+' +
+    '      \""cognitoAuthenticationProvider\"": null,\
+' +
+    '      \""userArn\"": null,\
+' +
+    '      \""userAgent\"": \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\"",\
+' +
+    '      \""user\"": null\
+' +
+    '    },\
+' +
+    '    \""domainName\"": \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\"",\
+' +
+    '    \""deploymentId\"": \""64oaqg\"",\
+' +
+    '    \""apiId\"": \""4t6y6pteaa\""\
+' +
+    '  },\
+' +
+    '  \""body\"": null,\
+' +
+    '  \""isBase64Encoded\"": false\
+' +
+    '}',
+  eventType: 'object',
+  headers: {
+    accept: '*/*',
+    'accept-encoding': 'gzip, deflate, br, zstd',
+    'accept-language': 'en-GB,en;q=0.9',
+    Authorization: 'Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA',
+    'content-type': 'application/json',
+    Host: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    origin: 'http://localhost:5174',
+    priority: 'u=1, i',
+    referer: 'http://localhost:5174/',
+    'sec-ch-ua': '\""Google Chrome\"";v=\""131\"", \""Chromium\"";v=\""131\"", \""Not_A Brand\"";v=\""24\""',
+    'sec-ch-ua-mobile': '?1',
+    'sec-ch-ua-platform': '\""Android\""',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'cross-site',
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+    'X-Amzn-Trace-Id': 'Root=1-67792aac-7204c1a60c4d30ce4dfc9861',
+    'X-Forwarded-For': '92.40.173.220',
+    'X-Forwarded-Port': '443',
+    'X-Forwarded-Proto': 'https'
+  },
+  requestContext: {
+    resourceId: 'lvn15a',
+    authorizer: { claims: [Object] },
+    resourcePath: '/events/creative',
+    httpMethod: 'GET',
+    extendedRequestId: 'D3Oa_EB0Ai0ECDA=',
+    requestTime: '04/Jan/2025:12:33:48 +0000',
+    path: '/dev/events/creative',
+    accountId: '872515266409',
+    protocol: 'HTTP/1.1',
+    stage: 'dev',
+    domainPrefix: '4t6y6pteaa',
+    requestTimeEpoch: 1735994028308,
+    requestId: '22a9e851-5637-4aba-b185-20b0e6fedfe1',
+    identity: {
+      cognitoIdentityPoolId: null,
+      accountId: null,
+      cognitoIdentityId: null,
+      caller: null,
+      sourceIp: '92.40.173.220',
+      principalOrgId: null,
+      accessKey: null,
+      cognitoAuthenticationType: null,
+      cognitoAuthenticationProvider: null,
+      userArn: null,
+      userAgent: 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+      user: null
+    },
+    domainName: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    deploymentId: '64oaqg',
+    apiId: '4t6y6pteaa'
+  },
+  httpMethod: 'GET'
+}""}"
+1735994028336,"{""timestamp"":""2025-01-04T12:33:48.336Z"",""level"":""INFO"",""requestId"":""b114378b-3c34-4182-bdfc-a666ec467018"",""message"":""Full event for debugging: {
+  \""resource\"": \""/events/creative\"",
+  \""path\"": \""/events/creative\"",
+  \""httpMethod\"": \""GET\"",
+  \""headers\"": {
+    \""accept\"": \""*/*\"",
+    \""accept-encoding\"": \""gzip, deflate, br, zstd\"",
+    \""accept-language\"": \""en-GB,en;q=0.9\"",
+    \""Authorization\"": \""Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA\"",
+    \""content-type\"": \""application/json\"",
+    \""Host\"": \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\"",
+    \""origin\"": \""http://localhost:5174\"",
+    \""priority\"": \""u=1, i\"",
+    \""referer\"": \""http://localhost:5174/\"",
+    \""sec-ch-ua\"": \""\\\""Google Chrome\\\"";v=\\\""131\\\"", \\\""Chromium\\\"";v=\\\""131\\\"", \\\""Not_A Brand\\\"";v=\\\""24\\\""\"",
+    \""sec-ch-ua-mobile\"": \""?1\"",
+    \""sec-ch-ua-platform\"": \""\\\""Android\\\""\"",
+    \""sec-fetch-dest\"": \""empty\"",
+    \""sec-fetch-mode\"": \""cors\"",
+    \""sec-fetch-site\"": \""cross-site\"",
+    \""User-Agent\"": \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\"",
+    \""X-Amzn-Trace-Id\"": \""Root=1-67792aac-7204c1a60c4d30ce4dfc9861\"",
+    \""X-Forwarded-For\"": \""92.40.173.220\"",
+    \""X-Forwarded-Port\"": \""443\"",
+    \""X-Forwarded-Proto\"": \""https\""
+  },
+  \""multiValueHeaders\"": {
+    \""accept\"": [
+      \""*/*\""
+    ],
+    \""accept-encoding\"": [
+      \""gzip, deflate, br, zstd\""
+    ],
+    \""accept-language\"": [
+      \""en-GB,en;q=0.9\""
+    ],
+    \""Authorization\"": [
+      \""Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA\""
+    ],
+    \""content-type\"": [
+      \""application/json\""
+    ],
+    \""Host\"": [
+      \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\""
+    ],
+    \""origin\"": [
+      \""http://localhost:5174\""
+    ],
+    \""priority\"": [
+      \""u=1, i\""
+    ],
+    \""referer\"": [
+      \""http://localhost:5174/\""
+    ],
+    \""sec-ch-ua\"": [
+      \""\\\""Google Chrome\\\"";v=\\\""131\\\"", \\\""Chromium\\\"";v=\\\""131\\\"", \\\""Not_A Brand\\\"";v=\\\""24\\\""\""
+    ],
+    \""sec-ch-ua-mobile\"": [
+      \""?1\""
+    ],
+    \""sec-ch-ua-platform\"": [
+      \""\\\""Android\\\""\""
+    ],
+    \""sec-fetch-dest\"": [
+      \""empty\""
+    ],
+    \""sec-fetch-mode\"": [
+      \""cors\""
+    ],
+    \""sec-fetch-site\"": [
+      \""cross-site\""
+    ],
+    \""User-Agent\"": [
+      \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\""
+    ],
+    \""X-Amzn-Trace-Id\"": [
+      \""Root=1-67792aac-7204c1a60c4d30ce4dfc9861\""
+    ],
+    \""X-Forwarded-For\"": [
+      \""92.40.173.220\""
+    ],
+    \""X-Forwarded-Port\"": [
+      \""443\""
+    ],
+    \""X-Forwarded-Proto\"": [
+      \""https\""
+    ]
+  },
+  \""queryStringParameters\"": null,
+  \""multiValueQueryStringParameters\"": null,
+  \""pathParameters\"": null,
+  \""stageVariables\"": null,
+  \""requestContext\"": {
+    \""resourceId\"": \""lvn15a\"",
+    \""authorizer\"": {
+      \""claims\"": {
+        \""origin_jti\"": \""c64ef854-7060-4d52-87d3-864502a90831\"",
+        \""sub\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",
+        \""event_id\"": \""9d28c4b0-a089-488f-be78-fb20fce213bd\"",
+        \""token_use\"": \""access\"",
+        \""scope\"": \""aws.cognito.signin.user.admin\"",
+        \""auth_time\"": \""1735989899\"",
+        \""iss\"": \""https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw\"",
+        \""exp\"": \""Sat Jan 04 13:28:09 UTC 2025\"",
+        \""iat\"": \""Sat Jan 04 12:28:09 UTC 2025\"",
+        \""client_id\"": \""4q5fcvpf06ouai8edm8bg02utm\"",
+        \""jti\"": \""1a1f459b-05c7-4489-9287-a803c0ee1b01\"",
+        \""username\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\""
+      }
+    },
+    \""resourcePath\"": \""/events/creative\"",
+    \""httpMethod\"": \""GET\"",
+    \""extendedRequestId\"": \""D3Oa_EB0Ai0ECDA=\"",
+    \""requestTime\"": \""04/Jan/2025:12:33:48 +0000\"",
+    \""path\"": \""/dev/events/creative\"",
+    \""accountId\"": \""872515266409\"",
+    \""protocol\"": \""HTTP/1.1\"",
+    \""stage\"": \""dev\"",
+    \""domainPrefix\"": \""4t6y6pteaa\"",
+    \""requestTimeEpoch\"": 1735994028308,
+    \""requestId\"": \""22a9e851-5637-4aba-b185-20b0e6fedfe1\"",
+    \""identity\"": {
+      \""cognitoIdentityPoolId\"": null,
+      \""accountId\"": null,
+      \""cognitoIdentityId\"": null,
+      \""caller\"": null,
+      \""sourceIp\"": \""92.40.173.220\"",
+      \""principalOrgId\"": null,
+      \""accessKey\"": null,
+      \""cognitoAuthenticationType\"": null,
+      \""cognitoAuthenticationProvider\"": null,
+      \""userArn\"": null,
+      \""userAgent\"": \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\"",
+      \""user\"": null
+    },
+    \""domainName\"": \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\"",
+    \""deploymentId\"": \""64oaqg\"",
+    \""apiId\"": \""4t6y6pteaa\""
+  },
+  \""body\"": null,
+  \""isBase64Encoded\"": false
+}""}"
+1735994028336,"{""timestamp"":""2025-01-04T12:33:48.336Z"",""level"":""INFO"",""requestId"":""b114378b-3c34-4182-bdfc-a666ec467018"",""message"":""Found user ID in Cognito claims: 205cb9ac-9081-705d-7537-d9ba77c374af""}"
+1735994028336,"{""timestamp"":""2025-01-04T12:33:48.336Z"",""level"":""INFO"",""requestId"":""b114378b-3c34-4182-bdfc-a666ec467018"",""message"":""Auth debug: {
+  requestContext: {
+    resourceId: 'lvn15a',
+    authorizer: { claims: [Object] },
+    resourcePath: '/events/creative',
+    httpMethod: 'GET',
+    extendedRequestId: 'D3Oa_EB0Ai0ECDA=',
+    requestTime: '04/Jan/2025:12:33:48 +0000',
+    path: '/dev/events/creative',
+    accountId: '872515266409',
+    protocol: 'HTTP/1.1',
+    stage: 'dev',
+    domainPrefix: '4t6y6pteaa',
+    requestTimeEpoch: 1735994028308,
+    requestId: '22a9e851-5637-4aba-b185-20b0e6fedfe1',
+    identity: {
+      cognitoIdentityPoolId: null,
+      accountId: null,
+      cognitoIdentityId: null,
+      caller: null,
+      sourceIp: '92.40.173.220',
+      principalOrgId: null,
+      accessKey: null,
+      cognitoAuthenticationType: null,
+      cognitoAuthenticationProvider: null,
+      userArn: null,
+      userAgent: 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+      user: null
+    },
+    domainName: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    deploymentId: '64oaqg',
+    apiId: '4t6y6pteaa'
+  },
+  authorizer: {
+    claims: {
+      origin_jti: 'c64ef854-7060-4d52-87d3-864502a90831',
+      sub: '205cb9ac-9081-705d-7537-d9ba77c374af',
+      event_id: '9d28c4b0-a089-488f-be78-fb20fce213bd',
+      token_use: 'access',
+      scope: 'aws.cognito.signin.user.admin',
+      auth_time: '1735989899',
+      iss: 'https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw',
+      exp: 'Sat Jan 04 13:28:09 UTC 2025',
+      iat: 'Sat Jan 04 12:28:09 UTC 2025',
+      client_id: '4q5fcvpf06ouai8edm8bg02utm',
+      jti: '1a1f459b-05c7-4489-9287-a803c0ee1b01',
+      username: '205cb9ac-9081-705d-7537-d9ba77c374af'
+    }
+  },
+  claims: {
+    origin_jti: 'c64ef854-7060-4d52-87d3-864502a90831',
+    sub: '205cb9ac-9081-705d-7537-d9ba77c374af',
+    event_id: '9d28c4b0-a089-488f-be78-fb20fce213bd',
+    token_use: 'access',
+    scope: 'aws.cognito.signin.user.admin',
+    auth_time: '1735989899',
+    iss: 'https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw',
+    exp: 'Sat Jan 04 13:28:09 UTC 2025',
+    iat: 'Sat Jan 04 12:28:09 UTC 2025',
+    client_id: '4q5fcvpf06ouai8edm8bg02utm',
+    jti: '1a1f459b-05c7-4489-9287-a803c0ee1b01',
+    username: '205cb9ac-9081-705d-7537-d9ba77c374af'
+  },
+  headers: {
+    accept: '*/*',
+    'accept-encoding': 'gzip, deflate, br, zstd',
+    'accept-language': 'en-GB,en;q=0.9',
+    Authorization: 'Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA',
+    'content-type': 'application/json',
+    Host: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    origin: 'http://localhost:5174',
+    priority: 'u=1, i',
+    referer: 'http://localhost:5174/',
+    'sec-ch-ua': '\""Google Chrome\"";v=\""131\"", \""Chromium\"";v=\""131\"", \""Not_A Brand\"";v=\""24\""',
+    'sec-ch-ua-mobile': '?1',
+    'sec-ch-ua-platform': '\""Android\""',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'cross-site',
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+    'X-Amzn-Trace-Id': 'Root=1-67792aac-7204c1a60c4d30ce4dfc9861',
+    'X-Forwarded-For': '92.40.173.220',
+    'X-Forwarded-Port': '443',
+    'X-Forwarded-Proto': 'https'
+  },
+  userId: '205cb9ac-9081-705d-7537-d9ba77c374af'
+}""}"
+1735994028344,"{""timestamp"":""2025-01-04T12:33:48.344Z"",""level"":""INFO"",""requestId"":""b114378b-3c34-4182-bdfc-a666ec467018"",""message"":""Testing DynamoDB permissions...""}"
+1735994028385,"{""timestamp"":""2025-01-04T12:33:48.385Z"",""level"":""INFO"",""requestId"":""b114378b-3c34-4182-bdfc-a666ec467018"",""message"":""DynamoDB permissions test successful""}"
+1735994028385,"{""timestamp"":""2025-01-04T12:33:48.385Z"",""level"":""INFO"",""requestId"":""b114378b-3c34-4182-bdfc-a666ec467018"",""message"":""Creating DynamoDB command for user: 205cb9ac-9081-705d-7537-d9ba77c374af""}"
+1735994028385,"{""timestamp"":""2025-01-04T12:33:48.385Z"",""level"":""INFO"",""requestId"":""b114378b-3c34-4182-bdfc-a666ec467018"",""message"":""DynamoDB command: {
+  \""middlewareStack\"": {},
+  \""input\"": {
+    \""TableName\"": \""dropclip-events\"",
+    \""FilterExpression\"": \""user_id = :userId\"",
+    \""ExpressionAttributeValues\"": {
+      \"":userId\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\""
+    }
+  },
+  \""inputKeyNodes\"": {
+    \""ScanFilter\"": {
+      \""*\"": {
+        \""AttributeValueList\"": []
+      }
+    },
+    \""ExclusiveStartKey\"": {},
+    \""ExpressionAttributeValues\"": {}
+  },
+  \""outputKeyNodes\"": {
+    \""Items\"": {
+      \""*\"": {}
+    },
+    \""LastEvaluatedKey\"": {}
+  },
+  \""clientCommand\"": {
+    \""middlewareStack\"": {},
+    \""input\"": {
+      \""TableName\"": \""dropclip-events\"",
+      \""FilterExpression\"": \""user_id = :userId\"",
+      \""ExpressionAttributeValues\"": {
+        \"":userId\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\""
+      }
+    }
+  }
+}""}"
+1735994028385,"{""timestamp"":""2025-01-04T12:33:48.385Z"",""level"":""INFO"",""requestId"":""b114378b-3c34-4182-bdfc-a666ec467018"",""message"":""Sending command to DynamoDB...""}"
+1735994028425,"{""timestamp"":""2025-01-04T12:33:48.425Z"",""level"":""INFO"",""requestId"":""b114378b-3c34-4182-bdfc-a666ec467018"",""message"":""DynamoDB result: {
+  \""$metadata\"": {
+    \""httpStatusCode\"": 200,
+    \""requestId\"": \""TPUS9UUHO2I1037MKSOG3RLINNVV4KQNSO5AEMVJF66Q9ASUAAJG\"",
+    \""attempts\"": 1,
+    \""totalRetryDelay\"": 0
+  },
+  \""Count\"": 5,
+  \""Items\"": [
+    {
+      \""location\"": \""The Lower Third\"",
+      \""created_at\"": \""2025-01-02T03:35:44.992Z\"",
+      \""ticketLink\"": \""\"",
+      \""uploadConfig\"": {
+        \""allowedTypes\"": [
+          \""image/*\"",
+          \""video/*\""
+        ],
+        \""maxFileSize\"": 100,
+        \""endDate\"": \""2025-01-09\"",
+        \""enabled\"": false,
+        \""startDate\"": \""2025-01-02\""
+      },
+      \""updated_at\"": \""2025-01-02T03:35:44.992Z\"",
+      \""startTime\"": \""23:00\"",
+      \""isAutomatic\"": false,
+      \""date\"": \""2025-03-07\"",
+      \""imageUrl\"": \""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788944992.jpg\"",
+      \""user_id\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",
+      \""endTime\"": \""04:00\"",
+      \""description\"": \""\"",
+      \""id\"": \""1735788945943\"",
+      \""title\"": \""LOVE BEYOND THE SHELL\""
+    },
+    {
+      \""location\"": \""6 Dray Walk\"",
+      \""created_at\"": \""2025-01-02T03:31:38.603Z\"",
+      \""ticketLink\"": \""\"",
+      \""uploadConfig\"": {
+        \""allowedTypes\"": [
+          \""image/*\"",
+          \""video/*\""
+        ],
+        \""endDate\"": \""2025-01-09\"",
+        \""startTime\"": \""09:00\"",
+        \""maxFileSize\"": 100,
+        \""endTime\"": \""23:00\"",
+        \""enabled\"": true,
+        \""startDate\"": \""2025-01-02\""
+      },
+      \""updated_at\"": \""2025-01-02T03:31:38.603Z\"",
+      \""startTime\"": \""19:00\"",
+      \""isAutomatic\"": false,
+      \""date\"": \""2024-11-22\"",
+      \""imageUrl\"": \""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788698604.jpg\"",
+      \""user_id\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",
+      \""endTime\"": \""23:00\"",
+      \""description\"": \""\"",
+      \""id\"": \""1735788699823\"",
+      \""title\"": \""Something Lite\""
+    },
+    {
+      \""location\"": \""Bristol Cellarss\"",
+      \""created_at\"": \""2025-01-02T03:32:57.294Z\"",
+      \""ticketLink\"": \""\"",
+      \""uploadConfig\"": {
+        \""allowedTypes\"": [
+          \""image/*\"",
+          \""video/*\""
+        ],
+        \""maxFileSize\"": 100,
+        \""endDate\"": \""2025-01-09\"",
+        \""enabled\"": false,
+        \""startDate\"": \""2025-01-02\""
+      },
+      \""updated_at\"": \""2025-01-02T03:32:57.294Z\"",
+      \""startTime\"": \""21:00\"",
+      \""isAutomatic\"": false,
+      \""date\"": \""2025-01-24\"",
+      \""imageUrl\"": \""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788777295.jpg\"",
+      \""user_id\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",
+      \""endTime\"": \""02:00\"",
+      \""description\"": \""\"",
+      \""id\"": \""1735788778160\"",
+      \""title\"": \""TOM VR LIVE UK TOUR\""
+    },
+    {
+      \""location\"": \""The Lower Third\"",
+      \""created_at\"": \""2025-01-02T03:34:33.243Z\"",
+      \""ticketLink\"": \""\"",
+      \""uploadConfig\"": {
+        \""allowedTypes\"": [
+          \""image/*\"",
+          \""video/*\""
+        ],
+        \""maxFileSize\"": 100,
+        \""endDate\"": \""2025-01-09\"",
+        \""enabled\"": false,
+        \""startDate\"": \""2025-01-02\""
+      },
+      \""updated_at\"": \""2025-01-02T03:34:33.243Z\"",
+      \""startTime\"": \""23:00\"",
+      \""isAutomatic\"": false,
+      \""date\"": \""2025-02-21\"",
+      \""imageUrl\"": \""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788873244.jpg\"",
+      \""user_id\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",
+      \""endTime\"": \""03:30\"",
+      \""description\"": \""\"",
+      \""id\"": \""1735788874252\"",
+      \""title\"": \""THE FIRST DANCE\""
+    },
+    {
+      \""location\"": \""Stokey\"",
+      \""created_at\"": \""2025-01-02T03:27:04.857Z\"",
+      \""ticketLink\"": \""\"",
+      \""uploadConfig\"": {
+        \""allowedTypes\"": [
+          \""image/*\"",
+          \""video/*\""
+        ],
+        \""endDate\"": \""2025-01-10\"",
+        \""startTime\"": \""09:00\"",
+        \""maxFileSize\"": 100,
+        \""endTime\"": \""23:00\"",
+        \""enabled\"": true,
+        \""startDate\"": \""2025-01-03\""
+      },
+      \""updated_at\"": \""2025-01-02T04:14:15.685Z\"",
+      \""startTime\"": \""21:00\"",
+      \""isAutomatic\"": false,
+      \""date\"": \""2024-12-06\"",
+      \""imageUrl\"": \""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788424859.jpg\"",
+      \""user_id\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",
+      \""endTime\"": \""02:00\"",
+      \""description\"": \""\"",
+      \""id\"": \""1735788426079\"",
+      \""title\"": \""LOUF ALBM LAUNCH\""
+    }
+  ],
+  \""ScannedCount\"": 5
+}""}"
+1735994028425,"{""timestamp"":""2025-01-04T12:33:48.425Z"",""level"":""INFO"",""requestId"":""b114378b-3c34-4182-bdfc-a666ec467018"",""message"":""Sending response: {
+  \""statusCode\"": 200,
+  \""headers\"": {
+    \""Access-Control-Allow-Origin\"": \""http://localhost:5174\"",
+    \""Access-Control-Allow-Headers\"": \""Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token\"",
+    \""Access-Control-Allow-Methods\"": \""GET,PUT,DELETE,OPTIONS\"",
+    \""Access-Control-Allow-Credentials\"": \""true\"",
+    \""Access-Control-Max-Age\"": \""3600\"",
+    \""Access-Control-Expose-Headers\"": \""Date,Authorization,X-Api-Key,X-Amz-Date,X-Amz-Security-Token,X-Amz-User-Agent,Content-Type,Content-Length\"",
+    \""Content-Type\"": \""application/json\""
+  },
+  \""body\"": \""{\\\""events\\\"":[{\\\""location\\\"":\\\""The Lower Third\\\"",\\\""created_at\\\"":\\\""2025-01-02T03:35:44.992Z\\\"",\\\""ticketLink\\\"":\\\""\\\"",\\\""uploadConfig\\\"":{\\\""allowedTypes\\\"":[\\\""image/*\\\"",\\\""video/*\\\""],\\\""maxFileSize\\\"":100,\\\""endDate\\\"":\\\""2025-01-09\\\"",\\\""enabled\\\"":false,\\\""startDate\\\"":\\\""2025-01-02\\\""},\\\""updated_at\\\"":\\\""2025-01-02T03:35:44.992Z\\\"",\\\""startTime\\\"":\\\""23:00\\\"",\\\""isAutomatic\\\"":false,\\\""date\\\"":\\\""2025-03-07\\\"",\\\""imageUrl\\\"":\\\""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788944992.jpg\\\"",\\\""user_id\\\"":\\\""205cb9ac-9081-705d-7537-d9ba77c374af\\\"",\\\""endTime\\\"":\\\""04:00\\\"",\\\""description\\\"":\\\""\\\"",\\\""id\\\"":\\\""1735788945943\\\"",\\\""title\\\"":\\\""LOVE BEYOND THE SHELL\\\""},{\\\""location\\\"":\\\""6 Dray Walk\\\"",\\\""created_at\\\"":\\\""2025-01-02T03:31:38.603Z\\\"",\\\""ticketLink\\\"":\\\""\\\"",\\\""uploadConfig\\\"":{\\\""allowedTypes\\\"":[\\\""image/*\\\"",\\\""video/*\\\""],\\\""endDate\\\"":\\\""2025-01-09\\\"",\\\""startTime\\\"":\\\""09:00\\\"",\\\""maxFileSize\\\"":100,\\\""endTime\\\"":\\\""23:00\\\"",\\\""enabled\\\"":true,\\\""startDate\\\"":\\\""2025-01-02\\\""},\\\""updated_at\\\"":\\\""2025-01-02T03:31:38.603Z\\\"",\\\""startTime\\\"":\\\""19:00\\\"",\\\""isAutomatic\\\"":false,\\\""date\\\"":\\\""2024-11-22\\\"",\\\""imageUrl\\\"":\\\""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788698604.jpg\\\"",\\\""user_id\\\"":\\\""205cb9ac-9081-705d-7537-d9ba77c374af\\\"",\\\""endTime\\\"":\\\""23:00\\\"",\\\""description\\\"":\\\""\\\"",\\\""id\\\"":\\\""1735788699823\\\"",\\\""title\\\"":\\\""Something Lite\\\""},{\\\""location\\\"":\\\""Bristol Cellarss\\\"",\\\""created_at\\\"":\\\""2025-01-02T03:32:57.294Z\\\"",\\\""ticketLink\\\"":\\\""\\\"",\\\""uploadConfig\\\"":{\\\""allowedTypes\\\"":[\\\""image/*\\\"",\\\""video/*\\\""],\\\""maxFileSize\\\"":100,\\\""endDate\\\"":\\\""2025-01-09\\\"",\\\""enabled\\\"":false,\\\""startDate\\\"":\\\""2025-01-02\\\""},\\\""updated_at\\\"":\\\""2025-01-02T03:32:57.294Z\\\"",\\\""startTime\\\"":\\\""21:00\\\"",\\\""isAutomatic\\\"":false,\\\""date\\\"":\\\""2025-01-24\\\"",\\\""imageUrl\\\"":\\\""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788777295.jpg\\\"",\\\""user_id\\\"":\\\""205cb9ac-9081-705d-7537-d9ba77c374af\\\"",\\\""endTime\\\"":\\\""02:00\\\"",\\\""description\\\"":\\\""\\\"",\\\""id\\\"":\\\""1735788778160\\\"",\\\""title\\\"":\\\""TOM VR LIVE UK TOUR\\\""},{\\\""location\\\"":\\\""The Lower Third\\\"",\\\""created_at\\\"":\\\""2025-01-02T03:34:33.243Z\\\"",\\\""ticketLink\\\"":\\\""\\\"",\\\""uploadConfig\\\"":{\\\""allowedTypes\\\"":[\\\""image/*\\\"",\\\""video/*\\\""],\\\""maxFileSize\\\"":100,\\\""endDate\\\"":\\\""2025-01-09\\\"",\\\""enabled\\\"":false,\\\""startDate\\\"":\\\""2025-01-02\\\""},\\\""updated_at\\\"":\\\""2025-01-02T03:34:33.243Z\\\"",\\\""startTime\\\"":\\\""23:00\\\"",\\\""isAutomatic\\\"":false,\\\""date\\\"":\\\""2025-02-21\\\"",\\\""imageUrl\\\"":\\\""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788873244.jpg\\\"",\\\""user_id\\\"":\\\""205cb9ac-9081-705d-7537-d9ba77c374af\\\"",\\\""endTime\\\"":\\\""03:30\\\"",\\\""description\\\"":\\\""\\\"",\\\""id\\\"":\\\""1735788874252\\\"",\\\""title\\\"":\\\""THE FIRST DANCE\\\""},{\\\""location\\\"":\\\""Stokey\\\"",\\\""created_at\\\"":\\\""2025-01-02T03:27:04.857Z\\\"",\\\""ticketLink\\\"":\\\""\\\"",\\\""uploadConfig\\\"":{\\\""allowedTypes\\\"":[\\\""image/*\\\"",\\\""video/*\\\""],\\\""endDate\\\"":\\\""2025-01-10\\\"",\\\""startTime\\\"":\\\""09:00\\\"",\\\""maxFileSize\\\"":100,\\\""endTime\\\"":\\\""23:00\\\"",\\\""enabled\\\"":true,\\\""startDate\\\"":\\\""2025-01-03\\\""},\\\""updated_at\\\"":\\\""2025-01-02T04:14:15.685Z\\\"",\\\""startTime\\\"":\\\""21:00\\\"",\\\""isAutomatic\\\"":false,\\\""date\\\"":\\\""2024-12-06\\\"",\\\""imageUrl\\\"":\\\""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788424859.jpg\\\"",\\\""user_id\\\"":\\\""205cb9ac-9081-705d-7537-d9ba77c374af\\\"",\\\""endTime\\\"":\\\""02:00\\\"",\\\""description\\\"":\\\""\\\"",\\\""id\\\"":\\\""1735788426079\\\"",\\\""title\\\"":\\\""LOUF ALBM LAUNCH\\\""}],\\\""message\\\"":\\\""Events retrieved successfully\\\""}\"",
+  \""isBase64Encoded\"": false
+}""}"
+1735994028464,"{""time"":""2025-01-04T12:33:48.464Z"",""type"":""platform.report"",""record"":{""requestId"":""b114378b-3c34-4182-bdfc-a666ec467018"",""metrics"":{""durationMs"":130.137,""billedDurationMs"":131,""memorySizeMB"":128,""maxMemoryUsedMB"":88},""tracing"":{""spanId"":""094910504c856c12"",""type"":""X-Amzn-Trace-Id"",""value"":""Root=1-67792aac-7204c1a60c4d30ce4dfc9861;Parent=6fbb5af925590da9;Sampled=1""},""status"":""success""}}"
+1735994045664,"{""time"":""2025-01-04T12:34:05.664Z"",""type"":""platform.start"",""record"":{""requestId"":""e078de2a-c9e1-4f1f-97bb-814e5777d61b"",""version"":""$LATEST"",""tracing"":{""spanId"":""55310b950fc82958"",""type"":""X-Amzn-Trace-Id"",""value"":""Root=1-67792abd-7c8cf5ae4367f9717c485be0;Parent=0dc4e3d1de704af1;Sampled=1""}}}"
+1735994045665,"{""timestamp"":""2025-01-04T12:34:05.665Z"",""level"":""INFO"",""requestId"":""e078de2a-c9e1-4f1f-97bb-814e5777d61b"",""message"":""Lambda handler started with event: {
+  level: 'DEBUG',
+  event: '{\
+' +
+    '  \""resource\"": \""/events/creative/{eventId}\"",\
+' +
+    '  \""path\"": \""/events/creative/1735788778160\"",\
+' +
+    '  \""httpMethod\"": \""PUT\"",\
+' +
+    '  \""headers\"": {\
+' +
+    '    \""accept\"": \""*/*\"",\
+' +
+    '    \""accept-encoding\"": \""gzip, deflate, br, zstd\"",\
+' +
+    '    \""accept-language\"": \""en-GB,en;q=0.9\"",\
+' +
+    '    \""Authorization\"": \""Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA\"",\
+' +
+    '    \""content-type\"": \""application/json\"",\
+' +
+    '    \""Host\"": \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\"",\
+' +
+    '    \""origin\"": \""http://localhost:5174\"",\
+' +
+    '    \""priority\"": \""u=1, i\"",\
+' +
+    '    \""referer\"": \""http://localhost:5174/\"",\
+' +
+    '    \""sec-ch-ua\"": \""\\\\\""Google Chrome\\\\\"";v=\\\\\""131\\\\\"", \\\\\""Chromium\\\\\"";v=\\\\\""131\\\\\"", \\\\\""Not_A Brand\\\\\"";v=\\\\\""24\\\\\""\"",\
+' +
+    '    \""sec-ch-ua-mobile\"": \""?1\"",\
+' +
+    '    \""sec-ch-ua-platform\"": \""\\\\\""Android\\\\\""\"",\
+' +
+    '    \""sec-fetch-dest\"": \""empty\"",\
+' +
+    '    \""sec-fetch-mode\"": \""cors\"",\
+' +
+    '    \""sec-fetch-site\"": \""cross-site\"",\
+' +
+    '    \""User-Agent\"": \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\"",\
+' +
+    '    \""X-Amzn-Trace-Id\"": \""Root=1-67792abd-7c8cf5ae4367f9717c485be0\"",\
+' +
+    '    \""X-Forwarded-For\"": \""92.40.173.220\"",\
+' +
+    '    \""X-Forwarded-Port\"": \""443\"",\
+' +
+    '    \""X-Forwarded-Proto\"": \""https\""\
+' +
+    '  },\
+' +
+    '  \""multiValueHeaders\"": {\
+' +
+    '    \""accept\"": [\
+' +
+    '      \""*/*\""\
+' +
+    '    ],\
+' +
+    '    \""accept-encoding\"": [\
+' +
+    '      \""gzip, deflate, br, zstd\""\
+' +
+    '    ],\
+' +
+    '    \""accept-language\"": [\
+' +
+    '      \""en-GB,en;q=0.9\""\
+' +
+    '    ],\
+' +
+    '    \""Authorization\"": [\
+' +
+    '      \""Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA\""\
+' +
+    '    ],\
+' +
+    '    \""content-type\"": [\
+' +
+    '      \""application/json\""\
+' +
+    '    ],\
+' +
+    '    \""Host\"": [\
+' +
+    '      \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\""\
+' +
+    '    ],\
+' +
+    '    \""origin\"": [\
+' +
+    '      \""http://localhost:5174\""\
+' +
+    '    ],\
+' +
+    '    \""priority\"": [\
+' +
+    '      \""u=1, i\""\
+' +
+    '    ],\
+' +
+    '    \""referer\"": [\
+' +
+    '      \""http://localhost:5174/\""\
+' +
+    '    ],\
+' +
+    '    \""sec-ch-ua\"": [\
+' +
+    '      \""\\\\\""Google Chrome\\\\\"";v=\\\\\""131\\\\\"", \\\\\""Chromium\\\\\"";v=\\\\\""131\\\\\"", \\\\\""Not_A Brand\\\\\"";v=\\\\\""24\\\\\""\""\
+' +
+    '    ],\
+' +
+    '    \""sec-ch-ua-mobile\"": [\
+' +
+    '      \""?1\""\
+' +
+    '    ],\
+' +
+    '    \""sec-ch-ua-platform\"": [\
+' +
+    '      \""\\\\\""Android\\\\\""\""\
+' +
+    '    ],\
+' +
+    '    \""sec-fetch-dest\"": [\
+' +
+    '      \""empty\""\
+' +
+    '    ],\
+' +
+    '    \""sec-fetch-mode\"": [\
+' +
+    '      \""cors\""\
+' +
+    '    ],\
+' +
+    '    \""sec-fetch-site\"": [\
+' +
+    '      \""cross-site\""\
+' +
+    '    ],\
+' +
+    '    \""User-Agent\"": [\
+' +
+    '      \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\""\
+' +
+    '    ],\
+' +
+    '    \""X-Amzn-Trace-Id\"": [\
+' +
+    '      \""Root=1-67792abd-7c8cf5ae4367f9717c485be0\""\
+' +
+    '    ],\
+' +
+    '    \""X-Forwarded-For\"": [\
+' +
+    '      \""92.40.173.220\""\
+' +
+    '    ],\
+' +
+    '    \""X-Forwarded-Port\"": [\
+' +
+    '      \""443\""\
+' +
+    '    ],\
+' +
+    '    \""X-Forwarded-Proto\"": [\
+' +
+    '      \""https\""\
+' +
+    '    ]\
+' +
+    '  },\
+' +
+    '  \""queryStringParameters\"": null,\
+' +
+    '  \""multiValueQueryStringParameters\"": null,\
+' +
+    '  \""pathParameters\"": {\
+' +
+    '    \""eventId\"": \""1735788778160\""\
+' +
+    '  },\
+' +
+    '  \""stageVariables\"": null,\
+' +
+    '  \""requestContext\"": {\
+' +
+    '    \""resourceId\"": \""ox4wql\"",\
+' +
+    '    \""authorizer\"": {\
+' +
+    '      \""claims\"": {\
+' +
+    '        \""origin_jti\"": \""c64ef854-7060-4d52-87d3-864502a90831\"",\
+' +
+    '        \""sub\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",\
+' +
+    '        \""event_id\"": \""9d28c4b0-a089-488f-be78-fb20fce213bd\"",\
+' +
+    '        \""token_use\"": \""access\"",\
+' +
+    '        \""scope\"": \""aws.cognito.signin.user.admin\"",\
+' +
+    '        \""auth_time\"": \""1735989899\"",\
+' +
+    '        \""iss\"": \""https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw\"",\
+' +
+    '        \""exp\"": \""Sat Jan 04 13:28:09 UTC 2025\"",\
+' +
+    '        \""iat\"": \""Sat Jan 04 12:28:09 UTC 2025\"",\
+' +
+    '        \""client_id\"": \""4q5fcvpf06ouai8edm8bg02utm\"",\
+' +
+    '        \""jti\"": \""1a1f459b-05c7-4489-9287-a803c0ee1b01\"",\
+' +
+    '        \""username\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\""\
+' +
+    '      }\
+' +
+    '    },\
+' +
+    '    \""resourcePath\"": \""/events/creative/{eventId}\"",\
+' +
+    '    \""httpMethod\"": \""PUT\"",\
+' +
+    '    \""extendedRequestId\"": \""D3OdsE-Rgi0EIwg=\"",\
+' +
+    '    \""requestTime\"": \""04/Jan/2025:12:34:05 +0000\"",\
+' +
+    '    \""path\"": \""/dev/events/creative/1735788778160\"",\
+' +
+    '    \""accountId\"": \""872515266409\"",\
+' +
+    '    \""protocol\"": \""HTTP/1.1\"",\
+' +
+    '    \""stage\"": \""dev\"",\
+' +
+    '    \""domainPrefix\"": \""4t6y6pteaa\"",\
+' +
+    '    \""requestTimeEpoch\"": 1735994045651,\
+' +
+    '    \""requestId\"": \""eefe8c8c-2ef9-46f9-8dec-d6c2fcc0a477\"",\
+' +
+    '    \""identity\"": {\
+' +
+    '      \""cognitoIdentityPoolId\"": null,\
+' +
+    '      \""accountId\"": null,\
+' +
+    '      \""cognitoIdentityId\"": null,\
+' +
+    '      \""caller\"": null,\
+' +
+    '      \""sourceIp\"": \""92.40.173.220\"",\
+' +
+    '      \""principalOrgId\"": null,\
+' +
+    '      \""accessKey\"": null,\
+' +
+    '      \""cognitoAuthenticationType\"": null,\
+' +
+    '      \""cognitoAuthenticationProvider\"": null,\
+' +
+    '      \""userArn\"": null,\
+' +
+    '      \""userAgent\"": \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\"",\
+' +
+    '      \""user\"": null\
+' +
+    '    },\
+' +
+    '    \""domainName\"": \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\"",\
+' +
+    '    \""deploymentId\"": \""64oaqg\"",\
+' +
+    '    \""apiId\"": \""4t6y6pteaa\""\
+' +
+    '  },\
+' +
+    '  \""body\"": \""{\\\\\""location\\\\\"":\\\\\""Bristol Cellarss\\\\\"",\\\\\""created_at\\\\\"":\\\\\""2025-01-02T03:32:57.294Z\\\\\"",\\\\\""ticketLink\\\\\"":\\\\\""\\\\\"",\\\\\""uploadConfig\\\\\"":{\\\\\""allowedTypes\\\\\"":[\\\\\""image/*\\\\\"",\\\\\""video/*\\\\\""],\\\\\""maxFileSize\\\\\"":100,\\\\\""endDate\\\\\"":\\\\\""2025-01-09\\\\\"",\\\\\""enabled\\\\\"":false,\\\\\""startDate\\\\\"":\\\\\""2025-01-02\\\\\""},\\\\\""updated_at\\\\\"":\\\\\""2025-01-02T03:32:57.294Z\\\\\"",\\\\\""startTime\\\\\"":\\\\\""21:00\\\\\"",\\\\\""isAutomatic\\\\\"":false,\\\\\""date\\\\\"":\\\\\""2025-01-24\\\\\"",\\\\\""imageUrl\\\\\"":\\\\\""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788777295.jpg\\\\\"",\\\\\""user_id\\\\\"":\\\\\""205cb9ac-9081-705d-7537-d9ba77c374af\\\\\"",\\\\\""endTime\\\\\"":\\\\\""02:00\\\\\"",\\\\\""description\\\\\"":\\\\\""\\\\\"",\\\\\""id\\\\\"":\\\\\""1735788778160\\\\\"",\\\\\""title\\\\\"":\\\\\""TOM VR LIVE UK TOUR\\\\\""}\"",\
+' +
+    '  \""isBase64Encoded\"": false\
+' +
+    '}',
+  eventType: 'object',
+  headers: {
+    accept: '*/*',
+    'accept-encoding': 'gzip, deflate, br, zstd',
+    'accept-language': 'en-GB,en;q=0.9',
+    Authorization: 'Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA',
+    'content-type': 'application/json',
+    Host: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    origin: 'http://localhost:5174',
+    priority: 'u=1, i',
+    referer: 'http://localhost:5174/',
+    'sec-ch-ua': '\""Google Chrome\"";v=\""131\"", \""Chromium\"";v=\""131\"", \""Not_A Brand\"";v=\""24\""',
+    'sec-ch-ua-mobile': '?1',
+    'sec-ch-ua-platform': '\""Android\""',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'cross-site',
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+    'X-Amzn-Trace-Id': 'Root=1-67792abd-7c8cf5ae4367f9717c485be0',
+    'X-Forwarded-For': '92.40.173.220',
+    'X-Forwarded-Port': '443',
+    'X-Forwarded-Proto': 'https'
+  },
+  requestContext: {
+    resourceId: 'ox4wql',
+    authorizer: { claims: [Object] },
+    resourcePath: '/events/creative/{eventId}',
+    httpMethod: 'PUT',
+    extendedRequestId: 'D3OdsE-Rgi0EIwg=',
+    requestTime: '04/Jan/2025:12:34:05 +0000',
+    path: '/dev/events/creative/1735788778160',
+    accountId: '872515266409',
+    protocol: 'HTTP/1.1',
+    stage: 'dev',
+    domainPrefix: '4t6y6pteaa',
+    requestTimeEpoch: 1735994045651,
+    requestId: 'eefe8c8c-2ef9-46f9-8dec-d6c2fcc0a477',
+    identity: {
+      cognitoIdentityPoolId: null,
+      accountId: null,
+      cognitoIdentityId: null,
+      caller: null,
+      sourceIp: '92.40.173.220',
+      principalOrgId: null,
+      accessKey: null,
+      cognitoAuthenticationType: null,
+      cognitoAuthenticationProvider: null,
+      userArn: null,
+      userAgent: 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+      user: null
+    },
+    domainName: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    deploymentId: '64oaqg',
+    apiId: '4t6y6pteaa'
+  },
+  httpMethod: 'PUT'
+}""}"
+1735994045666,"{""timestamp"":""2025-01-04T12:34:05.666Z"",""level"":""INFO"",""requestId"":""e078de2a-c9e1-4f1f-97bb-814e5777d61b"",""message"":""Full event for debugging: {
+  \""resource\"": \""/events/creative/{eventId}\"",
+  \""path\"": \""/events/creative/1735788778160\"",
+  \""httpMethod\"": \""PUT\"",
+  \""headers\"": {
+    \""accept\"": \""*/*\"",
+    \""accept-encoding\"": \""gzip, deflate, br, zstd\"",
+    \""accept-language\"": \""en-GB,en;q=0.9\"",
+    \""Authorization\"": \""Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA\"",
+    \""content-type\"": \""application/json\"",
+    \""Host\"": \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\"",
+    \""origin\"": \""http://localhost:5174\"",
+    \""priority\"": \""u=1, i\"",
+    \""referer\"": \""http://localhost:5174/\"",
+    \""sec-ch-ua\"": \""\\\""Google Chrome\\\"";v=\\\""131\\\"", \\\""Chromium\\\"";v=\\\""131\\\"", \\\""Not_A Brand\\\"";v=\\\""24\\\""\"",
+    \""sec-ch-ua-mobile\"": \""?1\"",
+    \""sec-ch-ua-platform\"": \""\\\""Android\\\""\"",
+    \""sec-fetch-dest\"": \""empty\"",
+    \""sec-fetch-mode\"": \""cors\"",
+    \""sec-fetch-site\"": \""cross-site\"",
+    \""User-Agent\"": \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\"",
+    \""X-Amzn-Trace-Id\"": \""Root=1-67792abd-7c8cf5ae4367f9717c485be0\"",
+    \""X-Forwarded-For\"": \""92.40.173.220\"",
+    \""X-Forwarded-Port\"": \""443\"",
+    \""X-Forwarded-Proto\"": \""https\""
+  },
+  \""multiValueHeaders\"": {
+    \""accept\"": [
+      \""*/*\""
+    ],
+    \""accept-encoding\"": [
+      \""gzip, deflate, br, zstd\""
+    ],
+    \""accept-language\"": [
+      \""en-GB,en;q=0.9\""
+    ],
+    \""Authorization\"": [
+      \""Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA\""
+    ],
+    \""content-type\"": [
+      \""application/json\""
+    ],
+    \""Host\"": [
+      \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\""
+    ],
+    \""origin\"": [
+      \""http://localhost:5174\""
+    ],
+    \""priority\"": [
+      \""u=1, i\""
+    ],
+    \""referer\"": [
+      \""http://localhost:5174/\""
+    ],
+    \""sec-ch-ua\"": [
+      \""\\\""Google Chrome\\\"";v=\\\""131\\\"", \\\""Chromium\\\"";v=\\\""131\\\"", \\\""Not_A Brand\\\"";v=\\\""24\\\""\""
+    ],
+    \""sec-ch-ua-mobile\"": [
+      \""?1\""
+    ],
+    \""sec-ch-ua-platform\"": [
+      \""\\\""Android\\\""\""
+    ],
+    \""sec-fetch-dest\"": [
+      \""empty\""
+    ],
+    \""sec-fetch-mode\"": [
+      \""cors\""
+    ],
+    \""sec-fetch-site\"": [
+      \""cross-site\""
+    ],
+    \""User-Agent\"": [
+      \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\""
+    ],
+    \""X-Amzn-Trace-Id\"": [
+      \""Root=1-67792abd-7c8cf5ae4367f9717c485be0\""
+    ],
+    \""X-Forwarded-For\"": [
+      \""92.40.173.220\""
+    ],
+    \""X-Forwarded-Port\"": [
+      \""443\""
+    ],
+    \""X-Forwarded-Proto\"": [
+      \""https\""
+    ]
+  },
+  \""queryStringParameters\"": null,
+  \""multiValueQueryStringParameters\"": null,
+  \""pathParameters\"": {
+    \""eventId\"": \""1735788778160\""
+  },
+  \""stageVariables\"": null,
+  \""requestContext\"": {
+    \""resourceId\"": \""ox4wql\"",
+    \""authorizer\"": {
+      \""claims\"": {
+        \""origin_jti\"": \""c64ef854-7060-4d52-87d3-864502a90831\"",
+        \""sub\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\"",
+        \""event_id\"": \""9d28c4b0-a089-488f-be78-fb20fce213bd\"",
+        \""token_use\"": \""access\"",
+        \""scope\"": \""aws.cognito.signin.user.admin\"",
+        \""auth_time\"": \""1735989899\"",
+        \""iss\"": \""https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw\"",
+        \""exp\"": \""Sat Jan 04 13:28:09 UTC 2025\"",
+        \""iat\"": \""Sat Jan 04 12:28:09 UTC 2025\"",
+        \""client_id\"": \""4q5fcvpf06ouai8edm8bg02utm\"",
+        \""jti\"": \""1a1f459b-05c7-4489-9287-a803c0ee1b01\"",
+        \""username\"": \""205cb9ac-9081-705d-7537-d9ba77c374af\""
+      }
+    },
+    \""resourcePath\"": \""/events/creative/{eventId}\"",
+    \""httpMethod\"": \""PUT\"",
+    \""extendedRequestId\"": \""D3OdsE-Rgi0EIwg=\"",
+    \""requestTime\"": \""04/Jan/2025:12:34:05 +0000\"",
+    \""path\"": \""/dev/events/creative/1735788778160\"",
+    \""accountId\"": \""872515266409\"",
+    \""protocol\"": \""HTTP/1.1\"",
+    \""stage\"": \""dev\"",
+    \""domainPrefix\"": \""4t6y6pteaa\"",
+    \""requestTimeEpoch\"": 1735994045651,
+    \""requestId\"": \""eefe8c8c-2ef9-46f9-8dec-d6c2fcc0a477\"",
+    \""identity\"": {
+      \""cognitoIdentityPoolId\"": null,
+      \""accountId\"": null,
+      \""cognitoIdentityId\"": null,
+      \""caller\"": null,
+      \""sourceIp\"": \""92.40.173.220\"",
+      \""principalOrgId\"": null,
+      \""accessKey\"": null,
+      \""cognitoAuthenticationType\"": null,
+      \""cognitoAuthenticationProvider\"": null,
+      \""userArn\"": null,
+      \""userAgent\"": \""Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36\"",
+      \""user\"": null
+    },
+    \""domainName\"": \""4t6y6pteaa.execute-api.eu-north-1.amazonaws.com\"",
+    \""deploymentId\"": \""64oaqg\"",
+    \""apiId\"": \""4t6y6pteaa\""
+  },
+  \""body\"": \""{\\\""location\\\"":\\\""Bristol Cellarss\\\"",\\\""created_at\\\"":\\\""2025-01-02T03:32:57.294Z\\\"",\\\""ticketLink\\\"":\\\""\\\"",\\\""uploadConfig\\\"":{\\\""allowedTypes\\\"":[\\\""image/*\\\"",\\\""video/*\\\""],\\\""maxFileSize\\\"":100,\\\""endDate\\\"":\\\""2025-01-09\\\"",\\\""enabled\\\"":false,\\\""startDate\\\"":\\\""2025-01-02\\\""},\\\""updated_at\\\"":\\\""2025-01-02T03:32:57.294Z\\\"",\\\""startTime\\\"":\\\""21:00\\\"",\\\""isAutomatic\\\"":false,\\\""date\\\"":\\\""2025-01-24\\\"",\\\""imageUrl\\\"":\\\""https://dropclip-images-dev.s3.eu-north-1.amazonaws.com/events/205cb9ac-9081-705d-7537-d9ba77c374af/1735788777295.jpg\\\"",\\\""user_id\\\"":\\\""205cb9ac-9081-705d-7537-d9ba77c374af\\\"",\\\""endTime\\\"":\\\""02:00\\\"",\\\""description\\\"":\\\""\\\"",\\\""id\\\"":\\\""1735788778160\\\"",\\\""title\\\"":\\\""TOM VR LIVE UK TOUR\\\""}\"",
+  \""isBase64Encoded\"": false
+}""}"
+1735994045666,"{""timestamp"":""2025-01-04T12:34:05.666Z"",""level"":""INFO"",""requestId"":""e078de2a-c9e1-4f1f-97bb-814e5777d61b"",""message"":""Found user ID in Cognito claims: 205cb9ac-9081-705d-7537-d9ba77c374af""}"
+1735994045667,"{""timestamp"":""2025-01-04T12:34:05.667Z"",""level"":""INFO"",""requestId"":""e078de2a-c9e1-4f1f-97bb-814e5777d61b"",""message"":""Auth debug: {
+  requestContext: {
+    resourceId: 'ox4wql',
+    authorizer: { claims: [Object] },
+    resourcePath: '/events/creative/{eventId}',
+    httpMethod: 'PUT',
+    extendedRequestId: 'D3OdsE-Rgi0EIwg=',
+    requestTime: '04/Jan/2025:12:34:05 +0000',
+    path: '/dev/events/creative/1735788778160',
+    accountId: '872515266409',
+    protocol: 'HTTP/1.1',
+    stage: 'dev',
+    domainPrefix: '4t6y6pteaa',
+    requestTimeEpoch: 1735994045651,
+    requestId: 'eefe8c8c-2ef9-46f9-8dec-d6c2fcc0a477',
+    identity: {
+      cognitoIdentityPoolId: null,
+      accountId: null,
+      cognitoIdentityId: null,
+      caller: null,
+      sourceIp: '92.40.173.220',
+      principalOrgId: null,
+      accessKey: null,
+      cognitoAuthenticationType: null,
+      cognitoAuthenticationProvider: null,
+      userArn: null,
+      userAgent: 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+      user: null
+    },
+    domainName: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    deploymentId: '64oaqg',
+    apiId: '4t6y6pteaa'
+  },
+  authorizer: {
+    claims: {
+      origin_jti: 'c64ef854-7060-4d52-87d3-864502a90831',
+      sub: '205cb9ac-9081-705d-7537-d9ba77c374af',
+      event_id: '9d28c4b0-a089-488f-be78-fb20fce213bd',
+      token_use: 'access',
+      scope: 'aws.cognito.signin.user.admin',
+      auth_time: '1735989899',
+      iss: 'https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw',
+      exp: 'Sat Jan 04 13:28:09 UTC 2025',
+      iat: 'Sat Jan 04 12:28:09 UTC 2025',
+      client_id: '4q5fcvpf06ouai8edm8bg02utm',
+      jti: '1a1f459b-05c7-4489-9287-a803c0ee1b01',
+      username: '205cb9ac-9081-705d-7537-d9ba77c374af'
+    }
+  },
+  claims: {
+    origin_jti: 'c64ef854-7060-4d52-87d3-864502a90831',
+    sub: '205cb9ac-9081-705d-7537-d9ba77c374af',
+    event_id: '9d28c4b0-a089-488f-be78-fb20fce213bd',
+    token_use: 'access',
+    scope: 'aws.cognito.signin.user.admin',
+    auth_time: '1735989899',
+    iss: 'https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw',
+    exp: 'Sat Jan 04 13:28:09 UTC 2025',
+    iat: 'Sat Jan 04 12:28:09 UTC 2025',
+    client_id: '4q5fcvpf06ouai8edm8bg02utm',
+    jti: '1a1f459b-05c7-4489-9287-a803c0ee1b01',
+    username: '205cb9ac-9081-705d-7537-d9ba77c374af'
+  },
+  headers: {
+    accept: '*/*',
+    'accept-encoding': 'gzip, deflate, br, zstd',
+    'accept-language': 'en-GB,en;q=0.9',
+    Authorization: 'Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA',
+    'content-type': 'application/json',
+    Host: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    origin: 'http://localhost:5174',
+    priority: 'u=1, i',
+    referer: 'http://localhost:5174/',
+    'sec-ch-ua': '\""Google Chrome\"";v=\""131\"", \""Chromium\"";v=\""131\"", \""Not_A Brand\"";v=\""24\""',
+    'sec-ch-ua-mobile': '?1',
+    'sec-ch-ua-platform': '\""Android\""',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'cross-site',
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+    'X-Amzn-Trace-Id': 'Root=1-67792abd-7c8cf5ae4367f9717c485be0',
+    'X-Forwarded-For': '92.40.173.220',
+    'X-Forwarded-Port': '443',
+    'X-Forwarded-Proto': 'https'
+  },
+  userId: '205cb9ac-9081-705d-7537-d9ba77c374af'
+}""}"
+1735994045667,"{""timestamp"":""2025-01-04T12:34:05.667Z"",""level"":""INFO"",""requestId"":""e078de2a-c9e1-4f1f-97bb-814e5777d61b"",""message"":""🛠️ Processing PUT/DELETE request: {
+  method: 'PUT',
+  pathParameters: { eventId: '1735788778160' },
+  userId: '205cb9ac-9081-705d-7537-d9ba77c374af',
+  authorizerClaims: {
+    origin_jti: 'c64ef854-7060-4d52-87d3-864502a90831',
+    sub: '205cb9ac-9081-705d-7537-d9ba77c374af',
+    event_id: '9d28c4b0-a089-488f-be78-fb20fce213bd',
+    token_use: 'access',
+    scope: 'aws.cognito.signin.user.admin',
+    auth_time: '1735989899',
+    iss: 'https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw',
+    exp: 'Sat Jan 04 13:28:09 UTC 2025',
+    iat: 'Sat Jan 04 12:28:09 UTC 2025',
+    client_id: '4q5fcvpf06ouai8edm8bg02utm',
+    jti: '1a1f459b-05c7-4489-9287-a803c0ee1b01',
+    username: '205cb9ac-9081-705d-7537-d9ba77c374af'
+  },
+  authHeader: 'Bearer eyJraWQiOiJuQ...'
+}""}"
+1735994045667,"{""timestamp"":""2025-01-04T12:34:05.667Z"",""level"":""INFO"",""requestId"":""e078de2a-c9e1-4f1f-97bb-814e5777d61b"",""message"":""🔒 Verifying authorization: {
+  claims: {
+    origin_jti: 'c64ef854-7060-4d52-87d3-864502a90831',
+    sub: '205cb9ac-9081-705d-7537-d9ba77c374af',
+    event_id: '9d28c4b0-a089-488f-be78-fb20fce213bd',
+    token_use: 'access',
+    scope: 'aws.cognito.signin.user.admin',
+    auth_time: '1735989899',
+    iss: 'https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw',
+    exp: 'Sat Jan 04 13:28:09 UTC 2025',
+    iat: 'Sat Jan 04 12:28:09 UTC 2025',
+    client_id: '4q5fcvpf06ouai8edm8bg02utm',
+    jti: '1a1f459b-05c7-4489-9287-a803c0ee1b01',
+    username: '205cb9ac-9081-705d-7537-d9ba77c374af'
+  },
+  scopes: 'aws.cognito.signin.user.admin',
+  requiredScope: 'aws.cognito.signin.user.admin'
+}""}"
+1735994045667,"{""timestamp"":""2025-01-04T12:34:05.667Z"",""level"":""INFO"",""requestId"":""e078de2a-c9e1-4f1f-97bb-814e5777d61b"",""message"":""🔑 Starting ownership verification for: {
+  eventId: '1735788778160',
+  userId: '205cb9ac-9081-705d-7537-d9ba77c374af',
+  headers: {
+    accept: '*/*',
+    'accept-encoding': 'gzip, deflate, br, zstd',
+    'accept-language': 'en-GB,en;q=0.9',
+    Authorization: 'Bearer eyJraWQiOiJuQ0pDWWVvbmdpV3BtM2JIRkJabG1MSThqN1RlZXU2elFxS1p3dnpxa1dRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIyMDVjYjlhYy05MDgxLTcwNWQtNzUzNy1kOWJhNzdjMzc0YWYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtbm9ydGgtMS5hbWF6b25hd3MuY29tXC9ldS1ub3J0aC0xX2o0NldkbWJodyIsImNsaWVudF9pZCI6IjRxNWZjdnBmMDZvdWFpOGVkbThiZzAydXRtIiwib3JpZ2luX2p0aSI6ImM2NGVmODU0LTcwNjAtNGQ1Mi04N2QzLTg2NDUwMmE5MDgzMSIsImV2ZW50X2lkIjoiOWQyOGM0YjAtYTA4OS00ODhmLWJlNzgtZmIyMGZjZTIxM2JkIiwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTczNTk4OTg5OSwiZXhwIjoxNzM1OTk3Mjg5LCJpYXQiOjE3MzU5OTM2ODksImp0aSI6IjFhMWY0NTliLTA1YzctNDQ4OS05Mjg3LWE4MDNjMGVlMWIwMSIsInVzZXJuYW1lIjoiMjA1Y2I5YWMtOTA4MS03MDVkLTc1MzctZDliYTc3YzM3NGFmIn0.hnsuBB7try-bSj1KP7z2IhwFNxtbmKXfi3DqV8pVQrEOFna29pd-P0OsktQBOqqyAuD19LmO5gtnaR66DFfKiYb18f7_8aaL60TQ0MmkFPcWbRy1FYQ7ct0Bali-NL3Zutg1g026gY54dQM0qEDJkj9dP50NXvisyQmue72jTZsQkoAy1WXTnBzfUPdfzMw23UX5f5HjkEW9APy8Yb6Jijj_2YHr-MmSlB116Zy1Xa3ebqvwizQ9MRQHQpVmKW6Q8H_8C0ADDvD1XcG-_UMXJFdIHWZFvseSewXjHaDNA_Tp2LfFvufSRYQCJxfwnJjYbIPqMUDgFxTDqAe7ChLqXA',
+    'content-type': 'application/json',
+    Host: '4t6y6pteaa.execute-api.eu-north-1.amazonaws.com',
+    origin: 'http://localhost:5174',
+    priority: 'u=1, i',
+    referer: 'http://localhost:5174/',
+    'sec-ch-ua': '\""Google Chrome\"";v=\""131\"", \""Chromium\"";v=\""131\"", \""Not_A Brand\"";v=\""24\""',
+    'sec-ch-ua-mobile': '?1',
+    'sec-ch-ua-platform': '\""Android\""',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'cross-site',
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
+    'X-Amzn-Trace-Id': 'Root=1-67792abd-7c8cf5ae4367f9717c485be0',
+    'X-Forwarded-For': '92.40.173.220',
+    'X-Forwarded-Port': '443',
+    'X-Forwarded-Proto': 'https'
+  },
+  claims: {
+    origin_jti: 'c64ef854-7060-4d52-87d3-864502a90831',
+    sub: '205cb9ac-9081-705d-7537-d9ba77c374af',
+    event_id: '9d28c4b0-a089-488f-be78-fb20fce213bd',
+    token_use: 'access',
+    scope: 'aws.cognito.signin.user.admin',
+    auth_time: '1735989899',
+    iss: 'https://cognito-idp.eu-north-1.amazonaws.com/eu-north-1_j46Wdmbhw',
+    exp: 'Sat Jan 04 13:28:09 UTC 2025',
+    iat: 'Sat Jan 04 12:28:09 UTC 2025',
+    client_id: '4q5fcvpf06ouai8edm8bg02utm',
+    jti: '1a1f459b-05c7-4489-9287-a803c0ee1b01',
+    username: '205cb9ac-9081-705d-7537-d9ba77c374af'
+  }
+}""}"
+1735994045667,"{""timestamp"":""2025-01-04T12:34:05.667Z"",""level"":""INFO"",""requestId"":""e078de2a-c9e1-4f1f-97bb-814e5777d61b"",""message"":""🔍 Ownership verification started: {
+  eventId: '1735788778160',
+  userId: '205cb9ac-9081-705d-7537-d9ba77c374af'
+}""}"
+1735994045725,"{""timestamp"":""2025-01-04T12:34:05.725Z"",""level"":""ERROR"",""requestId"":""e078de2a-c9e1-4f1f-97bb-814e5777d61b"",""message"":""❌ Error verifying event ownership: AccessDeniedException: User: arn:aws:sts::872515266409:assumed-role/dropclip-lambda-apigateway-role/dropclip-get-creative-events is not authorized to perform: dynamodb:GetItem on resource: arn:aws:dynamodb:eu-north-1:872515266409:table/dropclip-events because no identity-based policy allows the dynamodb:GetItem action
+    at throwDefaultError (/opt/nodejs/node_modules/@smithy/smithy-client/dist-cjs/index.js:847:20)
+    at /opt/nodejs/node_modules/@smithy/smithy-client/dist-cjs/index.js:856:5
+    at de_CommandError (/opt/nodejs/node_modules/@aws-sdk/client-dynamodb/dist-cjs/index.js:2259:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async /opt/nodejs/node_modules/@smithy/middleware-serde/dist-cjs/index.js:35:20
+    at async /opt/nodejs/node_modules/@aws-sdk/lib-dynamodb/dist-cjs/index.js:166:30
+    at async /opt/nodejs/node_modules/@smithy/core/dist-cjs/index.js:168:18
+    at async /opt/nodejs/node_modules/@smithy/middleware-retry/dist-cjs/index.js:320:38
+    at async /opt/nodejs/node_modules/@aws-sdk/middleware-logger/dist-cjs/index.js:34:22
+    at async verifyEventOwnership (file:///var/task/index.mjs:111:20) {
+  '$fault': 'client',
+  '$metadata': {
+    httpStatusCode: 400,
+    requestId: 'BQ5D8GR7K7A3LT2JE8Q6P7VVGFVV4KQNSO5AEMVJF66Q9ASUAAJG',
+    extendedRequestId: undefined,
+    cfId: undefined,
+    attempts: 1,
+    totalRetryDelay: 0
+  },
+  __type: 'com.amazon.coral.service#AccessDeniedException'
+}"",""errorType"":""DynamoDBServiceException"",""errorMessage"":""User: arn:aws:sts::872515266409:assumed-role/dropclip-lambda-apigateway-role/dropclip-get-creative-events is not authorized to perform: dynamodb:GetItem on resource: arn:aws:dynamodb:eu-north-1:872515266409:table/dropclip-events because no identity-based policy allows the dynamodb:GetItem action"",""stackTrace"":[""AccessDeniedException: User: arn:aws:sts::872515266409:assumed-role/dropclip-lambda-apigateway-role/dropclip-get-creative-events is not authorized to perform: dynamodb:GetItem on resource: arn:aws:dynamodb:eu-north-1:872515266409:table/dropclip-events because no identity-based policy allows the dynamodb:GetItem action"",""    at throwDefaultError (/opt/nodejs/node_modules/@smithy/smithy-client/dist-cjs/index.js:847:20)"",""    at /opt/nodejs/node_modules/@smithy/smithy-client/dist-cjs/index.js:856:5"",""    at de_CommandError (/opt/nodejs/node_modules/@aws-sdk/client-dynamodb/dist-cjs/index.js:2259:14)"",""    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"",""    at async /opt/nodejs/node_modules/@smithy/middleware-serde/dist-cjs/index.js:35:20"",""    at async /opt/nodejs/node_modules/@aws-sdk/lib-dynamodb/dist-cjs/index.js:166:30"",""    at async /opt/nodejs/node_modules/@smithy/core/dist-cjs/index.js:168:18"",""    at async /opt/nodejs/node_modules/@smithy/middleware-retry/dist-cjs/index.js:320:38"",""    at async /opt/nodejs/node_modules/@aws-sdk/middleware-logger/dist-cjs/index.js:34:22"",""    at async verifyEventOwnership (file:///var/task/index.mjs:111:20)""]}"
+1735994045725,"{""timestamp"":""2025-01-04T12:34:05.725Z"",""level"":""INFO"",""requestId"":""e078de2a-c9e1-4f1f-97bb-814e5777d61b"",""message"":""✅ Ownership verification result: {
+  isOwner: false,
+  eventId: '1735788778160',
+  userId: '205cb9ac-9081-705d-7537-d9ba77c374af'
+}""}"
+1735994045744,"{""time"":""2025-01-04T12:34:05.744Z"",""type"":""platform.report"",""record"":{""requestId"":""e078de2a-c9e1-4f1f-97bb-814e5777d61b"",""metrics"":{""durationMs"":79.947,""billedDurationMs"":80,""memorySizeMB"":128,""maxMemoryUsedMB"":88},""tracing"":{""spanId"":""55310b950fc82958"",""type"":""X-Amzn-Trace-Id"",""value"":""Root=1-67792abd-7c8cf5ae4367f9717c485be0;Parent=0dc4e3d1de704af1;Sampled=1""},""status"":""success""}}"

@@ -1,0 +1,9 @@
+you are an expert coding assistant who specialises in the technologies and tech stack outlined in this file @PROJECT_OVERVIEW.md 
+
+purpose: build a single page application called DropClip using the project documentation provided
+
+instructions:
+1. read the @.cursorrules  file and make sure you are following the rules and instructions laid out in there for this project
+2. deeply analyse all the project documentation files provided and familiarise yourself with the app we are building - it's purpose is defined clearly in the @PROJECT_DEFINITION.ts  file
+3. our immediate mission and roadmap is defined in the @DEVELOPMENT_ROADMAP.md file - use this as the main roadmap to follow
+4. Let's get the development server up and running and see what the app looks like before deciding next steps
