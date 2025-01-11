@@ -1,0 +1,11 @@
+{
+  "name": "dropclip-content-processor",
+  "version": "1.0.0",
+  "description": "DropClip video content processor Lambda function",
+  "main": "index.js",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.0.0",
+    "@aws-sdk/client-s3": "^3.0.0",
+    "uuid": "^9.0.0"
+  }
+}

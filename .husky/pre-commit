@@ -1,0 +1,8 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Only run critical lint checks
+npm run lint:critical
+
+# Run development TypeScript check
+npm run typecheck:dev 

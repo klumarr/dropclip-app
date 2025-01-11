@@ -1,0 +1,134 @@
+0 verbose cli /usr/local/Cellar/node@18/18.20.5/bin/node /usr/local/bin/npm
+1 info using npm@10.8.2
+2 info using node@v18.20.5
+3 silly config load:file:/usr/local/Cellar/node@18/18.20.5/lib/node_modules/npm/npmrc
+4 silly config load:file:/Users/ken.lumumba/Documents/Documents/CODE PROJECTS/dropclip-app/dropclip/.npmrc
+5 silly config load:file:/Users/ken.lumumba/.npmrc
+6 silly config load:file:/Users/ken.lumumba/.npm-global/etc/npmrc
+7 verbose title npm install @mui/material @mui/icons-material @emotion/react @emotion/styled react react-dom react-router-dom @aws-amplify/ui-react aws-amplify firebase
+8 verbose argv "install" "@mui/material" "@mui/icons-material" "@emotion/react" "@emotion/styled" "react" "react-dom" "react-router-dom" "@aws-amplify/ui-react" "aws-amplify" "firebase"
+9 verbose logfile logs-max:10 dir:/Users/ken.lumumba/.npm/_logs/2024-12-29T00_16_01_825Z-
+10 verbose logfile /Users/ken.lumumba/.npm/_logs/2024-12-29T00_16_01_825Z-debug-0.log
+11 silly packumentCache heap:2197815296 maxSize:549453824 maxEntrySize:274726912
+12 silly logfile start cleaning logs, removing 1 files
+13 silly logfile done cleaning log files
+14 silly idealTree buildDeps
+15 silly fetch manifest @aws-amplify/ui-react@^5.0.0
+16 silly packumentCache full:https://registry.npmjs.org/@aws-amplify%2fui-react cache-miss
+17 http fetch GET 200 https://registry.npmjs.org/@aws-amplify%2fui-react 229ms (cache hit)
+18 silly packumentCache full:https://registry.npmjs.org/@aws-amplify%2fui-react set size:19869725 disposed:false
+19 silly fetch manifest aws-amplify@^5.0.0
+20 silly packumentCache full:https://registry.npmjs.org/aws-amplify cache-miss
+21 http fetch GET 200 https://registry.npmjs.org/aws-amplify 270ms (cache hit)
+22 silly packumentCache full:https://registry.npmjs.org/aws-amplify set size:19984066 disposed:false
+23 silly fetch manifest react@^18.2.0
+24 silly packumentCache full:https://registry.npmjs.org/react cache-miss
+25 http fetch GET 200 https://registry.npmjs.org/react 123ms (cache hit)
+26 silly packumentCache full:https://registry.npmjs.org/react set size:5292378 disposed:false
+27 silly fetch manifest react-dom@^18.2.0
+28 silly packumentCache full:https://registry.npmjs.org/react-dom cache-miss
+29 http fetch GET 200 https://registry.npmjs.org/react-dom 39ms (cache hit)
+30 silly packumentCache full:https://registry.npmjs.org/react-dom set size:6545530 disposed:false
+31 silly fetch manifest @emotion/react@^11.11.0
+32 silly packumentCache full:https://registry.npmjs.org/@emotion%2freact cache-miss
+33 http fetch GET 200 https://registry.npmjs.org/@emotion%2freact 12ms (cache hit)
+34 silly packumentCache full:https://registry.npmjs.org/@emotion%2freact set size:196548 disposed:false
+35 silly fetch manifest @emotion/styled@^11.11.0
+36 silly packumentCache full:https://registry.npmjs.org/@emotion%2fstyled cache-miss
+37 http fetch GET 200 https://registry.npmjs.org/@emotion%2fstyled 7ms (cache hit)
+38 silly packumentCache full:https://registry.npmjs.org/@emotion%2fstyled set size:279403 disposed:false
+39 silly fetch manifest @mui/material@^5.13.0
+40 silly packumentCache full:https://registry.npmjs.org/@mui%2fmaterial cache-miss
+41 http fetch GET 200 https://registry.npmjs.org/@mui%2fmaterial 7ms (cache hit)
+42 silly packumentCache full:https://registry.npmjs.org/@mui%2fmaterial set size:658026 disposed:false
+43 silly fetch manifest @types/react@^18.2.0
+44 silly packumentCache full:https://registry.npmjs.org/@types%2freact cache-miss
+45 http fetch GET 200 https://registry.npmjs.org/@types%2freact 13ms (cache hit)
+46 silly packumentCache full:https://registry.npmjs.org/@types%2freact set size:2264247 disposed:false
+47 silly fetch manifest @testing-library/jest-dom@^5.16.5
+48 silly packumentCache full:https://registry.npmjs.org/@testing-library%2fjest-dom cache-miss
+49 http fetch GET 200 https://registry.npmjs.org/@testing-library%2fjest-dom 9ms (cache hit)
+50 silly packumentCache full:https://registry.npmjs.org/@testing-library%2fjest-dom set size:398704 disposed:false
+51 silly fetch manifest @testing-library/react@^14.0.0
+52 silly packumentCache full:https://registry.npmjs.org/@testing-library%2freact cache-miss
+53 http fetch GET 200 https://registry.npmjs.org/@testing-library%2freact 10ms (cache hit)
+54 silly packumentCache full:https://registry.npmjs.org/@testing-library%2freact set size:601482 disposed:false
+55 silly fetch manifest @testing-library/user-event@^14.4.3
+56 silly packumentCache full:https://registry.npmjs.org/@testing-library%2fuser-event cache-miss
+57 http fetch GET 200 https://registry.npmjs.org/@testing-library%2fuser-event 50ms (cache hit)
+58 silly packumentCache full:https://registry.npmjs.org/@testing-library%2fuser-event set size:2170451 disposed:false
+59 silly fetch manifest @testing-library/dom@>=7.21.4
+60 silly packumentCache full:https://registry.npmjs.org/@testing-library%2fdom cache-miss
+61 http fetch GET 200 https://registry.npmjs.org/@testing-library%2fdom 12ms (cache hit)
+62 silly packumentCache full:https://registry.npmjs.org/@testing-library%2fdom set size:1092920 disposed:false
+63 silly fetch manifest @types/jest@^29.5.0
+64 silly packumentCache full:https://registry.npmjs.org/@types%2fjest cache-miss
+65 http fetch GET 200 https://registry.npmjs.org/@types%2fjest 7ms (cache hit)
+66 silly packumentCache full:https://registry.npmjs.org/@types%2fjest set size:709087 disposed:false
+67 silly fetch manifest @types/node@^18.16.0
+68 silly packumentCache full:https://registry.npmjs.org/@types%2fnode cache-miss
+69 http fetch GET 200 https://registry.npmjs.org/@types%2fnode 83ms (cache hit)
+70 silly packumentCache full:https://registry.npmjs.org/@types%2fnode set size:9465608 disposed:false
+71 silly fetch manifest @types/react-dom@^18.2.0
+72 silly packumentCache full:https://registry.npmjs.org/@types%2freact-dom cache-miss
+73 http fetch GET 200 https://registry.npmjs.org/@types%2freact-dom 7ms (cache hit)
+74 silly packumentCache full:https://registry.npmjs.org/@types%2freact-dom set size:372302 disposed:false
+75 silly fetch manifest firebase@^10.0.0
+76 silly packumentCache full:https://registry.npmjs.org/firebase cache-miss
+77 http fetch GET 200 https://registry.npmjs.org/firebase 96ms (cache hit)
+78 silly packumentCache full:https://registry.npmjs.org/firebase set size:24281142 disposed:false
+79 silly fetch manifest react-router-dom@^6.11.0
+80 silly packumentCache full:https://registry.npmjs.org/react-router-dom cache-miss
+81 http fetch GET 200 https://registry.npmjs.org/react-router-dom 14ms (cache hit)
+82 silly packumentCache full:https://registry.npmjs.org/react-router-dom set size:1304241 disposed:false
+83 silly fetch manifest typescript@^5.3.0
+84 silly packumentCache full:https://registry.npmjs.org/typescript cache-miss
+85 http fetch GET 200 https://registry.npmjs.org/typescript 50ms (cache hit)
+86 silly packumentCache full:https://registry.npmjs.org/typescript set size:13634358 disposed:false
+87 silly fetch manifest @mui/icons-material@*
+88 silly packumentCache full:https://registry.npmjs.org/@mui%2ficons-material cache-miss
+89 http fetch GET 200 https://registry.npmjs.org/@mui%2ficons-material 8ms (cache hit)
+90 silly packumentCache full:https://registry.npmjs.org/@mui%2ficons-material set size:366949 disposed:false
+91 silly fetch manifest @mui/material@^6.3.0
+92 silly packumentCache full:https://registry.npmjs.org/@mui%2fmaterial cache-hit
+93 verbose stack Error: unable to resolve dependency tree
+93 verbose stack     at #failPeerConflict (/usr/local/Cellar/node@18/18.20.5/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/build-ideal-tree.js:1360:25)
+93 verbose stack     at #loadPeerSet (/usr/local/Cellar/node@18/18.20.5/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/build-ideal-tree.js:1326:33)
+93 verbose stack     at async #buildDepStep (/usr/local/Cellar/node@18/18.20.5/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/build-ideal-tree.js:901:11)
+93 verbose stack     at async Arborist.buildIdealTree (/usr/local/Cellar/node@18/18.20.5/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/build-ideal-tree.js:181:7)
+93 verbose stack     at async Promise.all (index 1)
+93 verbose stack     at async Arborist.reify (/usr/local/Cellar/node@18/18.20.5/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/reify.js:131:5)
+93 verbose stack     at async Install.exec (/usr/local/Cellar/node@18/18.20.5/lib/node_modules/npm/lib/commands/install.js:150:5)
+93 verbose stack     at async Npm.exec (/usr/local/Cellar/node@18/18.20.5/lib/node_modules/npm/lib/npm.js:207:9)
+93 verbose stack     at async module.exports (/usr/local/Cellar/node@18/18.20.5/lib/node_modules/npm/lib/cli/entry.js:74:5)
+94 error code ERESOLVE
+95 error ERESOLVE unable to resolve dependency tree
+96 error
+97 error While resolving: dropclip@0.1.0
+97 error Found: @mui/material@5.16.13[2m[22m
+97 error [2mnode_modules/@mui/material[22m
+97 error   @mui/material@"^5.13.0" from the root project
+97 error
+97 error Could not resolve dependency:
+97 error [95mpeer[39m @mui/material@"^6.3.0" from @mui/icons-material@6.3.0[2m[22m
+97 error [2mnode_modules/@mui/icons-material[22m
+97 error   @mui/icons-material@"*" from the root project
+97 error
+97 error Fix the upstream dependency conflict, or retry
+97 error this command with --force or --legacy-peer-deps
+97 error to accept an incorrect (and potentially broken) dependency resolution.
+98 error
+98 error
+98 error For a full report see:
+98 error /Users/ken.lumumba/.npm/_logs/2024-12-29T00_16_01_825Z-eresolve-report.txt
+99 silly unfinished npm timer reify 1735431363128
+100 silly unfinished npm timer reify:loadTrees 1735431363140
+101 silly unfinished npm timer idealTree:buildDeps 1735431363177
+102 silly unfinished npm timer idealTree:#root 1735431363178
+103 verbose cwd /Users/ken.lumumba/Documents/Documents/CODE PROJECTS/dropclip-app/dropclip
+104 verbose os Darwin 23.0.0
+105 verbose node v18.20.5
+106 verbose npm  v10.8.2
+107 verbose exit 1
+108 verbose code 1
+109 error A complete log of this run can be found in: /Users/ken.lumumba/.npm/_logs/2024-12-29T00_16_01_825Z-debug-0.log

@@ -1,0 +1,10 @@
+{
+  "name": "dropclip-cancel-processing",
+  "version": "1.0.0",
+  "description": "Lambda function to cancel video processing",
+  "main": "index.js",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.716.0",
+    "@aws-sdk/client-s3": "^3.717.0"
+  }
+}
