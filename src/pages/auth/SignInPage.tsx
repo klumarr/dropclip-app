@@ -12,7 +12,7 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link as RouterLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { signIn, fetchUserAttributes } from "aws-amplify/auth";
+import { signIn, fetchUserAttributes, signOut } from "aws-amplify/auth";
 
 const SignInPage: React.FC = () => {
   const navigate = useNavigate();
@@ -54,6 +54,15 @@ const SignInPage: React.FC = () => {
       setError("");
       setLoading(true);
       console.log("🔐 Starting sign in process...");
+
+      try {
+        // First try to sign out any existing session
+        await signOut();
+        console.log("Successfully signed out existing session");
+      } catch (signOutError) {
+        // Ignore sign out errors, as there might not be an existing session
+        console.log("No existing session to sign out");
+      }
 
       const signInResult = await signIn({
         username: formData.email,

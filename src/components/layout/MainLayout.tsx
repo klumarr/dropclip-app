@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Box, useMediaQuery, useTheme, GlobalStyles } from "@mui/material";
 import { Header } from "./Header";
 import { SideMenu } from "./SideMenu";
 import MobileNavigation from "./MobileNavigation";
+import { LoadingState } from "../common/LoadingState";
+import { ErrorBoundary } from "../common/ErrorBoundary";
 
 const MainLayout = () => {
   const theme = useTheme();
@@ -88,7 +90,13 @@ const MainLayout = () => {
               width: "100%",
             }}
           >
-            <Outlet />
+            <ErrorBoundary>
+              <Suspense
+                fallback={<LoadingState message="Loading page content..." />}
+              >
+                <Outlet />
+              </Suspense>
+            </ErrorBoundary>
           </Box>
         </Box>
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import {
   Container,
   Box,
@@ -18,11 +18,11 @@ import { CreateEventDialog } from "../../components/events/creative/CreateEventD
 import { useAuth } from "../../contexts/AuthContext";
 import { Add as AddIcon } from "@mui/icons-material";
 
-export default function EventsPageCreative() {
+const EventsContent = () => {
+  const { loading, error, setError } = useEvents();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { user, isLoading: isAuthLoading } = useAuth();
-  const { loading, error, setError } = useEvents();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false);
 
   if (isAuthLoading) {
@@ -79,5 +79,15 @@ export default function EventsPageCreative() {
         onClose={() => setIsCreateDialogOpen(false)}
       />
     </Container>
+  );
+};
+
+export default function EventsPageCreative() {
+  return (
+    <ErrorBoundary>
+      <Suspense fallback={<LoadingState message="Loading events page..." />}>
+        <EventsContent />
+      </Suspense>
+    </ErrorBoundary>
   );
 }

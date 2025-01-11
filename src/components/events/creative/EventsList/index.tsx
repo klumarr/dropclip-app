@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { Box, Typography } from "@mui/material";
 import { useEvents } from "../../../../contexts/EventsContext";
 import { useEventActions } from "../../../../hooks/useEventActions";
@@ -10,7 +10,6 @@ import ActionButtons from "../ActionButtons";
 import { FlyerScanner } from "../FlyerScanner";
 import { CreateEventDialog } from "../CreateEventDialog";
 import { TabPanelProps, EventsListProps } from "./types";
-import { ScrollSection, EventsRow } from "../EventsPageStyles";
 
 const TabPanel: React.FC<TabPanelProps> = ({ children, value, index }) => (
   <div role="tabpanel" hidden={value !== index}>
@@ -33,7 +32,7 @@ const EmptyState: React.FC<{ message: string }> = ({ message }) => (
   </Box>
 );
 
-export const EventsList: React.FC<EventsListProps> = ({ className }) => {
+const EventsListContent: React.FC<EventsListProps> = ({ className }) => {
   const { events, isLoading, setIsCreateDialogOpen, isCreateDialogOpen } =
     useEvents();
   const { handleInitiateEdit, handleInitiateDelete } = useEventActions();
@@ -49,86 +48,83 @@ export const EventsList: React.FC<EventsListProps> = ({ className }) => {
   }
 
   return (
+    <div className={className}>
+      <EventTabs
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        upcomingCount={events?.upcoming?.length ?? 0}
+        pastCount={events?.past?.length ?? 0}
+        automaticCount={events?.automatic?.length ?? 0}
+      />
+
+      <TabPanel value={activeTab} index={0}>
+        <Suspense
+          fallback={<LoadingState message="Loading upcoming events..." />}
+        >
+          {events?.upcoming?.length > 0 ? (
+            <EventsGrid
+              events={events.upcoming}
+              onEdit={handleInitiateEdit}
+              onDelete={handleInitiateDelete}
+              emptyMessage="No upcoming events"
+            />
+          ) : (
+            <EmptyState message="No upcoming events" />
+          )}
+        </Suspense>
+      </TabPanel>
+
+      <TabPanel value={activeTab} index={1}>
+        <Suspense fallback={<LoadingState message="Loading past events..." />}>
+          {events?.past?.length > 0 ? (
+            <EventsGrid
+              events={events.past}
+              onEdit={handleInitiateEdit}
+              onDelete={handleInitiateDelete}
+              emptyMessage="No past events"
+            />
+          ) : (
+            <EmptyState message="No past events" />
+          )}
+        </Suspense>
+      </TabPanel>
+
+      <TabPanel value={activeTab} index={2}>
+        <Suspense
+          fallback={<LoadingState message="Loading automatic events..." />}
+        >
+          {events?.automatic?.length > 0 ? (
+            <EventsGrid
+              events={events.automatic}
+              onEdit={handleInitiateEdit}
+              onDelete={handleInitiateDelete}
+              emptyMessage="No automatic events"
+            />
+          ) : (
+            <EmptyState message="No automatic events" />
+          )}
+        </Suspense>
+      </TabPanel>
+
+      <ActionButtons
+        onCreateClick={() => setIsCreateDialogOpen(true)}
+        onScanClick={() => setIsScannerOpen(true)}
+      />
+
+      <FlyerScanner
+        open={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+      />
+    </div>
+  );
+};
+
+export const EventsList: React.FC<EventsListProps> = (props) => {
+  return (
     <ErrorBoundary>
-      <div className={className}>
-        <EventTabs
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-          upcomingCount={events?.upcoming?.length ?? 0}
-          pastCount={events?.past?.length ?? 0}
-          automaticCount={events?.automatic?.length ?? 0}
-        />
-
-        <TabPanel value={activeTab} index={0}>
-          <ScrollSection>
-            {events?.upcoming?.length > 0 ? (
-              <EventsRow>
-                {events.upcoming.map((event) => (
-                  <EventsGrid
-                    key={event.id}
-                    events={[event]}
-                    onEdit={handleInitiateEdit}
-                    onDelete={handleInitiateDelete}
-                    emptyMessage="No upcoming events"
-                  />
-                ))}
-              </EventsRow>
-            ) : (
-              <EmptyState message="No upcoming events" />
-            )}
-          </ScrollSection>
-        </TabPanel>
-
-        <TabPanel value={activeTab} index={1}>
-          <ScrollSection>
-            {events?.past?.length > 0 ? (
-              <EventsRow>
-                {events.past.map((event) => (
-                  <EventsGrid
-                    key={event.id}
-                    events={[event]}
-                    onEdit={handleInitiateEdit}
-                    onDelete={handleInitiateDelete}
-                    emptyMessage="No past events"
-                  />
-                ))}
-              </EventsRow>
-            ) : (
-              <EmptyState message="No past events" />
-            )}
-          </ScrollSection>
-        </TabPanel>
-
-        <TabPanel value={activeTab} index={2}>
-          <ScrollSection>
-            {events?.automatic?.length > 0 ? (
-              <EventsRow>
-                {events.automatic.map((event) => (
-                  <EventsGrid
-                    key={event.id}
-                    events={[event]}
-                    onEdit={handleInitiateEdit}
-                    onDelete={handleInitiateDelete}
-                    emptyMessage="No automatic events"
-                  />
-                ))}
-              </EventsRow>
-            ) : (
-              <EmptyState message="No automatic events" />
-            )}
-          </ScrollSection>
-        </TabPanel>
-
-        <ActionButtons
-          onCreateClick={() => setIsCreateDialogOpen(true)}
-          onScanClick={() => setIsScannerOpen(true)}
-        />
-
-        <FlyerScanner
-          open={isScannerOpen}
-          onClose={() => setIsScannerOpen(false)}
-        />
-      </div>
+      <Suspense fallback={<LoadingState message="Loading events..." />}>
+        <EventsListContent {...props} />
+      </Suspense>
     </ErrorBoundary>
   );
 };

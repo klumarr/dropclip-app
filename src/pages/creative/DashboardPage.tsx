@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import {
   Box,
   Typography,
@@ -15,8 +15,10 @@ import {
   Collections,
   Analytics,
 } from "@mui/icons-material";
+import { ErrorBoundary } from "../../components/common/ErrorBoundary";
+import { LoadingState } from "../../components/common/LoadingState";
 
-const DashboardPage: React.FC = () => {
+const DashboardContent: React.FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { userAttributes } = useAuth();
@@ -117,6 +119,16 @@ const DashboardPage: React.FC = () => {
         {/* Add analytics overview component here */}
       </Box>
     </Box>
+  );
+};
+
+const DashboardPage: React.FC = () => {
+  return (
+    <ErrorBoundary>
+      <Suspense fallback={<LoadingState message="Loading dashboard..." />}>
+        <DashboardContent />
+      </Suspense>
+    </ErrorBoundary>
   );
 };
 

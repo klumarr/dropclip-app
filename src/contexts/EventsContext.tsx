@@ -3,6 +3,8 @@ import React, {
   useContext,
   useReducer,
   useCallback,
+  useTransition,
+  startTransition,
 } from "react";
 import { EventsContextType, Event, EventFormData } from "../types/events";
 import { eventsReducer } from "./eventsReducer";
@@ -23,6 +25,7 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { user } = useAuth();
+  const [isPending, startTransition] = useTransition();
   const [state, dispatch] = useReducer(eventsReducer, {
     events: { upcoming: [], past: [], automatic: [] },
     loading: false,
@@ -42,23 +45,25 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
       const events = await eventOperations.listEvents(user.id);
       const now = new Date();
 
-      // Categorize events
-      const categorizedEvents = events.reduce(
-        (acc, event) => {
-          const eventDate = new Date(event.date);
-          if (event.isAutomatic) {
-            acc.automatic.push(event);
-          } else if (eventDate > now) {
-            acc.upcoming.push(event);
-          } else {
-            acc.past.push(event);
-          }
-          return acc;
-        },
-        { upcoming: [], past: [], automatic: [] }
-      );
+      startTransition(() => {
+        // Categorize events
+        const categorizedEvents = events.reduce(
+          (acc, event) => {
+            const eventDate = new Date(event.date);
+            if (event.isAutomatic) {
+              acc.automatic.push(event);
+            } else if (eventDate > now) {
+              acc.upcoming.push(event);
+            } else {
+              acc.past.push(event);
+            }
+            return acc;
+          },
+          { upcoming: [], past: [], automatic: [] }
+        );
 
-      dispatch({ type: "SET_EVENTS", payload: categorizedEvents });
+        dispatch({ type: "SET_EVENTS", payload: categorizedEvents });
+      });
     } catch (error) {
       dispatch({
         type: "SET_ERROR",
@@ -77,7 +82,9 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
       dispatch({ type: "SET_LOADING", payload: true });
       try {
         const event = await eventOperations.createEvent(userId, eventData);
-        dispatch({ type: "ADD_EVENT", payload: event });
+        startTransition(() => {
+          dispatch({ type: "ADD_EVENT", payload: event });
+        });
         return event;
       } catch (error) {
         dispatch({
@@ -110,7 +117,9 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
           eventId,
           eventData
         );
-        dispatch({ type: "UPDATE_EVENT", payload: event });
+        startTransition(() => {
+          dispatch({ type: "UPDATE_EVENT", payload: event });
+        });
         return event;
       } catch (error) {
         dispatch({
@@ -135,7 +144,9 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
       dispatch({ type: "SET_LOADING", payload: true });
       try {
         await eventOperations.deleteEvent(userId, eventId);
-        dispatch({ type: "DELETE_EVENT", payload: eventId });
+        startTransition(() => {
+          dispatch({ type: "DELETE_EVENT", payload: eventId });
+        });
       } catch (error) {
         dispatch({
           type: "SET_ERROR",
@@ -189,7 +200,7 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const value = {
     ...state,
-    isLoading: state.loading,
+    isLoading: state.loading || isPending,
     fetchEvents,
     createEvent,
     updateEvent,
@@ -199,15 +210,25 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
     setError: (error: Error | null) =>
       dispatch({ type: "SET_ERROR", payload: error }),
     setNewEvent: (event: Partial<EventFormData> | null) =>
-      dispatch({ type: "SET_NEW_EVENT", payload: event }),
+      startTransition(() =>
+        dispatch({ type: "SET_NEW_EVENT", payload: event })
+      ),
     setSelectedEvent: (event: Event | null) =>
-      dispatch({ type: "SET_SELECTED_EVENT", payload: event }),
+      startTransition(() =>
+        dispatch({ type: "SET_SELECTED_EVENT", payload: event })
+      ),
     setEventToDelete: (event: Event | null) =>
-      dispatch({ type: "SET_EVENT_TO_DELETE", payload: event }),
+      startTransition(() =>
+        dispatch({ type: "SET_EVENT_TO_DELETE", payload: event })
+      ),
     setIsCreateDialogOpen: (isOpen: boolean) =>
-      dispatch({ type: "SET_CREATE_DIALOG_OPEN", payload: isOpen }),
+      startTransition(() =>
+        dispatch({ type: "SET_CREATE_DIALOG_OPEN", payload: isOpen })
+      ),
     setIsScannerOpen: (isOpen: boolean) =>
-      dispatch({ type: "SET_SCANNER_OPEN", payload: isOpen }),
+      startTransition(() =>
+        dispatch({ type: "SET_SCANNER_OPEN", payload: isOpen })
+      ),
   };
 
   return (

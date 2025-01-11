@@ -1,10 +1,12 @@
-import { lazy } from "react";
+import { lazy, Suspense } from "react";
 import { Navigate } from "react-router-dom";
 import MainLayout from "../components/layout/MainLayout";
 import RouteGuard from "../components/auth/RouteGuard";
 import { UserType } from "../types/auth.types";
 import { ErrorBoundary } from "../components/error/ErrorBoundary";
+import { LoadingState } from "../components/common/LoadingState";
 
+// Lazy load all pages
 const SignInPage = lazy(() => import("../pages/auth/SignInPage"));
 const SignUpPage = lazy(() => import("../pages/auth/SignUpPage"));
 const ForgotPasswordPage = lazy(
@@ -23,6 +25,12 @@ const MemoryManagerPage = lazy(
 const SearchPage = lazy(() => import("../pages/fan/SearchPage"));
 const EventsPageFan = lazy(() => import("../pages/fan/EventsPageFan"));
 
+const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<LoadingState message="Loading page..." />}>
+    {children}
+  </Suspense>
+);
+
 export const routes = [
   {
     path: "/",
@@ -35,19 +43,35 @@ export const routes = [
     children: [
       {
         path: "signin",
-        element: <SignInPage />,
+        element: (
+          <SuspenseWrapper>
+            <SignInPage />
+          </SuspenseWrapper>
+        ),
       },
       {
         path: "signup",
-        element: <SignUpPage />,
+        element: (
+          <SuspenseWrapper>
+            <SignUpPage />
+          </SuspenseWrapper>
+        ),
       },
       {
         path: "forgot-password",
-        element: <ForgotPasswordPage />,
+        element: (
+          <SuspenseWrapper>
+            <ForgotPasswordPage />
+          </SuspenseWrapper>
+        ),
       },
       {
         path: "reset-password",
-        element: <ResetPasswordPage />,
+        element: (
+          <SuspenseWrapper>
+            <ResetPasswordPage />
+          </SuspenseWrapper>
+        ),
       },
     ],
   },
@@ -66,31 +90,59 @@ export const routes = [
       },
       {
         path: "dashboard",
-        element: <DashboardPage />,
+        element: (
+          <SuspenseWrapper>
+            <DashboardPage />
+          </SuspenseWrapper>
+        ),
       },
       {
         path: "videos",
-        element: <VideosPage />,
+        element: (
+          <SuspenseWrapper>
+            <VideosPage />
+          </SuspenseWrapper>
+        ),
       },
       {
         path: "videos/upload",
-        element: <VideoUploadPage />,
+        element: (
+          <SuspenseWrapper>
+            <VideoUploadPage />
+          </SuspenseWrapper>
+        ),
       },
       {
         path: "events",
-        element: <EventsPage />,
+        element: (
+          <SuspenseWrapper>
+            <EventsPage />
+          </SuspenseWrapper>
+        ),
       },
       {
         path: "analytics",
-        element: <AnalyticsPage />,
+        element: (
+          <SuspenseWrapper>
+            <AnalyticsPage />
+          </SuspenseWrapper>
+        ),
       },
       {
         path: "settings",
-        element: <SettingsPage />,
+        element: (
+          <SuspenseWrapper>
+            <SettingsPage />
+          </SuspenseWrapper>
+        ),
       },
       {
         path: "memories",
-        element: <MemoryManagerPage />,
+        element: (
+          <SuspenseWrapper>
+            <MemoryManagerPage />
+          </SuspenseWrapper>
+        ),
       },
     ],
   },
@@ -109,11 +161,19 @@ export const routes = [
       },
       {
         path: "search",
-        element: <SearchPage />,
+        element: (
+          <SuspenseWrapper>
+            <SearchPage />
+          </SuspenseWrapper>
+        ),
       },
       {
         path: "events",
-        element: <EventsPageFan />,
+        element: (
+          <SuspenseWrapper>
+            <EventsPageFan />
+          </SuspenseWrapper>
+        ),
       },
     ],
   },
