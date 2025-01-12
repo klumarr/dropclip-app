@@ -1,4 +1,5 @@
 const env = {
+  stage: import.meta.env.VITE_STAGE || "dev",
   aws: {
     region: import.meta.env.VITE_AWS_REGION || "eu-north-1",
     s3Bucket: import.meta.env.VITE_AWS_S3_BUCKET_NAME || "dropclip-content",
@@ -9,3 +10,4 @@ const env = {
 };
 
 export default env;
+export const stage = env.stage;

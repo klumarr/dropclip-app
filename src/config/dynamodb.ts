@@ -1,17 +1,18 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
-
-const stage = import.meta.env.VITE_STAGE || "dev";
+import { stage } from "./env.config";
 
 export const TableNames = {
-  EVENTS: `${stage}-events`,
+  EVENTS: import.meta.env.VITE_EVENTS_TABLE || `${stage}-events`,
   UPLOADS: `${stage}-uploads`,
   USERS: `${stage}-users`,
-  UPLOAD_LINKS: `${stage}-upload-links`,
-  PLAYLISTS: `${stage}-playlists`,
-  ATTENDANCE: `${stage}-attendance`,
-  FOLLOWS: `${stage}-follows`,
+  CONTENT: `${stage}-content`,
   COLLECTIONS: `${stage}-collections`,
+  PLAYLISTS: `${stage}-playlists`,
+  USER_PROFILES: `${stage}-user-profiles`,
+  FOLLOWS: `${stage}-follows`,
+  UPLOAD_LINKS: `${stage}-upload-links`,
+  ATTENDANCE: `${stage}-attendance`,
   COLLECTION_UPLOADS: `${stage}-collection-uploads`,
 } as const;
 

@@ -1,219 +1,241 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
-  QueryCommand,
   PutCommand,
-  DeleteCommand,
+  QueryCommand,
   GetCommand,
-  ScanCommand,
+  DeleteCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { Event, EventFormData, UploadConfig } from "../types/events";
-import { docClient, TableNames } from "../config/dynamodb";
+import { Event, EventFormData } from "../types/events";
+import { v4 as uuidv4 } from "uuid";
+import { TableNames } from "../config/dynamodb";
+import { createAWSClient } from "./aws-client.factory";
 
-class EventsService {
-  private docClient: DynamoDBDocumentClient;
+export class EventsService {
+  private docClient: DynamoDBDocumentClient | null = null;
+  private retryCount = 3;
+  private retryDelay = 1000; // Start with 1 second delay
 
   constructor() {
-    const client = new DynamoDBClient({});
-    this.docClient = DynamoDBDocumentClient.from(client);
+    console.log("Initializing EventsService with table:", TableNames.EVENTS);
   }
 
-  async listEvents(userId: string): Promise<Event[]> {
-    if (!userId) throw new Error("User ID is required");
+  private async ensureClient(): Promise<DynamoDBDocumentClient> {
+    try {
+      // If client exists, return it
+      if (this.docClient) {
+        return this.docClient;
+      }
 
-    const response = await this.docClient.send(
-      new QueryCommand({
-        TableName: TableNames.EVENTS,
-        KeyConditionExpression: "user_id = :userId",
-        ExpressionAttributeValues: {
-          ":userId": userId,
+      // Get DynamoDB client using our factory
+      const dynamoDBClient = await createAWSClient(DynamoDBClient);
+
+      // Create document client
+      this.docClient = DynamoDBDocumentClient.from(dynamoDBClient, {
+        marshallOptions: {
+          removeUndefinedValues: true,
+          convertEmptyValues: true,
         },
-      })
-    );
-    return response.Items as Event[];
+      });
+
+      return this.docClient;
+    } catch (error) {
+      console.error("Error ensuring DynamoDB client:", error);
+      throw error;
+    }
   }
 
-  async createEvent(userId: string, eventData: EventFormData): Promise<Event> {
-    if (!userId) throw new Error("User ID is required");
+  private async executeWithRetry<T>(
+    operation: (client: DynamoDBDocumentClient) => Promise<T>
+  ): Promise<T> {
+    let lastError: any;
+    let delay = this.retryDelay;
 
-    const event: Event = {
-      id: Date.now().toString(),
-      userId,
-      ...eventData,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    for (let attempt = 1; attempt <= this.retryCount; attempt++) {
+      try {
+        const client = await this.ensureClient();
+        return await operation(client);
+      } catch (error: any) {
+        lastError = error;
+        console.error(`Attempt ${attempt} failed:`, error);
 
-    await this.docClient.send(
-      new PutCommand({
+        if (error.name === "NotAuthorizedException") {
+          console.log("Auth error detected, invalidating client...");
+          this.docClient = null; // Force client recreation on next attempt
+
+          if (attempt < this.retryCount) {
+            console.log(`Waiting ${delay}ms before retry...`);
+            await new Promise((resolve) => setTimeout(resolve, delay));
+            delay *= 2; // Exponential backoff
+          }
+        } else {
+          // For non-auth errors, throw immediately
+          throw error;
+        }
+      }
+    }
+
+    throw lastError;
+  }
+
+  async listEvents(creativeId: string): Promise<Event[]> {
+    console.log("Listing events for creative:", creativeId);
+
+    return this.executeWithRetry(async (client) => {
+      const command = new QueryCommand({
+        TableName: TableNames.EVENTS,
+        IndexName: "CreativeIdIndex",
+        KeyConditionExpression: "creativeId = :creativeId",
+        ExpressionAttributeValues: {
+          ":creativeId": creativeId,
+        },
+      });
+
+      const response = await client.send(command);
+      console.log("Events retrieved successfully:", response.Items?.length);
+      return response.Items as Event[];
+    });
+  }
+
+  async createEvent(
+    creativeId: string,
+    eventData: EventFormData
+  ): Promise<Event> {
+    console.log("Creating event for creative:", creativeId);
+
+    return this.executeWithRetry(async (client) => {
+      const eventId = uuidv4();
+      const now = new Date().toISOString();
+      const dateId = eventData.details.date.replace(/-/g, "");
+      const dateCreativeId = `${dateId}#${creativeId}`;
+
+      const event: Event = {
+        id: eventId,
+        creativeId,
+        dateId,
+        dateCreativeId,
+        ...eventData.details,
+        endDate: eventData.details.endDate || eventData.details.date,
+        endTime: eventData.details.endTime || eventData.details.time,
+        createdAt: now,
+        updatedAt: now,
+      };
+
+      const command = new PutCommand({
         TableName: TableNames.EVENTS,
         Item: event,
-      })
+      });
+
+      await client.send(command);
+      console.log("Event created successfully:", eventId);
+      return event;
+    });
+  }
+
+  async getEventById(
+    eventId: string,
+    creativeId?: string
+  ): Promise<Event | null> {
+    console.log(
+      "Getting event by ID:",
+      eventId,
+      creativeId ? `for creative: ${creativeId}` : ""
     );
 
-    return event;
+    return this.executeWithRetry(async (client) => {
+      if (creativeId) {
+        const command = new GetCommand({
+          TableName: TableNames.EVENTS,
+          Key: {
+            id: eventId,
+            creativeId,
+          },
+        });
+
+        const response = await client.send(command);
+        if (!response.Item) {
+          console.log("Event not found");
+          return null;
+        }
+
+        console.log("Event retrieved successfully");
+        return response.Item as Event;
+      }
+
+      // Fallback to scan if no creativeId provided (less efficient)
+      const command = new QueryCommand({
+        TableName: TableNames.EVENTS,
+        KeyConditionExpression: "id = :id",
+        ExpressionAttributeValues: {
+          ":id": eventId,
+        },
+      });
+
+      const response = await client.send(command);
+      if (!response.Items?.[0]) {
+        console.log("Event not found");
+        return null;
+      }
+
+      console.log("Event retrieved successfully");
+      return response.Items[0] as Event;
+    });
+  }
+
+  async deleteEvent(eventId: string, creativeId: string): Promise<void> {
+    console.log("Deleting event:", eventId, "for creative:", creativeId);
+
+    return this.executeWithRetry(async (client) => {
+      const command = new DeleteCommand({
+        TableName: TableNames.EVENTS,
+        Key: {
+          id: eventId,
+          creativeId,
+        },
+      });
+
+      await client.send(command);
+      console.log("Event deleted successfully");
+    });
   }
 
   async updateEvent(
-    userId: string,
     eventId: string,
+    creativeId: string,
     eventData: Partial<Event>
   ): Promise<Event> {
-    if (!userId) throw new Error("User ID is required");
+    console.log("Updating event:", { eventId, creativeId, eventData });
 
-    // First, get the existing event to preserve createdAt
-    const existingEvent = await this.docClient.send(
-      new QueryCommand({
-        TableName: TableNames.EVENTS,
-        KeyConditionExpression: "user_id = :userId AND id = :eventId",
-        ExpressionAttributeValues: {
-          ":userId": userId,
-          ":eventId": eventId,
-        },
-      })
-    );
-
-    if (!existingEvent.Items?.[0]) {
-      throw new Error("Event not found");
-    }
-
-    const existingEventData = existingEvent.Items[0] as Event;
-
-    const event: Event = {
-      ...existingEventData,
-      ...eventData,
-      id: eventId,
-      userId,
-      createdAt: existingEventData.createdAt,
-      updatedAt: new Date().toISOString(),
-    };
-
-    await this.docClient.send(
-      new PutCommand({
-        TableName: TableNames.EVENTS,
-        Item: event,
-      })
-    );
-
-    return event;
-  }
-
-  async deleteEvent(userId: string, eventId: string): Promise<void> {
-    if (!userId) throw new Error("User ID is required");
-
-    await this.docClient.send(
-      new DeleteCommand({
-        TableName: TableNames.EVENTS,
-        Key: {
-          user_id: userId,
-          id: eventId,
-        },
-      })
-    );
-  }
-
-  async getFanEvents(userId: string): Promise<Event[]> {
-    if (!userId) throw new Error("User ID is required");
-
-    const response = await this.docClient.send(
-      new QueryCommand({
-        TableName: TableNames.EVENTS,
-        IndexName: "fan_events_index",
-        KeyConditionExpression: "fan_id = :userId",
-        ExpressionAttributeValues: {
-          ":userId": userId,
-        },
-      })
-    );
-
-    return response.Items as Event[];
-  }
-
-  async getCreativeEvents(): Promise<Event[]> {
-    const response = await this.docClient.send(
-      new QueryCommand({
-        TableName: TableNames.EVENTS,
-        KeyConditionExpression: "creativeId = :creativeId",
-        ExpressionAttributeValues: {
-          ":creativeId": "creative",
-        },
-      })
-    );
-
-    return response.Items as Event[];
-  }
-
-  async validateUploadLink(eventId: string, linkId: string): Promise<boolean> {
-    try {
-      const event = await this.getEventById(eventId);
-
-      // Check if event exists and has uploads enabled
-      if (!event || !event.uploadConfig?.enabled) {
-        return false;
+    return this.executeWithRetry(async (client) => {
+      // Get the existing event first
+      const existingEvent = await this.getEventById(eventId, creativeId);
+      if (!existingEvent) {
+        throw new Error(`Event not found: ${eventId}`);
       }
 
-      // Check if upload window is active
-      const now = new Date();
-      const startTime = event.uploadConfig.startTime
-        ? new Date(event.uploadConfig.startTime)
-        : null;
-      const endTime = event.uploadConfig.endTime
-        ? new Date(event.uploadConfig.endTime)
-        : null;
+      // Prepare the updated event data
+      const updatedEvent = {
+        ...existingEvent,
+        ...eventData,
+        updatedAt: new Date().toISOString(),
+      };
 
-      if (startTime && now < startTime) {
-        return false;
-      }
-
-      if (endTime && now > endTime) {
-        return false;
-      }
-
-      // TODO: Validate linkId against stored upload links
-      // For now, return true if event exists and is within upload window
-      return true;
-    } catch (error) {
-      console.error("Error validating upload link:", error);
-      return false;
-    }
-  }
-
-  async getEventById(eventId: string): Promise<Event> {
-    const response = await this.docClient.send(
-      new GetCommand({
+      // Update the event in DynamoDB
+      const command = new PutCommand({
         TableName: TableNames.EVENTS,
-        Key: {
-          id: eventId,
+        Item: updatedEvent,
+        ConditionExpression:
+          "attribute_exists(id) AND creativeId = :creativeId",
+        ExpressionAttributeValues: {
+          ":creativeId": creativeId,
         },
-      })
-    );
+      });
 
-    if (!response.Item) {
-      throw new Error("Event not found");
-    }
+      console.log("Executing update command:", command.input);
+      await client.send(command);
+      console.log("Event updated successfully");
 
-    return response.Item as Event;
-  }
-
-  async getUploadConfig(
-    eventId: string,
-    linkId: string
-  ): Promise<UploadConfig> {
-    const event = await this.getEventById(eventId);
-
-    if (!event.uploadConfig?.enabled) {
-      throw new Error("Uploads are not enabled for this event");
-    }
-
-    return {
-      enabled: true,
-      maxFileSize: event.uploadConfig.maxFileSize,
-      allowedTypes: event.uploadConfig.allowedTypes,
-      maxFiles: event.uploadConfig.maxFiles,
-      startTime: event.uploadConfig.startTime,
-      endTime: event.uploadConfig.endTime,
-    };
+      return updatedEvent;
+    });
   }
 }
-
-export const eventOperations = new EventsService();

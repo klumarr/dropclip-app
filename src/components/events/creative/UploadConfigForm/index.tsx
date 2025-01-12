@@ -8,30 +8,29 @@ import {
   Typography,
   Chip,
   FormHelperText,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
-import { UploadConfig } from "../../../../types/events";
+import { UploadConfig, EventFormErrors } from "../../../../types/events";
 
 interface UploadConfigFormProps {
   config: UploadConfig;
-  errors: Record<string, string>;
+  errors: EventFormErrors;
   onChange: (config: UploadConfig) => void;
 }
 
 const allowedFileTypes = ["video/*", "image/*"];
 const maxFileSizes = [50, 100, 200, 500];
 
-const UploadConfigForm: React.FC<UploadConfigFormProps> = ({
+export const UploadConfigForm: React.FC<UploadConfigFormProps> = ({
   config,
   errors,
   onChange,
 }) => {
-  console.log("UploadConfigForm: Rendering form");
-
   const handleChange = (field: keyof UploadConfig, value: any) => {
-    onChange({
-      ...config,
-      [field]: value,
-    });
+    onChange({ ...config, [field]: value });
   };
 
   return (
@@ -46,9 +45,6 @@ const UploadConfigForm: React.FC<UploadConfigFormProps> = ({
           }
           label="Enable fan uploads"
         />
-        <FormHelperText>
-          Allow fans to upload content during the specified time window
-        </FormHelperText>
       </Grid>
 
       {config.enabled && (
@@ -56,8 +52,8 @@ const UploadConfigForm: React.FC<UploadConfigFormProps> = ({
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
+              label="Start Time"
               type="datetime-local"
-              label="Upload Start Time"
               value={config.startTime}
               onChange={(e) => handleChange("startTime", e.target.value)}
               error={!!errors.startTime}
@@ -66,12 +62,11 @@ const UploadConfigForm: React.FC<UploadConfigFormProps> = ({
               required
             />
           </Grid>
-
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
+              label="End Time"
               type="datetime-local"
-              label="Upload End Time"
               value={config.endTime}
               onChange={(e) => handleChange("endTime", e.target.value)}
               error={!!errors.endTime}
@@ -82,27 +77,25 @@ const UploadConfigForm: React.FC<UploadConfigFormProps> = ({
           </Grid>
 
           <Grid item xs={12}>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography variant="subtitle1" gutterBottom>
               Allowed File Types
             </Typography>
             <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
               {allowedFileTypes.map((type) => (
                 <Chip
                   key={type}
-                  label={type.replace("/*", "s")}
-                  onClick={() =>
-                    handleChange(
-                      "allowedTypes",
-                      config.allowedTypes?.includes(type)
-                        ? config.allowedTypes.filter((t) => t !== type)
-                        : [...(config.allowedTypes || []), type]
-                    )
-                  }
+                  label={type === "video/*" ? "Videos" : "Images"}
+                  onClick={() => {
+                    const types = config.allowedTypes.includes(type)
+                      ? config.allowedTypes.filter((t) => t !== type)
+                      : [...config.allowedTypes, type];
+                    handleChange("allowedTypes", types);
+                  }}
                   color={
-                    config.allowedTypes?.includes(type) ? "primary" : "default"
+                    config.allowedTypes.includes(type) ? "primary" : "default"
                   }
                   variant={
-                    config.allowedTypes?.includes(type) ? "filled" : "outlined"
+                    config.allowedTypes.includes(type) ? "filled" : "outlined"
                   }
                 />
               ))}
@@ -112,29 +105,42 @@ const UploadConfigForm: React.FC<UploadConfigFormProps> = ({
             )}
           </Grid>
 
-          <Grid item xs={12}>
-            <Typography variant="subtitle2" gutterBottom>
-              Maximum File Size (MB)
-            </Typography>
-            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-              {maxFileSizes.map((size) => (
-                <Chip
-                  key={size}
-                  label={`${size}MB`}
-                  onClick={() => handleChange("maxFileSize", size)}
-                  color={config.maxFileSize === size ? "primary" : "default"}
-                  variant={config.maxFileSize === size ? "filled" : "outlined"}
-                />
-              ))}
-            </Box>
-            {errors.maxFileSize && (
-              <FormHelperText error>{errors.maxFileSize}</FormHelperText>
-            )}
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth error={!!errors.maxFileSize}>
+              <InputLabel>Maximum File Size (MB)</InputLabel>
+              <Select
+                value={config.maxFileSize}
+                onChange={(e) => handleChange("maxFileSize", e.target.value)}
+                label="Maximum File Size (MB)"
+              >
+                {maxFileSizes.map((size) => (
+                  <MenuItem key={size} value={size}>
+                    {size} MB
+                  </MenuItem>
+                ))}
+              </Select>
+              {errors.maxFileSize && (
+                <FormHelperText>{errors.maxFileSize}</FormHelperText>
+              )}
+            </FormControl>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Maximum Files per User"
+              type="number"
+              value={config.maxFiles}
+              onChange={(e) =>
+                handleChange("maxFiles", parseInt(e.target.value, 10))
+              }
+              error={!!errors.maxFiles}
+              helperText={errors.maxFiles}
+              InputProps={{ inputProps: { min: 1 } }}
+            />
           </Grid>
         </>
       )}
     </Grid>
   );
 };
-
-export { UploadConfigForm };

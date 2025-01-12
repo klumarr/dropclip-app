@@ -1,5 +1,89 @@
 # Changelog
 
+## [1.6.1] - 2025-01-12
+
+### Fixed
+
+- Authentication and AWS Access:
+
+  - Resolved NotAuthorizedException during DynamoDB client creation
+  - Implemented robust retry mechanism with exponential backoff
+  - Added client recreation on authentication failures
+  - Enhanced error handling for AWS service operations
+  - Improved credential refresh logic
+  - Added comprehensive logging for debugging
+
+- Event Management System:
+
+  - Fixed event filtering logic to properly handle date and time
+  - Corrected isDatePast function to consider both date and time
+  - Enhanced event sorting and categorization
+  - Improved event visibility based on user roles
+  - Fixed event display issues in UI
+  - Added proper error handling for event operations
+
+### Added
+
+- AWS Client Factory:
+
+  - Created centralized AWS client management
+  - Implemented automatic credential refresh
+  - Added client verification system
+  - Enhanced error reporting and logging
+  - Improved session management
+  - Added comprehensive AWS configuration verification
+
+- Enhanced Error Handling:
+
+  - Added detailed error logging for AWS operations
+  - Implemented retry mechanism for transient failures
+  - Enhanced error boundaries for AWS service calls
+  - Added user-friendly error messages
+  - Improved error recovery mechanisms
+  - Enhanced debugging capabilities
+
+### Changed
+
+- AWS Service Integration:
+
+  - Migrated to AWS SDK v3 client factory pattern
+  - Updated DynamoDB access patterns
+  - Enhanced IAM role configurations
+  - Improved AWS credential management
+  - Updated service initialization logic
+  - Enhanced security configurations
+
+- Development Infrastructure:
+
+  - Enhanced logging system for better debugging
+  - Improved error tracking and reporting
+  - Updated development documentation
+  - Enhanced testing infrastructure
+  - Added comprehensive error monitoring
+  - Improved development workflow
+
+### Security
+
+- IAM and Authentication:
+
+  - Updated IAM policies for proper access control
+  - Enhanced role-based permissions
+  - Improved token management
+  - Added secure credential handling
+  - Enhanced authentication flow
+  - Improved security documentation
+
+### Technical Improvements
+
+- Code Quality:
+
+  - Enhanced TypeScript type definitions
+  - Improved error handling patterns
+  - Added comprehensive logging
+  - Enhanced code organization
+  - Improved testing coverage
+  - Updated documentation
+
 ## [1.3.0] - 2025-01-05
 
 ### Added

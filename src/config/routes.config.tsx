@@ -16,7 +16,7 @@ const ResetPasswordPage = lazy(() => import("../pages/auth/ResetPasswordPage"));
 const DashboardPage = lazy(() => import("../pages/creative/DashboardPage"));
 const VideosPage = lazy(() => import("../pages/creative/VideosPage"));
 const VideoUploadPage = lazy(() => import("../pages/creative/VideoUploadPage"));
-const EventsPage = lazy(() => import("../pages/creative/EventsPageCreative"));
+const EventsPage = lazy(() => import("../pages/creative/CreativeEventsPage"));
 const AnalyticsPage = lazy(() => import("../pages/creative/AnalyticsPage"));
 const SettingsPage = lazy(() => import("../pages/creative/SettingsPage"));
 const MemoryManagerPage = lazy(

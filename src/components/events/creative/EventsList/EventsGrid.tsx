@@ -3,6 +3,7 @@ import { Typography } from "@mui/material";
 import EventCard from "../../common/EventCard";
 import { EventsGridProps } from "./types";
 import { ScrollSection, EventsRow } from "../EventsPageStyles";
+import { isDatePast } from "../../../../utils/dateUtils";
 
 const EventsGrid: React.FC<EventsGridProps> = ({
   events,
@@ -22,22 +23,22 @@ const EventsGrid: React.FC<EventsGridProps> = ({
     );
   }
 
-  // Sort events by date
+  // Sort events by date and time
   const sortedEvents = [...events].sort((a, b) => {
-    const dateA = new Date(a.date).getTime();
-    const dateB = new Date(b.date).getTime();
+    const dateTimeA = new Date(`${a.date}T${a.time || "23:59:59"}`).getTime();
+    const dateTimeB = new Date(`${b.date}T${b.time || "23:59:59"}`).getTime();
     const now = Date.now();
-    const isPastA = dateA < now;
-    const isPastB = dateB < now;
+    const isPastA = dateTimeA < now;
+    const isPastB = dateTimeB < now;
 
     // If both events are in the same category (past or upcoming)
     if (isPastA === isPastB) {
       // For past events, sort by most recent first
       if (isPastA) {
-        return dateB - dateA;
+        return dateTimeB - dateTimeA;
       }
       // For upcoming events, sort by nearest first
-      return dateA - dateB;
+      return dateTimeA - dateTimeB;
     }
 
     // If events are in different categories, upcoming events come first
@@ -53,7 +54,7 @@ const EventsGrid: React.FC<EventsGridProps> = ({
             event={event}
             onEdit={() => onEdit(event)}
             onDelete={() => onDelete(event)}
-            isPast={new Date(event.date) < new Date()}
+            isPast={isDatePast(event.date, event.time)}
           />
         ))}
       </EventsRow>

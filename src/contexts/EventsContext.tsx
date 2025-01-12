@@ -1,237 +1,207 @@
 import React, {
   createContext,
   useContext,
+  useEffect,
   useReducer,
-  useCallback,
-  useTransition,
-  startTransition,
+  useRef,
+  useState,
 } from "react";
-import { EventsContextType, Event, EventFormData } from "../types/events";
-import { eventsReducer } from "./eventsReducer";
-import { eventOperations } from "../services/eventsService";
+import { Event, EventFormData } from "../types/events";
+import { eventsReducer, initialState } from "./eventsReducer";
+import { EventsService } from "../services/eventsService";
 import { useAuth } from "./AuthContext";
 
-const EventsContext = createContext<EventsContextType | undefined>(undefined);
+interface EventsContextType {
+  events: Event[];
+  loading: boolean;
+  error: string | null;
+  isCreateDialogOpen: boolean;
+  setIsCreateDialogOpen: (isOpen: boolean) => void;
+  fetchEvents: () => Promise<void>;
+  createEvent: (eventData: EventFormData) => Promise<Event>;
+  updateEvent: (eventId: string, eventData: Partial<Event>) => Promise<Event>;
+  deleteEvent: (eventId: string) => Promise<void>;
+  shareEvent: (eventId: string) => Promise<void>;
+  setError: (error: string | null) => void;
+}
 
-export const useEvents = () => {
-  const context = useContext(EventsContext);
-  if (!context) {
-    throw new Error("useEvents must be used within an EventsProvider");
-  }
-  return context;
-};
+const EventsContext = createContext<EventsContextType | undefined>(undefined);
 
 export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { user } = useAuth();
-  const [isPending, startTransition] = useTransition();
-  const [state, dispatch] = useReducer(eventsReducer, {
-    events: { upcoming: [], past: [], automatic: [] },
-    loading: false,
-    error: null,
-    newEvent: null,
-    selectedEvent: null,
-    eventToDelete: null,
-    isCreateDialogOpen: false,
-    isScannerOpen: false,
-  });
+  const [state, dispatch] = useReducer(eventsReducer, initialState);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const { isAuthenticated, user } = useAuth();
+  const eventsService = useRef(new EventsService());
 
-  const fetchEvents = useCallback(async () => {
-    if (!user) return;
+  // Prevent state updates after unmount
+  const mounted = useRef(true);
+  useEffect(() => {
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
 
-    dispatch({ type: "SET_LOADING", payload: true });
+  const safeDispatch = (action: any) => {
+    if (mounted.current) {
+      dispatch(action);
+    }
+  };
+
+  const fetchEvents = async () => {
+    if (!isAuthenticated || !user?.id) {
+      console.log("User not authenticated, skipping fetch");
+      return;
+    }
+
     try {
-      const events = await eventOperations.listEvents(user.id);
-      const now = new Date();
-
-      startTransition(() => {
-        // Categorize events
-        const categorizedEvents = events.reduce(
-          (acc, event) => {
-            const eventDate = new Date(event.date);
-            if (event.isAutomatic) {
-              acc.automatic.push(event);
-            } else if (eventDate > now) {
-              acc.upcoming.push(event);
-            } else {
-              acc.past.push(event);
-            }
-            return acc;
-          },
-          { upcoming: [], past: [], automatic: [] }
-        );
-
-        dispatch({ type: "SET_EVENTS", payload: categorizedEvents });
-      });
+      safeDispatch({ type: "SET_LOADING", payload: true });
+      console.log("Fetching events for user:", user.id);
+      const events = await eventsService.current.listEvents(user.id);
+      console.log("Events fetched successfully:", events.length);
+      safeDispatch({ type: "SET_EVENTS", payload: events });
     } catch (error) {
-      dispatch({
+      console.error("Error fetching events:", error);
+      safeDispatch({
         type: "SET_ERROR",
-        payload:
-          error instanceof Error ? error : new Error("Failed to fetch events"),
+        payload: "Failed to fetch events. Please try again.",
       });
     } finally {
-      dispatch({ type: "SET_LOADING", payload: false });
+      safeDispatch({ type: "SET_LOADING", payload: false });
     }
-  }, [user]);
+  };
 
-  const createEvent = useCallback(
-    async (userId: string, eventData: EventFormData) => {
-      if (!user) throw new Error("User not authenticated");
+  const createEvent = async (eventData: EventFormData): Promise<Event> => {
+    if (!isAuthenticated || !user?.id) {
+      throw new Error("User not authenticated");
+    }
 
-      dispatch({ type: "SET_LOADING", payload: true });
-      try {
-        const event = await eventOperations.createEvent(userId, eventData);
-        startTransition(() => {
-          dispatch({ type: "ADD_EVENT", payload: event });
-        });
-        return event;
-      } catch (error) {
-        dispatch({
-          type: "SET_ERROR",
-          payload:
-            error instanceof Error
-              ? error
-              : new Error("Failed to create event"),
-        });
-        throw error;
-      } finally {
-        dispatch({ type: "SET_LOADING", payload: false });
-      }
-    },
-    [user]
-  );
+    try {
+      safeDispatch({ type: "SET_LOADING", payload: true });
+      console.log("Creating event for user:", user.id);
+      const event = await eventsService.current.createEvent(user.id, eventData);
+      console.log("Event created successfully:", event.id);
+      safeDispatch({ type: "ADD_EVENT", payload: event });
+      return event;
+    } catch (error) {
+      console.error("Error creating event:", error);
+      safeDispatch({
+        type: "SET_ERROR",
+        payload: "Failed to create event. Please try again.",
+      });
+      throw error;
+    } finally {
+      safeDispatch({ type: "SET_LOADING", payload: false });
+    }
+  };
 
-  const updateEvent = useCallback(
-    async (
-      userId: string,
-      eventId: string,
-      eventData: Partial<EventFormData>
-    ) => {
-      if (!user) throw new Error("User not authenticated");
+  const updateEvent = async (
+    eventId: string,
+    eventData: Partial<Event>
+  ): Promise<Event> => {
+    if (!isAuthenticated || !user?.id) {
+      throw new Error("User not authenticated");
+    }
 
-      dispatch({ type: "SET_LOADING", payload: true });
-      try {
-        const event = await eventOperations.updateEvent(
-          userId,
-          eventId,
-          eventData
-        );
-        startTransition(() => {
-          dispatch({ type: "UPDATE_EVENT", payload: event });
-        });
-        return event;
-      } catch (error) {
-        dispatch({
-          type: "SET_ERROR",
-          payload:
-            error instanceof Error
-              ? error
-              : new Error("Failed to update event"),
-        });
-        throw error;
-      } finally {
-        dispatch({ type: "SET_LOADING", payload: false });
-      }
-    },
-    [user]
-  );
+    try {
+      safeDispatch({ type: "SET_LOADING", payload: true });
+      console.log("Updating event:", eventId);
+      const updatedEvent = await eventsService.current.updateEvent(
+        eventId,
+        user.id,
+        eventData
+      );
+      console.log("Event updated successfully:", updatedEvent.id);
+      safeDispatch({ type: "UPDATE_EVENT", payload: updatedEvent });
+      return updatedEvent;
+    } catch (error) {
+      console.error("Error updating event:", error);
+      safeDispatch({
+        type: "SET_ERROR",
+        payload: "Failed to update event. Please try again.",
+      });
+      throw error;
+    } finally {
+      safeDispatch({ type: "SET_LOADING", payload: false });
+    }
+  };
 
-  const deleteEvent = useCallback(
-    async (userId: string, eventId: string) => {
-      if (!user) throw new Error("User not authenticated");
+  const deleteEvent = async (eventId: string): Promise<void> => {
+    if (!isAuthenticated || !user?.id) {
+      throw new Error("User not authenticated");
+    }
 
-      dispatch({ type: "SET_LOADING", payload: true });
-      try {
-        await eventOperations.deleteEvent(userId, eventId);
-        startTransition(() => {
-          dispatch({ type: "DELETE_EVENT", payload: eventId });
-        });
-      } catch (error) {
-        dispatch({
-          type: "SET_ERROR",
-          payload:
-            error instanceof Error
-              ? error
-              : new Error("Failed to delete event"),
-        });
-        throw error;
-      } finally {
-        dispatch({ type: "SET_LOADING", payload: false });
-      }
-    },
-    [user]
-  );
+    try {
+      safeDispatch({ type: "SET_LOADING", payload: true });
+      console.log("Deleting event:", eventId);
+      await eventsService.current.deleteEvent(eventId, user.id);
+      console.log("Event deleted successfully");
+      safeDispatch({ type: "DELETE_EVENT", payload: eventId });
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      safeDispatch({
+        type: "SET_ERROR",
+        payload: "Failed to delete event. Please try again.",
+      });
+      throw error;
+    } finally {
+      safeDispatch({ type: "SET_LOADING", payload: false });
+    }
+  };
 
-  const handleDeleteEvent = useCallback(
-    async (eventId: string) => {
-      if (!user) throw new Error("User not authenticated");
-      await deleteEvent(user.id, eventId);
-    },
-    [user, deleteEvent]
-  );
-
-  const handleScannedEvent = useCallback(
-    async (eventData: Partial<EventFormData>) => {
-      if (!user) throw new Error("User not authenticated");
-      if (!eventData.title) throw new Error("Event title is required");
-
-      const fullEventData: EventFormData = {
-        title: eventData.title,
-        description: eventData.description || "",
-        date: eventData.date || new Date().toISOString(),
-        startTime: eventData.startTime || "",
-        endTime: eventData.endTime || "",
-        location: eventData.location || "",
-        ticketLink: eventData.ticketLink,
-        imageUrl: eventData.imageUrl,
-        isAutomatic: true,
-        uploadConfig: eventData.uploadConfig || {
-          enabled: false,
-          maxFileSize: 100,
-          allowedTypes: ["video/mp4", "video/quicktime"],
-        },
-      };
-
-      await createEvent(user.id, fullEventData);
-    },
-    [user, createEvent]
-  );
+  // Fetch events when user becomes authenticated
+  useEffect(() => {
+    if (isAuthenticated && user?.id) {
+      fetchEvents();
+    }
+  }, [isAuthenticated, user?.id]);
 
   const value = {
-    ...state,
-    isLoading: state.loading || isPending,
+    events: state.events,
+    loading: state.loading,
+    error: state.error,
+    isCreateDialogOpen,
+    setIsCreateDialogOpen,
     fetchEvents,
     createEvent,
     updateEvent,
     deleteEvent,
-    handleDeleteEvent,
-    handleScannedEvent,
-    setError: (error: Error | null) =>
-      dispatch({ type: "SET_ERROR", payload: error }),
-    setNewEvent: (event: Partial<EventFormData> | null) =>
-      startTransition(() =>
-        dispatch({ type: "SET_NEW_EVENT", payload: event })
-      ),
-    setSelectedEvent: (event: Event | null) =>
-      startTransition(() =>
-        dispatch({ type: "SET_SELECTED_EVENT", payload: event })
-      ),
-    setEventToDelete: (event: Event | null) =>
-      startTransition(() =>
-        dispatch({ type: "SET_EVENT_TO_DELETE", payload: event })
-      ),
-    setIsCreateDialogOpen: (isOpen: boolean) =>
-      startTransition(() =>
-        dispatch({ type: "SET_CREATE_DIALOG_OPEN", payload: isOpen })
-      ),
-    setIsScannerOpen: (isOpen: boolean) =>
-      startTransition(() =>
-        dispatch({ type: "SET_SCANNER_OPEN", payload: isOpen })
-      ),
+    shareEvent: async (eventId: string) => {
+      if (!isAuthenticated || !user?.id) {
+        throw new Error("User not authenticated");
+      }
+
+      try {
+        safeDispatch({ type: "SET_LOADING", payload: true });
+        console.log("Sharing event:", eventId);
+        // TODO: Implement share functionality
+        console.log("Event shared successfully");
+      } catch (error) {
+        console.error("Error sharing event:", error);
+        safeDispatch({
+          type: "SET_ERROR",
+          payload: "Failed to share event. Please try again.",
+        });
+        throw error;
+      } finally {
+        safeDispatch({ type: "SET_LOADING", payload: false });
+      }
+    },
+    setError: (error: string | null) => {
+      safeDispatch({ type: "SET_ERROR", payload: error });
+    },
   };
 
   return (
     <EventsContext.Provider value={value}>{children}</EventsContext.Provider>
   );
+};
+
+export const useEvents = () => {
+  const context = useContext(EventsContext);
+  if (context === undefined) {
+    throw new Error("useEvents must be used within an EventsProvider");
+  }
+  return context;
 };

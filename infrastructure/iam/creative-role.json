@@ -15,6 +15,7 @@
       ],
       "Resource": [
         "arn:aws:dynamodb:*:*:table/dev-events",
+        "arn:aws:dynamodb:*:*:table/dev-events/index/CreativeIdIndex",
         "arn:aws:dynamodb:*:*:table/dev-follows",
         "arn:aws:dynamodb:*:*:table/dev-uploads",
         "arn:aws:dynamodb:*:*:table/dev-analytics"
