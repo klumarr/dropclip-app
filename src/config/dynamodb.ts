@@ -27,6 +27,7 @@ export const docClient = DynamoDBDocumentClient.from(client);
 export interface EventItem {
   id: string;
   creativeId: string;
+  identityId: string; // Temporary AWS identity ID for permissions
   name: string;
   description: string;
   date: string;

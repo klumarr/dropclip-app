@@ -9,6 +9,7 @@ import {
   Divider,
   Grid,
   Stack,
+  Link,
 } from "@mui/material";
 import {
   CalendarToday as CalendarIcon,
@@ -87,6 +88,26 @@ export const EventPreview: React.FC<EventPreviewProps> = ({
                   {details.venue}, {details.city}, {details.country}
                 </Typography>
               </Box>
+
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                {details.venue}, {details.city}, {details.country}
+              </Typography>
+
+              {details.ticketLink && (
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="subtitle2" color="primary">
+                    Tickets:
+                  </Typography>
+                  <Link
+                    href={details.ticketLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{ wordBreak: "break-all" }}
+                  >
+                    {details.ticketLink}
+                  </Link>
+                </Box>
+              )}
             </Stack>
           </Grid>
 

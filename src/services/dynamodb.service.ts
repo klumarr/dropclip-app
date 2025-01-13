@@ -10,6 +10,7 @@ import { EventItem, UploadItem, UserItem } from "../config/dynamodb";
 import { s3Operations } from "./s3.service";
 import { cloudfrontOperations } from "./cloudfront.service";
 import { lambdaOperations } from "./lambda.service";
+import { getCredentials } from "./auth.service";
 
 // Event Operations
 export const eventOperations = {
@@ -19,6 +20,14 @@ export const eventOperations = {
   ) => {
     const now = new Date().toISOString();
     let imageUrl = "";
+
+    // Get AWS identity ID
+    const credentials = await getCredentials();
+    const identityId = credentials.identityId;
+    console.log(
+      "EventOperations - Got identity ID for event creation:",
+      identityId
+    );
 
     // Handle flyer upload if provided
     if (flyerFile) {
@@ -43,6 +52,7 @@ export const eventOperations = {
 
     const item: EventItem = {
       ...event,
+      identityId,
       imageUrl,
       createdAt: now,
       updatedAt: now,
@@ -87,6 +97,14 @@ export const eventOperations = {
     creativeId: string,
     updates: Partial<EventItem>
   ) => {
+    // Get AWS identity ID
+    const credentials = await getCredentials();
+    const identityId = credentials.identityId;
+    console.log(
+      "EventOperations - Got identity ID for event update:",
+      identityId
+    );
+
     const updateExpressions: string[] = [];
     const expressionAttributeNames: Record<string, string> = {};
     const expressionAttributeValues: Record<string, any> = {};
@@ -99,10 +117,14 @@ export const eventOperations = {
       }
     });
 
-    // Always update the updatedAt timestamp
+    // Always update the updatedAt timestamp and identityId
     updateExpressions.push("#updatedAt = :updatedAt");
     expressionAttributeNames["#updatedAt"] = "updatedAt";
     expressionAttributeValues[":updatedAt"] = new Date().toISOString();
+
+    updateExpressions.push("#identityId = :identityId");
+    expressionAttributeNames["#identityId"] = "identityId";
+    expressionAttributeValues[":identityId"] = identityId;
 
     await docClient.send(
       new UpdateCommand({

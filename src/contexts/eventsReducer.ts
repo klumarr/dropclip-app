@@ -21,51 +21,88 @@ type Action =
   | { type: "SET_ERROR"; payload: string | null };
 
 export const eventsReducer = (state: State, action: Action): State => {
+  console.log("🔄 EventsReducer - RECEIVED ACTION:", action.type);
+
+  console.log("EventsReducer - Processing action:", {
+    type: action.type,
+    payloadType: action.payload ? typeof action.payload : "undefined",
+    payloadLength: Array.isArray(action.payload)
+      ? action.payload.length
+      : "not an array",
+    currentState: {
+      eventsCount: state.events.length,
+      loading: state.loading,
+      error: state.error,
+    },
+  });
+
+  let newState: State;
+
   switch (action.type) {
     case "SET_EVENTS":
-      return {
+      console.log("🎯 EventsReducer - SET_EVENTS - Payload:", {
+        eventsCount: action.payload?.length,
+        firstEvent: action.payload?.[0],
+        isArray: Array.isArray(action.payload),
+        payloadType: typeof action.payload,
+      });
+      newState = {
         ...state,
         events: action.payload,
         error: null,
       };
+      console.log("✅ EventsReducer - SET_EVENTS - New state:", {
+        eventsCount: newState.events?.length,
+        firstEvent: newState.events?.[0],
+        isArray: Array.isArray(newState.events),
+      });
+      break;
 
     case "ADD_EVENT":
-      return {
+      newState = {
         ...state,
         events: [...state.events, action.payload],
         error: null,
       };
+      break;
 
     case "UPDATE_EVENT":
-      return {
+      newState = {
         ...state,
         events: state.events.map((event) =>
           event.id === action.payload.id ? action.payload : event
         ),
         error: null,
       };
+      break;
 
     case "DELETE_EVENT":
-      return {
+      newState = {
         ...state,
         events: state.events.filter((event) => event.id !== action.payload),
         error: null,
       };
+      break;
 
     case "SET_LOADING":
-      return {
+      newState = {
         ...state,
         loading: action.payload,
       };
+      break;
 
     case "SET_ERROR":
-      return {
+      newState = {
         ...state,
         error: action.payload,
         loading: false,
       };
+      break;
 
     default:
-      return state;
+      newState = state;
   }
+
+  console.log("EventsReducer - New state:", newState);
+  return newState;
 };

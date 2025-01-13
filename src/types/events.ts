@@ -3,7 +3,7 @@
  */
 
 export interface EventDetails {
-  title: string;
+  name: string;
   description: string;
   type: string;
   tags: string[];
@@ -15,6 +15,11 @@ export interface EventDetails {
   venue: string;
   city: string;
   country: string;
+  ticketLink?: string;
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
   flyerImage?: File | null;
   flyerImageUrl?: string;
 }
@@ -28,28 +33,54 @@ export interface UploadConfig {
   maxFiles?: number;
 }
 
-export interface Event extends EventDetails {
+export interface Event {
   id: string;
-  userId?: string;
   creativeId: string;
+  identityId: string;
+  name: string;
+  description: string;
+  flyerUrl?: string; // Optional for now as we're not implementing upload yet
+  date: string; // Start date
+  time: string; // Start time
+  endDate?: string; // For events ending next day
+  endTime?: string; // End time
+  venue: string;
+  city: string;
+  country: string;
+  ticketLink?: string;
+  type: EventType; // For dropdown
+  tags?: string[]; // Optional tags
   createdAt: string;
   updatedAt: string;
-  status?: "draft" | "published" | "cancelled";
-  uploadConfig?: UploadConfig;
-  dateId: string;
-  dateCreativeId: string;
 }
 
+export type EventType =
+  | "Concert"
+  | "Festival"
+  | "Club Night"
+  | "Private Event"
+  | "Corporate Event"
+  | "Other";
+
 export interface EventFormData {
-  details: EventDetails;
-  uploadConfig: UploadConfig;
+  name: string;
+  description: string;
+  flyerUrl?: string;
+  date: string;
+  time: string;
+  endDate?: string;
+  endTime?: string;
+  venue: string;
+  city: string;
+  country: string;
+  ticketLink?: string;
+  type: EventType;
+  tags?: string[];
 }
 
 export interface EventFormErrors {
-  title?: string;
+  name?: string;
   description?: string;
-  type?: string;
-  tags?: string;
   date?: string;
   time?: string;
   endDate?: string;
@@ -57,11 +88,9 @@ export interface EventFormErrors {
   venue?: string;
   city?: string;
   country?: string;
-  flyerImage?: string;
-  startTime?: string;
-  allowedTypes?: string;
-  maxFileSize?: string;
-  maxFiles?: string;
+  type?: string;
+  ticketLink?: string;
+  general?: string;
 }
 
 export interface EventsContextType {

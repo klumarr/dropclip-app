@@ -17,7 +17,11 @@ import {
   CloudUpload as UploadIcon,
   Delete as DeleteIcon,
 } from "@mui/icons-material";
-import { EventDetails, EventFormErrors } from "../../../../types/events";
+import {
+  EventDetails,
+  EventFormErrors,
+  EventType,
+} from "../../../../types/events";
 import { styled } from "@mui/material/styles";
 
 // Styled components
@@ -56,7 +60,7 @@ interface EventDetailsFormProps {
   onChange: (details: EventDetails) => void;
 }
 
-const eventTypes = [
+const eventTypes: EventType[] = [
   "Concert",
   "Festival",
   "Club Night",
@@ -103,11 +107,11 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
       <Grid item xs={12}>
         <TextField
           fullWidth
-          label="Event Title"
-          value={details.title}
-          onChange={(e) => handleChange("title", e.target.value)}
-          error={!!errors.title}
-          helperText={errors.title}
+          label="Event Name"
+          value={details.name || ""}
+          onChange={(e) => handleChange("name", e.target.value)}
+          error={!!errors.name}
+          helperText={errors.name}
           required
         />
       </Grid>
@@ -151,9 +155,6 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
               </IconButton>
             </ImagePreview>
           )}
-          {errors.flyerImage && (
-            <FormHelperText error>{errors.flyerImage}</FormHelperText>
-          )}
         </Box>
       </Grid>
 
@@ -161,7 +162,7 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
         <TextField
           fullWidth
           label="Description"
-          value={details.description}
+          value={details.description || ""}
           onChange={(e) => handleChange("description", e.target.value)}
           error={!!errors.description}
           helperText={errors.description}
@@ -175,7 +176,7 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
         <FormControl fullWidth error={!!errors.type} required>
           <InputLabel>Event Type</InputLabel>
           <Select
-            value={details.type}
+            value={details.type || ""}
             onChange={(e) => handleChange("type", e.target.value)}
             label="Event Type"
           >
@@ -193,12 +194,12 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
         <TextField
           fullWidth
           label="Tags"
-          value={details.tags.join(", ")}
+          value={details.tags?.join(", ") || ""}
           onChange={handleTagsChange}
           error={!!errors.tags}
           helperText={errors.tags || "Separate tags with commas"}
         />
-        {details.tags.length > 0 && (
+        {details.tags?.length > 0 && (
           <Box sx={{ mt: 1, display: "flex", flexWrap: "wrap", gap: 0.5 }}>
             {details.tags.map((tag) => (
               <Chip
@@ -222,7 +223,7 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
           fullWidth
           label="Start Date"
           type="date"
-          value={details.date}
+          value={details.date || ""}
           onChange={(e) => handleChange("date", e.target.value)}
           error={!!errors.date}
           helperText={errors.date}
@@ -236,7 +237,7 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
           fullWidth
           label="Start Time"
           type="time"
-          value={details.time}
+          value={details.time || ""}
           onChange={(e) => handleChange("time", e.target.value)}
           error={!!errors.time}
           helperText={errors.time}
@@ -250,7 +251,7 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
           fullWidth
           label="End Date"
           type="date"
-          value={details.endDate}
+          value={details.endDate || ""}
           onChange={(e) => handleChange("endDate", e.target.value)}
           error={!!errors.endDate}
           helperText={errors.endDate}
@@ -264,7 +265,7 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
           fullWidth
           label="End Time"
           type="time"
-          value={details.endTime}
+          value={details.endTime || ""}
           onChange={(e) => handleChange("endTime", e.target.value)}
           error={!!errors.endTime}
           helperText={errors.endTime}
@@ -273,11 +274,11 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
         />
       </Grid>
 
-      <Grid item xs={12}>
+      <Grid item xs={12} sm={6}>
         <TextField
           fullWidth
           label="Venue"
-          value={details.venue}
+          value={details.venue || ""}
           onChange={(e) => handleChange("venue", e.target.value)}
           error={!!errors.venue}
           helperText={errors.venue}
@@ -289,7 +290,7 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
         <TextField
           fullWidth
           label="City"
-          value={details.city}
+          value={details.city || ""}
           onChange={(e) => handleChange("city", e.target.value)}
           error={!!errors.city}
           helperText={errors.city}
@@ -301,11 +302,26 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
         <TextField
           fullWidth
           label="Country"
-          value={details.country}
+          value={details.country || ""}
           onChange={(e) => handleChange("country", e.target.value)}
           error={!!errors.country}
           helperText={errors.country}
           required
+        />
+      </Grid>
+
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          label="Ticket Link"
+          value={details.ticketLink || ""}
+          onChange={(e) => handleChange("ticketLink", e.target.value)}
+          error={!!errors.ticketLink}
+          helperText={
+            errors.ticketLink || "Add a link where users can purchase tickets"
+          }
+          placeholder="https://..."
+          type="url"
         />
       </Grid>
     </Grid>

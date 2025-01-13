@@ -4,7 +4,13 @@ export interface EventItem {
   name: string;
   description: string;
   date: string;
-  location: string;
+  venue: string;
+  city: string;
+  country: string;
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
   imageUrl?: string;
   createdAt: string;
   updatedAt: string;

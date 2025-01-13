@@ -33,7 +33,10 @@ const createAWSCredentials = async () => {
     }
 
     const idToken = tokens.idToken.toString();
-    console.log("🔐 Got ID token:", idToken.substring(0, 20) + "...");
+    console.log("🔐 AWS Client - Got ID Token:", {
+      tokenPreview: idToken.substring(0, 20) + "...",
+      provider: providerName,
+    });
 
     // Create Cognito Identity client
     const client = new CognitoIdentityClient({
@@ -41,7 +44,7 @@ const createAWSCredentials = async () => {
     });
 
     // Log the exact configuration being used
-    console.log("📝 Identity Pool Configuration:", {
+    console.log("📝 AWS Client - Identity Pool Configuration:", {
       region: AWS_REGION,
       userPoolId: USER_POOL_ID,
       identityPoolId: IDENTITY_POOL_ID,
@@ -62,7 +65,11 @@ const createAWSCredentials = async () => {
       throw new Error("Failed to get identity ID");
     }
 
-    console.log("✅ Got Identity ID:", IdentityId.substring(0, 10) + "...");
+    console.log("🆔 AWS Client - Identity Details:", {
+      identityId: IdentityId.substring(0, 10) + "...",
+      provider: providerName,
+      poolId: IDENTITY_POOL_ID,
+    });
 
     // Then get credentials for that identity
     const getCredentialsCommand = new GetCredentialsForIdentityCommand({
@@ -72,37 +79,19 @@ const createAWSCredentials = async () => {
       },
     });
 
-    const credentialsResult = await client.send(getCredentialsCommand);
-    const credentials = credentialsResult.Credentials;
+    const credentialsResponse = await client.send(getCredentialsCommand);
 
-    if (
-      !credentials?.AccessKeyId ||
-      !credentials?.SecretKey ||
-      !credentials?.SessionToken
-    ) {
-      throw new Error("Invalid credentials received from Cognito Identity");
-    }
-
-    // Create AWS credentials provider
-    const credentialsProvider = async () => ({
-      accessKeyId: credentials.AccessKeyId,
-      secretAccessKey: credentials.SecretKey,
-      sessionToken: credentials.SessionToken,
-      expiration: credentials.Expiration,
+    console.log("🔑 AWS Client - Credentials Obtained:", {
+      identityId: IdentityId.substring(0, 10) + "...",
+      hasAccessKey: !!credentialsResponse.Credentials?.AccessKeyId,
+      hasSecretKey: !!credentialsResponse.Credentials?.SecretKey,
+      hasSessionToken: !!credentialsResponse.Credentials?.SessionToken,
+      expiration: credentialsResponse.Credentials?.Expiration,
     });
 
-    console.log("✅ Successfully obtained AWS credentials");
-    return credentialsProvider;
-  } catch (error: any) {
-    console.error("❌ Error in createAWSCredentials:", {
-      error,
-      message: error.message,
-      region: AWS_REGION,
-      userPoolId: USER_POOL_ID,
-      identityPoolId: IDENTITY_POOL_ID,
-      errorType: error.name,
-      errorCode: error.$metadata?.httpStatusCode,
-    });
+    return credentialsResponse.Credentials;
+  } catch (error) {
+    console.error("❌ AWS Client - Credentials Error:", error);
     throw error;
   }
 };
@@ -136,10 +125,23 @@ export const createAWSClient = async <T extends AWSClientType>(
     // Get fresh credentials each time
     const credentials = await createAWSCredentials();
 
+    if (
+      !credentials?.AccessKeyId ||
+      !credentials?.SecretKey ||
+      !credentials?.SessionToken
+    ) {
+      throw new Error("Failed to obtain valid AWS credentials");
+    }
+
     // Create client with credentials and proper configuration
     const clientConfig = {
       region: AWS_REGION,
-      credentials,
+      credentials: {
+        accessKeyId: credentials.AccessKeyId,
+        secretAccessKey: credentials.SecretKey,
+        sessionToken: credentials.SessionToken,
+        expiration: credentials.Expiration,
+      },
       maxAttempts: 3,
       retryMode: "adaptive" as const,
     };
@@ -148,40 +150,14 @@ export const createAWSClient = async <T extends AWSClientType>(
       region: AWS_REGION,
       maxAttempts: clientConfig.maxAttempts,
       retryMode: clientConfig.retryMode,
+      hasCredentials: !!credentials,
     });
 
     const client = new ClientClass(clientConfig) as InstanceType<T>;
 
-    // Test the client by making a simple request
-    try {
-      if (client instanceof DynamoDBClient) {
-        // Test DynamoDB client specifically
-        console.log("🔍 Testing DynamoDB client credentials...");
-        const testClient = client as DynamoDBClient;
-        const creds = await testClient.config.credentials();
-
-        // Verify we have valid credentials
-        if (
-          !creds.accessKeyId ||
-          !creds.secretAccessKey ||
-          !creds.sessionToken
-        ) {
-          throw new Error("Invalid DynamoDB client credentials");
-        }
-
-        console.log("✅ DynamoDB client credentials verified");
-      }
-      console.log(`✅ Successfully created ${ClientClass.name} client`);
-      return client;
-    } catch (testError: any) {
-      console.error(`❌ Client test failed for ${ClientClass.name}:`, {
-        error: testError.message,
-        name: testError.name,
-        code: testError.$metadata?.httpStatusCode,
-        requestId: testError.$metadata?.requestId,
-      });
-      throw testError;
-    }
+    // Remove the overly strict validation and just return the client
+    console.log(`✅ Successfully created ${ClientClass.name} client`);
+    return client;
   } catch (error: any) {
     console.error(`❌ Failed to create ${ClientClass.name} client:`, {
       error: error.message,

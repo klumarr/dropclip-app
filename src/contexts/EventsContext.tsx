@@ -15,6 +15,12 @@ interface EventsContextType {
   events: Event[];
   loading: boolean;
   error: string | null;
+  fetchStatus: "idle" | "pending" | "success" | "error" | "retrying";
+  retryInfo: {
+    attempt: number;
+    maxAttempts: number;
+    nextRetryIn?: number;
+  } | null;
   isCreateDialogOpen: boolean;
   setIsCreateDialogOpen: (isOpen: boolean) => void;
   fetchEvents: () => Promise<void>;
@@ -27,6 +33,30 @@ interface EventsContextType {
 
 const EventsContext = createContext<EventsContextType | undefined>(undefined);
 
+/**
+ * EventsContext provides event management functionality with the following features:
+ * - Automatic data fetching with smart caching
+ * - Error handling with automatic retries
+ * - Activity-based polling for updates
+ * - Comprehensive state management
+ *
+ * Key Features:
+ * 1. Smart Caching:
+ *    - Caches events for CACHE_DURATION (5 minutes)
+ *    - Prevents duplicate requests
+ *    - Maintains data freshness
+ *
+ * 2. Error Handling:
+ *    - Automatic retries with exponential backoff
+ *    - Detailed error states and retry information
+ *    - Data validation before state updates
+ *
+ * 3. Activity-Based Updates:
+ *    - Polls frequently when user is active (5 minutes)
+ *    - Reduces polling when user is inactive (15 minutes)
+ *    - Tracks user activity across multiple events
+ */
+
 export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -38,39 +68,224 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
   // Prevent state updates after unmount
   const mounted = useRef(true);
   useEffect(() => {
+    mounted.current = true;
+    console.log("EventsContext - Provider mounted");
+
     return () => {
+      console.log("EventsContext - Provider unmounting");
       mounted.current = false;
     };
-  }, []);
+  }, []); // Empty dependency array for mount/unmount only
 
-  const safeDispatch = (action: any) => {
-    if (mounted.current) {
-      dispatch(action);
-    }
+  // Memoize the safeDispatch function
+  const safeDispatch = React.useCallback(
+    (action: any) => {
+      console.log("EventsContext - safeDispatch called with:", {
+        actionType: action.type,
+        isMounted: mounted.current,
+        payload: action.payload,
+        payloadType: typeof action.payload,
+        payloadLength: Array.isArray(action.payload)
+          ? action.payload.length
+          : "not an array",
+      });
+
+      if (mounted.current) {
+        console.log("EventsContext - Dispatching action:", action);
+        dispatch(action);
+
+        // Add a small delay before logging state to ensure it's updated
+        setTimeout(() => {
+          console.log("EventsContext - State after dispatch:", {
+            events: state.events?.length,
+            loading: state.loading,
+            error: state.error,
+          });
+        }, 0);
+      } else {
+        console.warn(
+          "EventsContext - Attempted dispatch while unmounted:",
+          action.type
+        );
+      }
+    },
+    [dispatch]
+  ); // Only depend on dispatch which is stable
+
+  // State management refs
+  const isRequestInProgress = useRef(false);
+  const lastFetchTimestamp = useRef<number | null>(null);
+  const eventStateRef = useRef<{
+    hasInitialData: boolean;
+    lastError: Error | null;
+  }>({
+    hasInitialData: false,
+    lastError: null,
+  });
+
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+  const shouldRefetchEvents = () => {
+    if (!lastFetchTimestamp.current) return true;
+    return Date.now() - lastFetchTimestamp.current > CACHE_DURATION;
   };
 
-  const fetchEvents = async () => {
+  // Additional state management
+  type FetchStatus = "idle" | "pending" | "success" | "error" | "retrying";
+  const [fetchStatus, setFetchStatus] = useState<FetchStatus>("idle");
+  const [retryInfo, setRetryInfo] = useState<{
+    attempt: number;
+    maxAttempts: number;
+    nextRetryIn?: number;
+  } | null>(null);
+
+  /**
+   * Validates event data structure
+   * @param events - Array of potential event objects
+   * @returns Type guard ensuring events match Event interface
+   */
+  const validateEvents = (events: unknown[]): events is Event[] => {
+    if (!Array.isArray(events)) return false;
+    return events.every(
+      (event): event is Event =>
+        typeof event === "object" &&
+        event !== null &&
+        "id" in event &&
+        "venue" in event
+    );
+  };
+
+  /**
+   * Fetches events with automatic retries and caching
+   * State Flow:
+   * 1. Checks authentication and request status
+   * 2. Validates cache freshness
+   * 3. Handles loading states and errors
+   * 4. Updates cache and state
+   */
+  const fetchEvents = React.useCallback(async () => {
+    const logPrefix = "EventsContext/fetchEvents";
+
     if (!isAuthenticated || !user?.id) {
-      console.log("User not authenticated, skipping fetch");
+      console.log(`${logPrefix} - User not authenticated, skipping fetch`);
       return;
     }
 
+    if (isRequestInProgress.current) {
+      console.log(`${logPrefix} - Request already in progress, skipping`, {
+        userId: user.id,
+        fetchStatus,
+        retryInfo,
+      });
+      return;
+    }
+
+    if (!shouldRefetchEvents() && eventStateRef.current.hasInitialData) {
+      console.log(`${logPrefix} - Using cached data`, {
+        lastFetch: new Date(lastFetchTimestamp.current!).toISOString(),
+        cacheAge: (Date.now() - lastFetchTimestamp.current!) / 1000,
+      });
+      return;
+    }
+
+    isRequestInProgress.current = true;
+    setFetchStatus("pending");
+
     try {
+      console.log(`${logPrefix} - Starting fetch`, {
+        userId: user.id,
+        retryAttempt: retryInfo?.attempt,
+      });
+
       safeDispatch({ type: "SET_LOADING", payload: true });
-      console.log("Fetching events for user:", user.id);
       const events = await eventsService.current.listEvents(user.id);
-      console.log("Events fetched successfully:", events.length);
+
+      // Log raw response before validation
+      console.log(`${logPrefix} - Received response:`, {
+        isArray: Array.isArray(events),
+        rawLength: Array.isArray(events) ? events.length : 0,
+        type: typeof events,
+      });
+
+      if (!validateEvents(events)) {
+        console.error(`${logPrefix} - Invalid event data received`, {
+          type: typeof events,
+          isArray: Array.isArray(events),
+          sample: events && Array.isArray(events) ? events[0] : null,
+        });
+        throw new Error("Invalid event data received");
+      }
+
+      // Now TypeScript knows events is Event[]
+      console.log(`${logPrefix} - Fetch successful`, {
+        eventCount: events.length,
+        firstEventId: events[0]?.id,
+        fetchDuration: Date.now() - (lastFetchTimestamp.current ?? Date.now()),
+      });
+
+      lastFetchTimestamp.current = Date.now();
+      eventStateRef.current.hasInitialData = true;
+      setRetryInfo(null);
+      setFetchStatus("success");
+
       safeDispatch({ type: "SET_EVENTS", payload: events });
     } catch (error) {
-      console.error("Error fetching events:", error);
-      safeDispatch({
-        type: "SET_ERROR",
-        payload: "Failed to fetch events. Please try again.",
+      console.error(`${logPrefix} - Error fetching events`, {
+        error,
+        userId: user.id,
+        retryAttempt: retryInfo?.attempt,
       });
+
+      eventStateRef.current.lastError = error as Error;
+
+      const currentRetry = (retryInfo?.attempt ?? 0) + 1;
+      const maxRetries = 3;
+
+      if (currentRetry < maxRetries) {
+        const retryDelay = Math.pow(2, currentRetry) * 1000;
+        setFetchStatus("retrying");
+        setRetryInfo({
+          attempt: currentRetry,
+          maxAttempts: maxRetries,
+          nextRetryIn: retryDelay / 1000,
+        });
+
+        console.log(`${logPrefix} - Scheduling retry`, {
+          attempt: currentRetry,
+          maxRetries,
+          delayMs: retryDelay,
+        });
+
+        setTimeout(() => {
+          fetchEvents();
+        }, retryDelay);
+      } else {
+        console.error(`${logPrefix} - Max retries exceeded`, {
+          attempts: currentRetry,
+          maxRetries,
+        });
+
+        setFetchStatus("error");
+        setRetryInfo(null);
+        safeDispatch({
+          type: "SET_ERROR",
+          payload:
+            "Failed to fetch events after multiple attempts. Please try again.",
+        });
+      }
     } finally {
-      safeDispatch({ type: "SET_LOADING", payload: false });
+      isRequestInProgress.current = false;
+      if (fetchStatus !== "retrying") {
+        safeDispatch({ type: "SET_LOADING", payload: false });
+      }
     }
-  };
+  }, [
+    isAuthenticated,
+    user?.id,
+    safeDispatch,
+    retryInfo?.attempt,
+    fetchStatus,
+  ]);
 
   const createEvent = async (eventData: EventFormData): Promise<Event> => {
     if (!isAuthenticated || !user?.id) {
@@ -79,13 +294,13 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
 
     try {
       safeDispatch({ type: "SET_LOADING", payload: true });
-      console.log("Creating event for user:", user.id);
+      console.log("EventsContext - Creating event for user:", user.id);
       const event = await eventsService.current.createEvent(user.id, eventData);
-      console.log("Event created successfully:", event.id);
+      console.log("EventsContext - Event created successfully:", event.id);
       safeDispatch({ type: "ADD_EVENT", payload: event });
       return event;
     } catch (error) {
-      console.error("Error creating event:", error);
+      console.error("EventsContext - Error creating event:", error);
       safeDispatch({
         type: "SET_ERROR",
         payload: "Failed to create event. Please try again.",
@@ -101,22 +316,44 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
     eventData: Partial<Event>
   ): Promise<Event> => {
     if (!isAuthenticated || !user?.id) {
+      console.log("🔒 Auth Check - User Details:", {
+        isAuthenticated,
+        userId: user?.id,
+        userAttributes: user,
+      });
       throw new Error("User not authenticated");
     }
 
     try {
       safeDispatch({ type: "SET_LOADING", payload: true });
-      console.log("Updating event:", eventId);
+      console.log("🔄 EventsContext - Update Event Flow:", {
+        eventId,
+        userId: user.id,
+        eventData,
+        cognitoSub: user.id, // This should match creativeId
+      });
+
       const updatedEvent = await eventsService.current.updateEvent(
         eventId,
         user.id,
         eventData
       );
-      console.log("Event updated successfully:", updatedEvent.id);
+
+      console.log("✅ EventsContext - Event Updated:", {
+        eventId: updatedEvent.id,
+        creativeId: updatedEvent.creativeId,
+        userId: user.id,
+        matched: updatedEvent.creativeId === user.id,
+      });
+
       safeDispatch({ type: "UPDATE_EVENT", payload: updatedEvent });
       return updatedEvent;
     } catch (error) {
-      console.error("Error updating event:", error);
+      console.error("❌ EventsContext - Update Error:", {
+        error,
+        userId: user.id,
+        eventId,
+      });
       safeDispatch({
         type: "SET_ERROR",
         payload: "Failed to update event. Please try again.",
@@ -134,12 +371,12 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
 
     try {
       safeDispatch({ type: "SET_LOADING", payload: true });
-      console.log("Deleting event:", eventId);
+      console.log("EventsContext - Deleting event:", eventId);
       await eventsService.current.deleteEvent(eventId, user.id);
-      console.log("Event deleted successfully");
+      console.log("EventsContext - Event deleted successfully");
       safeDispatch({ type: "DELETE_EVENT", payload: eventId });
     } catch (error) {
-      console.error("Error deleting event:", error);
+      console.error("EventsContext - Error deleting event:", error);
       safeDispatch({
         type: "SET_ERROR",
         payload: "Failed to delete event. Please try again.",
@@ -150,17 +387,12 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  // Fetch events when user becomes authenticated
-  useEffect(() => {
-    if (isAuthenticated && user?.id) {
-      fetchEvents();
-    }
-  }, [isAuthenticated, user?.id]);
-
   const value = {
     events: state.events,
     loading: state.loading,
     error: state.error,
+    fetchStatus,
+    retryInfo,
     isCreateDialogOpen,
     setIsCreateDialogOpen,
     fetchEvents,
@@ -174,11 +406,11 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
 
       try {
         safeDispatch({ type: "SET_LOADING", payload: true });
-        console.log("Sharing event:", eventId);
+        console.log("EventsContext - Sharing event:", eventId);
         // TODO: Implement share functionality
-        console.log("Event shared successfully");
+        console.log("EventsContext - Event shared successfully");
       } catch (error) {
-        console.error("Error sharing event:", error);
+        console.error("EventsContext - Error sharing event:", error);
         safeDispatch({
           type: "SET_ERROR",
           payload: "Failed to share event. Please try again.",
@@ -192,6 +424,93 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
       safeDispatch({ type: "SET_ERROR", payload: error });
     },
   };
+
+  console.log("EventsContext - Providing context value:", {
+    eventsCount: value.events?.length,
+    loading: value.loading,
+    error: value.error,
+    firstEvent: value.events?.[0],
+  });
+
+  // Subscription management
+  const eventSubscription = useRef<{
+    unsubscribe?: () => void;
+  }>({});
+
+  // Cleanup effect
+  useEffect(() => {
+    return () => {
+      // Reset all refs and state on unmount
+      isRequestInProgress.current = false;
+      lastFetchTimestamp.current = null;
+      eventStateRef.current = { hasInitialData: false, lastError: null };
+      setFetchStatus("idle");
+      eventSubscription.current.unsubscribe?.();
+    };
+  }, []);
+
+  // User activity tracking
+  const ACTIVE_POLL_INTERVAL = 5 * 60 * 1000; // 5 minutes
+  const INACTIVE_POLL_INTERVAL = 15 * 60 * 1000; // 15 minutes
+  const ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+
+  const lastActivityTime = useRef(Date.now());
+  const [isUserActive, setIsUserActive] = useState(true);
+
+  useEffect(() => {
+    const updateActivity = () => {
+      lastActivityTime.current = Date.now();
+      setIsUserActive(true);
+    };
+
+    // Track user activity
+    const events = ["mousedown", "keydown", "touchstart", "scroll"];
+
+    events.forEach((event) => {
+      window.addEventListener(event, updateActivity);
+    });
+
+    // Check for inactivity
+    const inactivityCheck = setInterval(() => {
+      const timeSinceLastActivity = Date.now() - lastActivityTime.current;
+      if (timeSinceLastActivity > ACTIVITY_TIMEOUT) {
+        setIsUserActive(false);
+      }
+    }, 60000); // Check every minute
+
+    return () => {
+      events.forEach((event) => {
+        window.removeEventListener(event, updateActivity);
+      });
+      clearInterval(inactivityCheck);
+    };
+  }, []);
+
+  // Event subscription effect with activity-based polling
+  useEffect(() => {
+    if (isAuthenticated && user?.id) {
+      const pollInterval = setInterval(
+        () => {
+          if (shouldRefetchEvents()) {
+            console.log("EventsContext - Polling for updates:", {
+              isUserActive,
+              interval: isUserActive ? "active" : "inactive",
+            });
+            fetchEvents();
+          }
+        },
+        isUserActive ? ACTIVE_POLL_INTERVAL : INACTIVE_POLL_INTERVAL
+      );
+
+      eventSubscription.current.unsubscribe = () => {
+        clearInterval(pollInterval);
+      };
+    }
+
+    return () => {
+      eventSubscription.current.unsubscribe?.();
+    };
+  }, [isAuthenticated, user?.id, fetchEvents, isUserActive]);
 
   return (
     <EventsContext.Provider value={value}>{children}</EventsContext.Provider>

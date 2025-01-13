@@ -21,8 +21,8 @@
         "arn:aws:dynamodb:*:*:table/dev-analytics"
       ],
       "Condition": {
-        "ForAllValues:StringEquals": {
-          "dynamodb:LeadingKeys": ["${cognito-identity.amazonaws.com:sub}"]
+        "StringEquals": {
+          "dynamodb:Attributes.identityId": ["${aws:userid}"]
         }
       }
     },

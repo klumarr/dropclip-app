@@ -22,6 +22,7 @@ interface CachedCredentials {
   secretAccessKey: string;
   sessionToken: string;
   expiration: Date;
+  identityId: string;
 }
 
 let cachedCredentials: CachedCredentials | null = null;
@@ -82,7 +83,7 @@ export const getCredentials = async () => {
       throw new Error("Failed to get identity ID");
     }
 
-    console.log("✅ Got Identity ID");
+    console.log("✅ Got Identity ID:", IdentityId);
 
     // Get credentials
     const getCredentialsCommand = new GetCredentialsForIdentityCommand({
@@ -100,11 +101,24 @@ export const getCredentials = async () => {
 
     console.log("✅ Got AWS credentials");
 
+    // Construct the full ARN
+    const accountId = "872515266409"; // This should come from your config
+    const identityArn = `arn:aws:sts::${accountId}:assumed-role/dropclip-creative-role/CognitoIdentityCredentials`;
+
+    // Log the full identity information
+    console.log("Identity Information:", {
+      IdentityId,
+      IdentityPoolId: identityPoolId,
+      identityArn,
+      timestamp: new Date().toISOString(),
+    });
+
     const credentials = {
       accessKeyId: response.Credentials.AccessKeyId!,
       secretAccessKey: response.Credentials.SecretKey!,
       sessionToken: response.Credentials.SessionToken!,
       expiration: response.Credentials.Expiration!,
+      identityId: identityArn, // Store the full ARN instead of just the Identity ID
     };
 
     // Cache the credentials

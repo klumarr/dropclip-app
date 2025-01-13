@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import {
   EventDetails,
+  Event,
   EventFormData,
   EventFormErrors,
 } from "../../../../types/events";
@@ -20,49 +21,69 @@ import { EventDetailsForm } from "../EventDetailsForm";
 import { UploadConfigForm } from "../UploadConfigForm";
 import { EventPreview } from "../EventPreview";
 
-interface CreateEventDialogProps {
+interface EditEventDialogProps {
+  event: Event;
   open: boolean;
   onClose: () => void;
-  onSubmit: (formData: EventFormData) => Promise<void>;
+  onSubmit: (eventId: string, formData: EventFormData) => Promise<void>;
 }
-
-const initialEventDetails: EventDetails = {
-  name: "",
-  description: "",
-  type: undefined,
-  tags: [],
-  suggestedTags: [],
-  date: "",
-  time: "",
-  endDate: "",
-  endTime: "",
-  venue: "",
-  city: "",
-  country: "",
-  ticketLink: "",
-};
-
-const initialUploadConfig = {
-  enabled: false,
-  startTime: "",
-  endTime: "",
-  allowedTypes: ["image/*", "video/*"],
-  maxFileSize: 10,
-  maxFilesPerUser: 5,
-};
 
 const steps = ["Event Details", "Upload Settings", "Preview"];
 
-export const CreateEventDialog: React.FC<CreateEventDialogProps> = ({
+export const EditEventDialog: React.FC<EditEventDialogProps> = ({
+  event,
   open,
   onClose,
   onSubmit,
 }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [details, setDetails] = useState<EventDetails>(initialEventDetails);
-  const [uploadConfig, setUploadConfig] = useState(initialUploadConfig);
+  const [details, setDetails] = useState<EventDetails>({
+    name: "",
+    description: "",
+    type: "",
+    tags: [],
+    suggestedTags: [],
+    date: "",
+    time: "",
+    endDate: "",
+    endTime: "",
+    venue: "",
+    city: "",
+    country: "",
+    ticketLink: "",
+  });
+  const [uploadConfig, setUploadConfig] = useState({
+    enabled: false,
+    startTime: "",
+    endTime: "",
+    allowedTypes: ["image/*", "video/*"],
+    maxFileSize: 10,
+    maxFilesPerUser: 5,
+  });
   const [errors, setErrors] = useState<EventFormErrors>({});
+
+  // Initialize form with event data
+  useEffect(() => {
+    if (event) {
+      setDetails({
+        name: event.name,
+        description: event.description,
+        type: event.type,
+        tags: event.tags || [],
+        suggestedTags: [],
+        date: event.date,
+        time: event.time,
+        endDate: event.endDate || "",
+        endTime: event.endTime || "",
+        venue: event.venue,
+        city: event.city,
+        country: event.country,
+        ticketLink: event.ticketLink || "",
+        flyerImageUrl: event.flyerUrl,
+      });
+    }
+  }, [event]);
 
   const validateEventDetails = (): boolean => {
     const newErrors: EventFormErrors = {};
@@ -164,13 +185,24 @@ export const CreateEventDialog: React.FC<CreateEventDialogProps> = ({
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
-      await onSubmit({
-        details,
-        uploadConfig,
+      await onSubmit(event.id, {
+        name: details.name,
+        description: details.description,
+        type: details.type,
+        tags: details.tags,
+        date: details.date,
+        time: details.time,
+        endDate: details.endDate,
+        endTime: details.endTime,
+        venue: details.venue,
+        city: details.city,
+        country: details.country,
+        ticketLink: details.ticketLink,
+        flyerUrl: details.flyerImageUrl,
       });
       handleClose();
     } catch (error) {
-      console.error("Error creating event:", error);
+      console.error("Error updating event:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -178,8 +210,6 @@ export const CreateEventDialog: React.FC<CreateEventDialogProps> = ({
 
   const handleClose = () => {
     setActiveStep(0);
-    setDetails(initialEventDetails);
-    setUploadConfig(initialUploadConfig);
     setErrors({});
     onClose();
   };
@@ -219,7 +249,7 @@ export const CreateEventDialog: React.FC<CreateEventDialogProps> = ({
         sx: { minHeight: "70vh" },
       }}
     >
-      <DialogTitle>Create New Event</DialogTitle>
+      <DialogTitle>Edit Event</DialogTitle>
       <DialogContent>
         <Box sx={{ width: "100%", mt: 2 }}>
           <Stepper activeStep={activeStep} alternativeLabel>
@@ -242,7 +272,7 @@ export const CreateEventDialog: React.FC<CreateEventDialogProps> = ({
             disabled={isSubmitting}
             startIcon={isSubmitting && <CircularProgress size={20} />}
           >
-            Create Event
+            Save Changes
           </Button>
         ) : (
           <Button onClick={handleNext} variant="contained">
