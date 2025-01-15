@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Box, Alert, Snackbar, Typography } from "@mui/material";
 import { useAuth } from "../../contexts/AuthContext";
 import { useEvents } from "../../contexts/EventsContext";
-import { EventList } from "../../components/events/creative/EventList";
+import { EventCardList } from "../../components/events/creative/EventList/EventCardList";
 import { DeleteConfirmationDialog } from "../../components/events/creative/DeleteConfirmationDialog";
 import { CreateEventDialog } from "../../components/events/creative/CreateEventDialog";
 import { EditEventDialog } from "../../components/events/creative/EditEventDialog";
@@ -20,6 +20,7 @@ const EventsPage: React.FC = () => {
     deleteEvent,
     createEvent,
     updateEvent,
+    setNewEvent,
   } = useEvents();
   const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
   const [eventToEdit, setEventToEdit] = useState<Event | null>(null);
@@ -113,21 +114,9 @@ const EventsPage: React.FC = () => {
     setIsScannerOpen(false);
   };
 
-  const handleEventDetected = async (eventData: Partial<EventFormData>) => {
-    try {
-      if (!eventData.name) {
-        throw new Error("Event name is required");
-      }
-      await createEvent(eventData as EventFormData);
-      setShowSuccessAlert(true);
-      setIsScannerOpen(false);
-    } catch (error) {
-      console.error("Error creating event from scan:", error);
-      setErrorMessage(
-        error instanceof Error ? error.message : "Failed to create event"
-      );
-      setShowErrorAlert(true);
-    }
+  const handleEventDetected = (eventData: Partial<EventFormData>) => {
+    setNewEvent(eventData);
+    setIsCreateDialogOpen(true);
   };
 
   const handleAlertClose = () => {
@@ -136,59 +125,66 @@ const EventsPage: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 3, position: "relative", minHeight: "100vh" }}>
-      <Typography variant="h4" gutterBottom>
-        Events
-      </Typography>
-      <EventList
-        events={events || []}
-        onEditClick={handleEditClick}
-        onDeleteClick={handleDeleteClick}
-      />
-      <ActionButtons
-        onCreateClick={handleCreateClick}
-        onScanClick={handleScanClick}
-      />
-      {eventToDelete && (
-        <DeleteConfirmationDialog
-          event={eventToDelete}
-          open={Boolean(eventToDelete)}
-          onClose={handleDeleteClose}
-          onConfirm={handleDeleteConfirm}
-          isDeleting={isDeleting}
+    <Box sx={{ height: "100%", position: "relative" }}>
+      {loading ? (
+        <Typography>Loading events...</Typography>
+      ) : error ? (
+        <Alert severity="error">{error}</Alert>
+      ) : (
+        <EventCardList
+          events={events}
+          onEditClick={handleEditClick}
+          onDeleteClick={handleDeleteClick}
         />
       )}
+
+      <ActionButtons
+        onCreateClick={() => setIsCreateDialogOpen(true)}
+        onScanClick={() => setIsScannerOpen(true)}
+      />
+
       <CreateEventDialog
         open={isCreateDialogOpen}
         onClose={() => setIsCreateDialogOpen(false)}
         onSubmit={handleCreateSubmit}
       />
-      {eventToEdit && (
-        <EditEventDialog
-          event={eventToEdit}
-          open={Boolean(eventToEdit)}
-          onClose={handleEditClose}
-          onSubmit={handleEditSubmit}
-        />
-      )}
+
+      <EditEventDialog
+        open={!!eventToEdit}
+        event={eventToEdit}
+        onClose={() => setEventToEdit(null)}
+        onSubmit={handleEditSubmit}
+      />
+
+      <DeleteConfirmationDialog
+        open={!!eventToDelete}
+        event={eventToDelete}
+        onClose={() => setEventToDelete(null)}
+        onConfirm={handleDeleteConfirm}
+        isDeleting={isDeleting}
+      />
+
       <FlyerScanner
         open={isScannerOpen}
-        onClose={handleScanClose}
-        onEventDetected={handleEventDetected}
+        onClose={() => setIsScannerOpen(false)}
+        onEventDetected={(eventData) => {
+          setNewEvent(eventData);
+          setIsCreateDialogOpen(true);
+        }}
       />
+
       <Snackbar
         open={showSuccessAlert}
         autoHideDuration={6000}
-        onClose={handleAlertClose}
+        onClose={() => setShowSuccessAlert(false)}
       >
-        <Alert severity="success">
-          Event operation completed successfully!
-        </Alert>
+        <Alert severity="success">Event updated successfully!</Alert>
       </Snackbar>
+
       <Snackbar
         open={showErrorAlert}
         autoHideDuration={6000}
-        onClose={handleAlertClose}
+        onClose={() => setShowErrorAlert(false)}
       >
         <Alert severity="error">{errorMessage}</Alert>
       </Snackbar>

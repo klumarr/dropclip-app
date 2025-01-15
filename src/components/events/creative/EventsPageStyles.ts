@@ -1,5 +1,5 @@
 import { styled } from "@mui/material/styles";
-import { Box, Card, CardContent, Button } from "@mui/material";
+import { Box, Card, CardContent, Button, alpha } from "@mui/material";
 
 export const ScrollSection = styled(Box)(({ theme }) => ({
   overflowX: "auto",
@@ -29,30 +29,26 @@ export const EventsRow = styled(Box)({
 });
 
 export const EventCard = styled(Card)(({ theme }) => ({
-  display: "inline-block",
-  width: 250,
-  height: 400,
-  flexShrink: 0,
-  backgroundColor: "rgba(255, 255, 255, 0.05)",
-  transition: "all 0.3s ease",
-  "&:hover": {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    transform: "translateY(-4px)",
-  },
-  whiteSpace: "normal",
-  cursor: "pointer",
-  borderRadius: theme.spacing(2),
-  overflow: "hidden",
-  margin: theme.spacing(0.5),
   position: "relative",
+  width: 280,
+  minWidth: 280,
+  height: 400,
+  borderRadius: theme.shape.borderRadius,
+  overflow: "hidden",
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: theme.shadows[2],
+  transition: "transform 0.2s ease-in-out",
+  cursor: "pointer",
+  "&:hover": {
+    transform: "translateY(-4px)",
+    boxShadow: theme.shadows[4],
+  },
 }));
 
 export const EventCardMedia = styled("img")({
   width: "100%",
   height: "100%",
   objectFit: "cover",
-  display: "block",
-  cursor: "pointer",
 });
 
 export const EventCardContent = styled(CardContent)(({ theme }) => ({
@@ -62,20 +58,70 @@ export const EventCardContent = styled(CardContent)(({ theme }) => ({
   right: 0,
   padding: theme.spacing(2),
   background:
-    "linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,0) 100%)",
-  minHeight: "50%",
+    "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 60%, transparent 100%)",
   display: "flex",
   flexDirection: "column",
   justifyContent: "flex-end",
+  height: "60%",
   "& .MuiTypography-root": {
     color: "#fff",
-    textShadow: "0 1px 2px rgba(0,0,0,0.8)",
+    textShadow: "0 1px 2px rgba(0,0,0,0.6)",
+  },
+  "& .MuiTypography-h6": {
+    fontSize: "1.1rem",
+    fontWeight: 600,
+    marginBottom: theme.spacing(0.5),
+  },
+  "& .MuiTypography-body1": {
+    fontSize: "0.9rem",
+    marginBottom: theme.spacing(0.5),
+  },
+  "& .MuiTypography-body2": {
+    fontSize: "0.8rem",
+    opacity: 0.9,
+    marginBottom: theme.spacing(0.5),
   },
   "& .MuiIconButton-root": {
     color: "#fff",
     backgroundColor: "rgba(0,0,0,0.3)",
     "&:hover": {
       backgroundColor: "rgba(0,0,0,0.5)",
+    },
+  },
+}));
+
+export const EventStatusIndicator = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "isPast",
+})<{ isPast?: boolean }>(({ theme, isPast }) => ({
+  position: "absolute",
+  top: theme.spacing(2),
+  right: theme.spacing(2),
+  padding: theme.spacing(0.5, 1.5),
+  borderRadius: theme.spacing(2),
+  backgroundColor: isPast
+    ? alpha(theme.palette.grey[500], 0.9)
+    : alpha(theme.palette.primary.main, 0.9),
+  color: "#fff",
+  fontSize: "0.75rem",
+  fontWeight: 500,
+  textTransform: "uppercase",
+  letterSpacing: "0.5px",
+  backdropFilter: "blur(4px)",
+  zIndex: 1,
+}));
+
+export const ActionButtonsWrapper = styled(Box)(({ theme }) => ({
+  display: "flex",
+  gap: theme.spacing(1),
+  marginTop: theme.spacing(2),
+  "& .MuiIconButton-root": {
+    color: "#fff",
+    backgroundColor: alpha(theme.palette.common.black, 0.3),
+    backdropFilter: "blur(4px)",
+    transition: "all 0.2s ease",
+    "&:hover": {
+      backgroundColor: alpha(theme.palette.common.black, 0.5),
+      transform: "scale(1.1)",
     },
   },
 }));

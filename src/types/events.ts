@@ -93,6 +93,17 @@ export interface EventFormData {
   uploadConfig: UploadConfig;
 }
 
+export interface ConfidenceScores {
+  name: number;
+  date: number;
+  time: number;
+  venue: number;
+}
+
+export interface ExtractedEventData extends Partial<EventFormData> {
+  confidence?: ConfidenceScores;
+}
+
 export interface EventFormErrors {
   name?: string;
   description?: string;

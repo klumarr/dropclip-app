@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
   Grid,
   TextField,
@@ -12,6 +12,10 @@ import {
   Box,
   Button,
   IconButton,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import {
   CloudUpload as UploadIcon,
@@ -23,6 +27,7 @@ import {
   EventType,
 } from "../../../../types/events";
 import { styled } from "@mui/material/styles";
+import { useImageUpload } from "../../../../hooks/useImageUpload";
 
 // Styled components
 const VisuallyHiddenInput = styled("input")({
@@ -37,22 +42,19 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 
-const ImagePreview = styled(Box)(({ theme }) => ({
+const ImagePreview = styled(Box)({
+  position: "relative",
   width: "100%",
   height: 200,
-  borderRadius: theme.shape.borderRadius,
-  border: `1px solid ${theme.palette.divider}`,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  position: "relative",
+  borderRadius: 8,
   overflow: "hidden",
+  cursor: "pointer",
   "& img": {
     width: "100%",
     height: "100%",
     objectFit: "cover",
   },
-}));
+});
 
 interface EventDetailsFormProps {
   details: EventDetails;
@@ -75,6 +77,14 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
   onChange,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const {
+    isUploading,
+    uploadProgress,
+    handleImageUpload: uploadToS3,
+    handleImageRemove,
+    error,
+  } = useImageUpload();
+  const [isImageExpanded, setIsImageExpanded] = useState(false);
 
   const handleChange = (field: keyof EventDetails, value: any) => {
     onChange({ ...details, [field]: value });
@@ -85,18 +95,24 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
     handleChange("tags", tags);
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
-      handleChange("flyerImage", file);
-      const previewUrl = URL.createObjectURL(file);
-      handleChange("flyerImageUrl", previewUrl);
+      try {
+        const flyerUrl = await uploadToS3(file);
+        handleChange("flyerUrl", flyerUrl);
+      } catch (error) {
+        console.error("Failed to upload image:", error);
+      }
     }
   };
 
   const handleRemoveImage = () => {
     handleChange("flyerImage", null);
-    handleChange("flyerImageUrl", undefined);
+    handleChange("flyerUrl", undefined);
+    handleImageRemove();
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -126,34 +142,74 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
             type="file"
             accept="image/*"
             style={{ display: "none" }}
-            onChange={handleImageUpload}
+            onChange={handleImageChange}
           />
-          {!details.flyerImageUrl ? (
+          {!details.flyerUrl ? (
             <Button
               component="label"
               variant="outlined"
-              startIcon={<UploadIcon />}
+              startIcon={
+                isUploading ? <CircularProgress size={20} /> : <UploadIcon />
+              }
               onClick={() => fileInputRef.current?.click()}
               fullWidth
               sx={{ height: 200 }}
+              disabled={isUploading}
             >
-              Upload Flyer Image
+              {isUploading
+                ? `Uploading... ${uploadProgress}%`
+                : "Upload Flyer Image"}
             </Button>
           ) : (
-            <ImagePreview>
-              <img src={details.flyerImageUrl} alt="Event flyer preview" />
-              <IconButton
-                sx={{
-                  position: "absolute",
-                  top: 8,
-                  right: 8,
-                  bgcolor: "background.paper",
-                }}
-                onClick={handleRemoveImage}
+            <>
+              <ImagePreview onClick={() => setIsImageExpanded(true)}>
+                <img src={details.flyerUrl} alt="Event flyer preview" />
+                <IconButton
+                  sx={{
+                    position: "absolute",
+                    top: 8,
+                    right: 8,
+                    bgcolor: "background.paper",
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveImage();
+                  }}
+                  disabled={isUploading}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </ImagePreview>
+
+              <Dialog
+                open={isImageExpanded}
+                onClose={() => setIsImageExpanded(false)}
+                maxWidth={false}
               >
-                <DeleteIcon />
-              </IconButton>
-            </ImagePreview>
+                <DialogContent sx={{ p: 0 }}>
+                  <Box
+                    component="img"
+                    src={details.flyerUrl}
+                    alt="Event flyer full size"
+                    sx={{
+                      width: "90vw",
+                      maxHeight: "90vh",
+                      objectFit: "contain",
+                    }}
+                  />
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={() => setIsImageExpanded(false)}>
+                    Close
+                  </Button>
+                </DialogActions>
+              </Dialog>
+            </>
+          )}
+          {error && (
+            <Typography color="error" variant="caption" sx={{ mt: 1 }}>
+              {error}
+            </Typography>
           )}
         </Box>
       </Grid>

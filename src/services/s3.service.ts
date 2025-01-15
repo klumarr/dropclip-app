@@ -8,6 +8,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { Upload } from "@aws-sdk/lib-storage";
 import { getAWSClient } from "./aws-client.factory";
 import { region as AWS_REGION } from "../config/amplify-config";
+import { getCredentials } from "./auth.service";
 
 // Define the progress event type
 interface ProgressEvent {
@@ -38,7 +39,7 @@ interface S3Operations {
     userId: string,
     fileName: string
   ) => string;
-  generateFlyerKey: (eventId: string, fileName: string) => string;
+  generateFlyerKey: (eventId: string, fileName: string) => Promise<string>;
   getUploadUrl: (key: string, contentType: string) => Promise<string>;
 }
 
@@ -215,10 +216,15 @@ export const s3Operations: S3Operations = {
     return `uploads/${eventId}/${userId}/${timestamp}_${sanitizedFileName}`;
   },
 
-  generateFlyerKey(eventId: string, fileName: string): string {
+  generateFlyerKey: async (
+    eventId: string,
+    fileName: string
+  ): Promise<string> => {
     const timestamp = Date.now();
     const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, "_");
-    return `events/${eventId}/flyers/${timestamp}_${sanitizedFileName}`;
+    const credentials = await getCredentials();
+    const identityId = credentials.identityId.split("/").pop(); // Get the last part of the ARN
+    return `events/${identityId}/${eventId}/flyers/${timestamp}_${sanitizedFileName}`;
   },
 
   async getUploadUrl(key: string, contentType: string): Promise<string> {

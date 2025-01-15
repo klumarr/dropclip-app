@@ -5,21 +5,20 @@ import {
   Paper,
   ToggleButtonGroup,
   ToggleButton,
-  Grid,
 } from "@mui/material";
 import { Event } from "../../../../types/events";
 import EventCard from "../../common/EventCard";
-import { ScrollSection, EventsRow } from "../../creative/EventsPageStyles";
+import { ScrollSection, EventsRow } from "../EventsPageStyles";
 
 type FilterType = "all" | "upcoming" | "past";
 
-interface EventListProps {
+interface EventCardListProps {
   events: Event[];
   onEditClick: (event: Event) => void;
   onDeleteClick: (event: Event) => void;
 }
 
-export const EventList: React.FC<EventListProps> = ({
+export const EventCardList: React.FC<EventCardListProps> = ({
   events,
   onEditClick,
   onDeleteClick,

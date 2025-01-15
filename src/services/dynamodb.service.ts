@@ -31,7 +31,10 @@ export const eventOperations = {
 
     // Handle flyer upload if provided
     if (flyerFile) {
-      const fileKey = s3Operations.generateFlyerKey(event.id, flyerFile.name);
+      const fileKey = await s3Operations.generateFlyerKey(
+        event.id,
+        flyerFile.name
+      );
       const uploadUrl = await s3Operations.getUploadUrl(
         fileKey,
         flyerFile.type

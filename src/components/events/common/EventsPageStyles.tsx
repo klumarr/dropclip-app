@@ -52,7 +52,9 @@ export const EventCardMedia = styled("img")({
   height: "100%",
   objectFit: "cover",
   display: "block",
-  cursor: "pointer",
+  position: "absolute",
+  top: 0,
+  left: 0,
 });
 
 export const EventCardContent = styled(CardContent)(({ theme }) => ({
@@ -62,14 +64,28 @@ export const EventCardContent = styled(CardContent)(({ theme }) => ({
   right: 0,
   padding: theme.spacing(2),
   background:
-    "linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,0) 100%)",
-  minHeight: "50%",
+    "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 60%, transparent 100%)",
   display: "flex",
   flexDirection: "column",
   justifyContent: "flex-end",
+  height: "60%",
   "& .MuiTypography-root": {
     color: "#fff",
-    textShadow: "0 1px 2px rgba(0,0,0,0.8)",
+    textShadow: "0 1px 2px rgba(0,0,0,0.6)",
+  },
+  "& .MuiTypography-h6": {
+    fontSize: "1.1rem",
+    fontWeight: 600,
+    marginBottom: theme.spacing(0.5),
+  },
+  "& .MuiTypography-body1": {
+    fontSize: "0.9rem",
+    marginBottom: theme.spacing(0.5),
+  },
+  "& .MuiTypography-body2": {
+    fontSize: "0.8rem",
+    opacity: 0.9,
+    marginBottom: theme.spacing(0.5),
   },
   "& .MuiIconButton-root": {
     color: "#fff",
