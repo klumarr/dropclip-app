@@ -13,7 +13,7 @@ import { TestComponentsPage } from "../pages/TestComponentsPage";
 import UploadManagementDashboard from "../pages/fan/uploads";
 
 // Lazy load components with default exports
-const EventsPage = lazy(() => import("../pages/EventsPage"));
+const EventsPage = lazy(() => import("../pages/creative/EventsPage"));
 const PlaylistsPage = lazy(() => import("../pages/PlaylistsPage"));
 const SignInPage = lazy(() => import("../pages/auth/SignInPage"));
 const SignUpPage = lazy(() => import("../pages/SignUpPage"));

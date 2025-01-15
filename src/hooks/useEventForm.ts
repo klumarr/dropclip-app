@@ -3,6 +3,7 @@ import {
   EventFormData,
   EventFormErrors,
   initialEventFormData,
+  UploadConfig,
 } from "../types/events";
 import { useEvents } from "../contexts/EventsContext";
 
@@ -43,13 +44,10 @@ export const useEventForm = (initialData?: EventFormData) => {
     setIsDirty(true);
   }, []);
 
-  const handleUploadConfigChange = useCallback((field: string, value: any) => {
+  const handleUploadConfigChange = useCallback((newConfig: UploadConfig) => {
     setFormData((prev) => ({
       ...prev,
-      uploadConfig: {
-        ...prev.uploadConfig,
-        [field]: value,
-      },
+      uploadConfig: newConfig,
     }));
     setIsDirty(true);
   }, []);
@@ -57,8 +55,8 @@ export const useEventForm = (initialData?: EventFormData) => {
   const handleImageChange = useCallback((file?: File) => {
     setFormData((prev) => ({
       ...prev,
-      imageFile: file,
-      imageUrl: file ? URL.createObjectURL(file) : undefined,
+      flyerImage: file || null,
+      flyerUrl: file ? URL.createObjectURL(file) : undefined,
     }));
     setIsDirty(true);
   }, []);
@@ -67,21 +65,28 @@ export const useEventForm = (initialData?: EventFormData) => {
     const newErrors: EventFormErrors = {};
 
     // Required fields
-    if (!formData.title) newErrors.title = "Title is required";
+    if (!formData.name) newErrors.name = "Event name is required";
     if (!formData.description)
       newErrors.description = "Description is required";
     if (!formData.date) newErrors.date = "Date is required";
-    if (!formData.startTime) newErrors.startTime = "Start time is required";
-    if (!formData.endTime) newErrors.endTime = "End time is required";
-    if (!formData.location) newErrors.location = "Location is required";
+    if (!formData.time) newErrors.time = "Time is required";
+    if (!formData.venue) newErrors.venue = "Venue is required";
+    if (!formData.city) newErrors.city = "City is required";
+    if (!formData.country) newErrors.country = "Country is required";
 
     // Upload config validation
     if (formData.uploadConfig.enabled) {
+      const uploadConfigErrors: Record<string, string> = {};
+
       if (!formData.uploadConfig.startDate) {
-        newErrors["uploadConfig.startDate"] = "Start date is required";
+        uploadConfigErrors.startDate = "Start date is required";
       }
       if (!formData.uploadConfig.endDate) {
-        newErrors["uploadConfig.endDate"] = "End date is required";
+        uploadConfigErrors.endDate = "End date is required";
+      }
+
+      if (Object.keys(uploadConfigErrors).length > 0) {
+        newErrors.uploadConfig = uploadConfigErrors;
       }
     }
 

@@ -16,6 +16,7 @@ import {
   Event,
   EventFormData,
   EventFormErrors,
+  UploadConfig,
 } from "../../../../types/events";
 import { EventDetailsForm } from "../EventDetailsForm";
 import { UploadConfigForm } from "../UploadConfigForm";
@@ -41,7 +42,7 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
   const [details, setDetails] = useState<EventDetails>({
     name: "",
     description: "",
-    type: "",
+    type: "Other",
     tags: [],
     suggestedTags: [],
     date: "",
@@ -53,13 +54,15 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
     country: "",
     ticketLink: "",
   });
-  const [uploadConfig, setUploadConfig] = useState({
+  const [uploadConfig, setUploadConfig] = useState<UploadConfig>({
     enabled: false,
+    startDate: "",
+    endDate: "",
     startTime: "",
     endTime: "",
-    allowedTypes: ["image/*", "video/*"],
     maxFileSize: 10,
-    maxFilesPerUser: 5,
+    allowedTypes: ["video/mp4", "video/quicktime"],
+    maxFiles: 5,
   });
   const [errors, setErrors] = useState<EventFormErrors>({});
 
@@ -81,6 +84,18 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
         country: event.country,
         ticketLink: event.ticketLink || "",
         flyerImageUrl: event.flyerUrl,
+      });
+
+      // Initialize upload config with default values if not present in event
+      setUploadConfig({
+        enabled: false, // Default to disabled for existing events
+        startDate: event.date || "", // Use event date as default
+        endDate: event.endDate || "",
+        startTime: event.time || "",
+        endTime: event.endTime || "",
+        maxFileSize: 10,
+        allowedTypes: ["video/mp4", "video/quicktime"],
+        maxFiles: 5,
       });
     }
   }, [event]);
@@ -143,25 +158,31 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
   };
 
   const validateUploadConfig = (): boolean => {
-    const newErrors: EventFormErrors = {};
+    const newErrors: EventFormErrors = {
+      uploadConfig: {},
+    };
 
     if (uploadConfig.enabled) {
       if (!uploadConfig.startTime) {
-        newErrors.uploadStartTime = "Upload start time is required";
+        newErrors.uploadConfig.startTime = "Upload start time is required";
       }
       if (!uploadConfig.endTime) {
-        newErrors.uploadEndTime = "Upload end time is required";
+        newErrors.uploadConfig.endTime = "Upload end time is required";
       }
       if (uploadConfig.maxFileSize <= 0) {
-        newErrors.maxFileSize = "Max file size must be greater than 0";
+        newErrors.uploadConfig.maxFileSize =
+          "Max file size must be greater than 0";
       }
-      if (uploadConfig.maxFilesPerUser <= 0) {
-        newErrors.maxFilesPerUser = "Max files per user must be greater than 0";
+      if (uploadConfig.maxFiles <= 0) {
+        newErrors.uploadConfig.maxFiles = "Max files must be greater than 0";
       }
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return (
+      !newErrors.uploadConfig ||
+      Object.keys(newErrors.uploadConfig).length === 0
+    );
   };
 
   const handleNext = () => {
@@ -199,6 +220,7 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
         country: details.country,
         ticketLink: details.ticketLink,
         flyerUrl: details.flyerImageUrl,
+        uploadConfig,
       });
       handleClose();
     } catch (error) {
@@ -229,7 +251,7 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
           <UploadConfigForm
             config={uploadConfig}
             errors={errors}
-            onChange={setUploadConfig}
+            onChange={(config: UploadConfig) => setUploadConfig(config)}
           />
         );
       case 2:

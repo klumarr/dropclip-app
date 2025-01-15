@@ -20,6 +20,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@aws-amplify/auth": "^6.10.0",
     "@aws-sdk/client-cloudfront": "^3.716.0",
     "@aws-sdk/client-cloudwatch": "^3.726.1",
     "@aws-sdk/client-cloudwatch-logs": "^3.726.1",
@@ -38,7 +39,7 @@
     "@mui/material": "^5.15.3",
     "@mui/system": "^5.15.3",
     "@types/jsonwebtoken": "^9.0.7",
-    "aws-amplify": "^6.11.0",
+    "aws-amplify": "^6.12.1",
     "aws-sdk": "^2.1692.0",
     "buffer": "^6.0.3",
     "jsonwebtoken": "^9.0.2",
@@ -51,7 +52,7 @@
     "react-router-dom": "^6.21.1",
     "recharts": "^2.10.3",
     "stream-browserify": "^3.0.0",
-    "tesseract.js": "4.1.4",
+    "tesseract.js": "^4.1.4",
     "util": "^0.12.5"
   },
   "devDependencies": {

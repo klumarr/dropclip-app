@@ -6,11 +6,71 @@ import {
   GetCommand,
   DeleteCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { Event, EventFormData } from "../types/events";
+import { Event, EventFormData, UploadConfig } from "../types/events";
 import { v4 as uuidv4 } from "uuid";
 import { TableNames } from "../config/dynamodb";
 import { createAWSClient } from "./aws-client.factory";
 import { getCredentials } from "./auth.service";
+
+export const eventOperations = {
+  getFanEvents: async (userId: string): Promise<Event[]> => {
+    const service = new EventsService();
+    return service.getFanEvents(userId);
+  },
+
+  getEventById: async (eventId: string): Promise<Event | null> => {
+    const service = new EventsService();
+    return service.getEventById(eventId);
+  },
+
+  getEventByLinkId: async (linkId: string): Promise<Event | null> => {
+    const service = new EventsService();
+    return service.getEventByLinkId(linkId);
+  },
+
+  createEvent: async (
+    userId: string,
+    eventData: EventFormData
+  ): Promise<Event> => {
+    const service = new EventsService();
+    return service.createEvent(userId, eventData);
+  },
+
+  updateEvent: async (
+    eventId: string,
+    userId: string,
+    eventData: Partial<Event>
+  ): Promise<Event> => {
+    const service = new EventsService();
+    return service.updateEvent(eventId, userId, eventData);
+  },
+
+  deleteEvent: async (eventId: string, userId: string): Promise<void> => {
+    const service = new EventsService();
+    return service.deleteEvent(eventId, userId);
+  },
+
+  listEvents: async (userId: string): Promise<Event[]> => {
+    const service = new EventsService();
+    return service.listEvents(userId);
+  },
+
+  validateUploadLink: async (
+    eventId: string,
+    linkId: string
+  ): Promise<boolean> => {
+    const service = new EventsService();
+    return service.validateUploadLink(eventId, linkId);
+  },
+
+  getUploadConfig: async (
+    eventId: string,
+    linkId: string
+  ): Promise<UploadConfig> => {
+    const service = new EventsService();
+    return service.getUploadConfig(eventId, linkId);
+  },
+};
 
 export class EventsService {
   private docClient: DynamoDBDocumentClient | null = null;
@@ -167,7 +227,7 @@ export class EventsService {
 
       const eventId = uuidv4();
       const now = new Date().toISOString();
-      const dateId = eventData.details.date.replace(/-/g, "");
+      const dateId = eventData.date.replace(/-/g, "");
       const dateCreativeId = `${dateId}#${creativeId}`;
 
       const event: Event = {
@@ -176,9 +236,9 @@ export class EventsService {
         identityId,
         dateId,
         dateCreativeId,
-        ...eventData.details,
-        endDate: eventData.details.endDate || eventData.details.date,
-        endTime: eventData.details.endTime || eventData.details.time,
+        ...eventData,
+        endDate: eventData.endDate || eventData.date,
+        endTime: eventData.endTime || eventData.time,
         createdAt: now,
         updatedAt: now,
       };
@@ -363,6 +423,104 @@ export class EventsService {
       });
 
       return updatedEvent;
+    });
+  }
+
+  async getFanEvents(userId: string): Promise<Event[]> {
+    console.log("EventsService - Getting events for fan:", userId);
+
+    return this.executeWithRetry(async (client) => {
+      const command = new QueryCommand({
+        TableName: TableNames.EVENTS,
+        IndexName: "DateIdIndex",
+        KeyConditionExpression: "dateId >= :dateId",
+        ExpressionAttributeValues: {
+          ":dateId": new Date().toISOString().split("T")[0].replace(/-/g, ""),
+        },
+      });
+
+      console.log(
+        "EventsService - Executing query command:",
+        JSON.stringify(command.input, null, 2)
+      );
+      const response = await client.send(command);
+      console.log(
+        "EventsService - Events retrieved successfully:",
+        response.Items?.length
+      );
+      return response.Items as Event[];
+    });
+  }
+
+  async getEventByLinkId(linkId: string): Promise<Event | null> {
+    console.log("EventsService - Getting event by link ID:", linkId);
+
+    return this.executeWithRetry(async (client) => {
+      const command = new QueryCommand({
+        TableName: TableNames.EVENTS,
+        IndexName: "LinkIdIndex",
+        KeyConditionExpression: "linkId = :linkId",
+        ExpressionAttributeValues: {
+          ":linkId": linkId,
+        },
+      });
+
+      console.log(
+        "EventsService - Executing query command:",
+        JSON.stringify(command.input, null, 2)
+      );
+      const response = await client.send(command);
+      if (!response.Items?.[0]) {
+        console.log("EventsService - Event not found");
+        return null;
+      }
+
+      console.log("EventsService - Event retrieved successfully");
+      return response.Items[0] as Event;
+    });
+  }
+
+  async validateUploadLink(eventId: string, linkId: string): Promise<boolean> {
+    console.log("EventsService - Validating upload link:", { eventId, linkId });
+
+    return this.executeWithRetry(async (client) => {
+      const event = await this.getEventById(eventId);
+      if (!event) {
+        console.log("EventsService - Event not found");
+        return false;
+      }
+
+      // TODO: Implement actual link validation logic
+      return true;
+    });
+  }
+
+  async getUploadConfig(
+    eventId: string,
+    linkId: string
+  ): Promise<UploadConfig> {
+    console.log("EventsService - Getting upload config:", { eventId, linkId });
+
+    return this.executeWithRetry(async (client) => {
+      const event = await this.getEventById(eventId);
+      if (!event) {
+        throw new Error("Event not found");
+      }
+
+      // Get the event's upload config
+      const command = new GetCommand({
+        TableName: TableNames.EVENTS,
+        Key: {
+          id: eventId,
+        },
+      });
+
+      const response = await client.send(command);
+      if (!response.Item?.uploadConfig) {
+        throw new Error("Upload config not found");
+      }
+
+      return response.Item.uploadConfig as UploadConfig;
     });
   }
 }

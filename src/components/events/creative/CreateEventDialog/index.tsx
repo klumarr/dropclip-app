@@ -15,6 +15,7 @@ import {
   EventDetails,
   EventFormData,
   EventFormErrors,
+  UploadConfig,
 } from "../../../../types/events";
 import { EventDetailsForm } from "../EventDetailsForm";
 import { UploadConfigForm } from "../UploadConfigForm";
@@ -29,7 +30,7 @@ interface CreateEventDialogProps {
 const initialEventDetails: EventDetails = {
   name: "",
   description: "",
-  type: undefined,
+  type: "Other",
   tags: [],
   suggestedTags: [],
   date: "",
@@ -42,13 +43,15 @@ const initialEventDetails: EventDetails = {
   ticketLink: "",
 };
 
-const initialUploadConfig = {
+const initialUploadConfig: UploadConfig = {
   enabled: false,
+  startDate: "",
+  endDate: "",
   startTime: "",
   endTime: "",
-  allowedTypes: ["image/*", "video/*"],
   maxFileSize: 10,
-  maxFilesPerUser: 5,
+  allowedTypes: ["video/mp4", "video/quicktime"],
+  maxFiles: 5,
 };
 
 const steps = ["Event Details", "Upload Settings", "Preview"];
@@ -61,7 +64,8 @@ export const CreateEventDialog: React.FC<CreateEventDialogProps> = ({
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [details, setDetails] = useState<EventDetails>(initialEventDetails);
-  const [uploadConfig, setUploadConfig] = useState(initialUploadConfig);
+  const [uploadConfig, setUploadConfig] =
+    useState<UploadConfig>(initialUploadConfig);
   const [errors, setErrors] = useState<EventFormErrors>({});
 
   const validateEventDetails = (): boolean => {
@@ -122,25 +126,31 @@ export const CreateEventDialog: React.FC<CreateEventDialogProps> = ({
   };
 
   const validateUploadConfig = (): boolean => {
-    const newErrors: EventFormErrors = {};
+    const newErrors: EventFormErrors = {
+      uploadConfig: {},
+    };
 
     if (uploadConfig.enabled) {
       if (!uploadConfig.startTime) {
-        newErrors.uploadStartTime = "Upload start time is required";
+        newErrors.uploadConfig.startTime = "Upload start time is required";
       }
       if (!uploadConfig.endTime) {
-        newErrors.uploadEndTime = "Upload end time is required";
+        newErrors.uploadConfig.endTime = "Upload end time is required";
       }
       if (uploadConfig.maxFileSize <= 0) {
-        newErrors.maxFileSize = "Max file size must be greater than 0";
+        newErrors.uploadConfig.maxFileSize =
+          "Max file size must be greater than 0";
       }
-      if (uploadConfig.maxFilesPerUser <= 0) {
-        newErrors.maxFilesPerUser = "Max files per user must be greater than 0";
+      if (uploadConfig.maxFiles <= 0) {
+        newErrors.uploadConfig.maxFiles = "Max files must be greater than 0";
       }
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return (
+      !newErrors.uploadConfig ||
+      Object.keys(newErrors.uploadConfig).length === 0
+    );
   };
 
   const handleNext = () => {
@@ -165,7 +175,19 @@ export const CreateEventDialog: React.FC<CreateEventDialogProps> = ({
     try {
       setIsSubmitting(true);
       await onSubmit({
-        details,
+        name: details.name,
+        description: details.description,
+        date: details.date,
+        time: details.time,
+        endDate: details.endDate,
+        endTime: details.endTime,
+        venue: details.venue,
+        city: details.city,
+        country: details.country,
+        type: details.type,
+        ticketLink: details.ticketLink,
+        flyerImage: details.flyerImage,
+        flyerUrl: details.flyerUrl,
         uploadConfig,
       });
       handleClose();

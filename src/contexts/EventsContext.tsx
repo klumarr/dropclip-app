@@ -6,30 +6,10 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Event, EventFormData } from "../types/events";
+import { Event, EventFormData, EventsContextType } from "../types/events";
 import { eventsReducer, initialState } from "./eventsReducer";
 import { EventsService } from "../services/eventsService";
 import { useAuth } from "./AuthContext";
-
-interface EventsContextType {
-  events: Event[];
-  loading: boolean;
-  error: string | null;
-  fetchStatus: "idle" | "pending" | "success" | "error" | "retrying";
-  retryInfo: {
-    attempt: number;
-    maxAttempts: number;
-    nextRetryIn?: number;
-  } | null;
-  isCreateDialogOpen: boolean;
-  setIsCreateDialogOpen: (isOpen: boolean) => void;
-  fetchEvents: () => Promise<void>;
-  createEvent: (eventData: EventFormData) => Promise<Event>;
-  updateEvent: (eventId: string, eventData: Partial<Event>) => Promise<Event>;
-  deleteEvent: (eventId: string) => Promise<void>;
-  shareEvent: (eventId: string) => Promise<void>;
-  setError: (error: string | null) => void;
-}
 
 const EventsContext = createContext<EventsContextType | undefined>(undefined);
 
@@ -62,6 +42,8 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [state, dispatch] = useReducer(eventsReducer, initialState);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [newEvent, setNewEvent] = useState<Partial<EventFormData> | null>(null);
   const { isAuthenticated, user } = useAuth();
   const eventsService = useRef(new EventsService());
 
@@ -387,6 +369,12 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const handleScannedEvent = (eventData: Partial<EventFormData>) => {
+    setNewEvent(eventData);
+    setIsScannerOpen(false);
+    setIsCreateDialogOpen(true);
+  };
+
   const value = {
     events: state.events,
     loading: state.loading,
@@ -423,6 +411,7 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
     setError: (error: string | null) => {
       safeDispatch({ type: "SET_ERROR", payload: error });
     },
+    newEvent,
   };
 
   console.log("EventsContext - Providing context value:", {
@@ -513,7 +502,29 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [isAuthenticated, user?.id, fetchEvents, isUserActive]);
 
   return (
-    <EventsContext.Provider value={value}>{children}</EventsContext.Provider>
+    <EventsContext.Provider
+      value={{
+        events: state.events,
+        loading: state.loading,
+        error: state.error,
+        isCreateDialogOpen,
+        isScannerOpen,
+        newEvent,
+        setNewEvent,
+        setIsScannerOpen,
+        handleScannedEvent,
+        createEvent,
+        updateEvent,
+        deleteEvent,
+        shareEvent: value.shareEvent,
+        fetchEvents,
+        setError: (error) =>
+          safeDispatch({ type: "SET_ERROR", payload: error }),
+        setIsCreateDialogOpen,
+      }}
+    >
+      {children}
+    </EventsContext.Provider>
   );
 };
 

@@ -47,7 +47,8 @@ interface UploadFile {
 
 interface EventDetails {
   title: string;
-  date: string;
+  description?: string;
+  date?: string;
   location: string;
   imageUrl?: string;
 }
@@ -86,11 +87,15 @@ export const UploadPage = () => {
         }
 
         if (event) {
+          const locationString = [event.venue, event.city, event.country]
+            .filter(Boolean)
+            .join(", ");
+
           setEventDetails({
-            title: event.title,
-            date: new Date(event.date).toLocaleDateString(),
-            location: event.location,
-            imageUrl: event.imageUrl,
+            title: event.name,
+            date: event.date,
+            location: locationString,
+            imageUrl: event.flyerUrl,
           });
         } else {
           setValidationError("Event not found");

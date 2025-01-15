@@ -22,16 +22,18 @@ export interface QRDialogProps {
   onClose: () => void;
 }
 
+export type SharePlatform = "facebook" | "twitter" | "whatsapp" | "copy";
+
 export interface EventActionsProps {
+  selectedEvent: Event;
+  isLoading: boolean;
+  error: string | null;
+  handleInitiateDelete: (event: Event) => Promise<void>;
+  handleInitiateEdit: (event: Event) => Promise<void>;
+  handleConfirmDelete: () => Promise<void>;
+  handleShare: (event: Event, platform: SharePlatform) => Promise<void>;
   className?: string;
 }
-
-export type SharePlatform =
-  | "facebook"
-  | "twitter"
-  | "whatsapp"
-  | "email"
-  | "copy";
 
 export interface ShareOption {
   platform: SharePlatform;

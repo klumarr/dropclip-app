@@ -8,6 +8,7 @@ import { CreateEventDialog } from "../../components/events/creative/CreateEventD
 import { EditEventDialog } from "../../components/events/creative/EditEventDialog";
 import { Event, EventFormData } from "../../types/events";
 import ActionButtons from "../../components/events/creative/ActionButtons";
+import { FlyerScanner } from "../../components/events/creative/FlyerScanner";
 
 const EventsPage: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
@@ -27,6 +28,7 @@ const EventsPage: React.FC = () => {
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
   const isMounted = useRef(true);
 
   useEffect(() => {
@@ -103,8 +105,29 @@ const EventsPage: React.FC = () => {
   };
 
   const handleScanClick = () => {
-    console.log("Scan flyer clicked");
-    // Scan flyer functionality will be implemented next
+    console.log("Opening flyer scanner");
+    setIsScannerOpen(true);
+  };
+
+  const handleScanClose = () => {
+    setIsScannerOpen(false);
+  };
+
+  const handleEventDetected = async (eventData: Partial<EventFormData>) => {
+    try {
+      if (!eventData.name) {
+        throw new Error("Event name is required");
+      }
+      await createEvent(eventData as EventFormData);
+      setShowSuccessAlert(true);
+      setIsScannerOpen(false);
+    } catch (error) {
+      console.error("Error creating event from scan:", error);
+      setErrorMessage(
+        error instanceof Error ? error.message : "Failed to create event"
+      );
+      setShowErrorAlert(true);
+    }
   };
 
   const handleAlertClose = () => {
@@ -148,6 +171,11 @@ const EventsPage: React.FC = () => {
           onSubmit={handleEditSubmit}
         />
       )}
+      <FlyerScanner
+        open={isScannerOpen}
+        onClose={handleScanClose}
+        onEventDetected={handleEventDetected}
+      />
       <Snackbar
         open={showSuccessAlert}
         autoHideDuration={6000}

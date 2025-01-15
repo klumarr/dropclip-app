@@ -56,8 +56,8 @@ export const UploadConfigForm: React.FC<UploadConfigFormProps> = ({
               type="datetime-local"
               value={config.startTime}
               onChange={(e) => handleChange("startTime", e.target.value)}
-              error={!!errors.startTime}
-              helperText={errors.startTime}
+              error={!!errors.uploadConfig?.startTime}
+              helperText={errors.uploadConfig?.startTime}
               InputLabelProps={{ shrink: true }}
               required
             />
@@ -69,8 +69,8 @@ export const UploadConfigForm: React.FC<UploadConfigFormProps> = ({
               type="datetime-local"
               value={config.endTime}
               onChange={(e) => handleChange("endTime", e.target.value)}
-              error={!!errors.endTime}
-              helperText={errors.endTime}
+              error={!!errors.uploadConfig?.endTime}
+              helperText={errors.uploadConfig?.endTime}
               InputLabelProps={{ shrink: true }}
               required
             />
@@ -100,13 +100,15 @@ export const UploadConfigForm: React.FC<UploadConfigFormProps> = ({
                 />
               ))}
             </Box>
-            {errors.allowedTypes && (
-              <FormHelperText error>{errors.allowedTypes}</FormHelperText>
+            {errors.uploadConfig?.allowedTypes && (
+              <FormHelperText error>
+                {errors.uploadConfig.allowedTypes}
+              </FormHelperText>
             )}
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <FormControl fullWidth error={!!errors.maxFileSize}>
+            <FormControl fullWidth error={!!errors.uploadConfig?.maxFileSize}>
               <InputLabel>Maximum File Size (MB)</InputLabel>
               <Select
                 value={config.maxFileSize}
@@ -119,8 +121,10 @@ export const UploadConfigForm: React.FC<UploadConfigFormProps> = ({
                   </MenuItem>
                 ))}
               </Select>
-              {errors.maxFileSize && (
-                <FormHelperText>{errors.maxFileSize}</FormHelperText>
+              {errors.uploadConfig?.maxFileSize && (
+                <FormHelperText>
+                  {errors.uploadConfig.maxFileSize}
+                </FormHelperText>
               )}
             </FormControl>
           </Grid>
@@ -134,8 +138,8 @@ export const UploadConfigForm: React.FC<UploadConfigFormProps> = ({
               onChange={(e) =>
                 handleChange("maxFiles", parseInt(e.target.value, 10))
               }
-              error={!!errors.maxFiles}
-              helperText={errors.maxFiles}
+              error={!!errors.uploadConfig?.maxFiles}
+              helperText={errors.uploadConfig?.maxFiles}
               InputProps={{ inputProps: { min: 1 } }}
             />
           </Grid>

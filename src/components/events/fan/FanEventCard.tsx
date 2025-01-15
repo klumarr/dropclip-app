@@ -45,20 +45,25 @@ const FanEventCard: React.FC<FanEventCardProps> = ({
     setIsImageDialogOpen(true);
   };
 
+  const getLocationString = (event: Event) => {
+    const parts = [event.venue, event.city, event.country].filter(Boolean);
+    return parts.join(", ");
+  };
+
   return (
     <>
       <StyledEventCard sx={{ opacity: isPast ? 0.7 : 1 }}>
-        {event.imageUrl && (
+        {event.flyerUrl && (
           <EventCardMedia
-            src={event.imageUrl}
-            alt={event.title}
+            src={event.flyerUrl}
+            alt={event.name}
             onClick={handleImageClick}
             style={{ cursor: "pointer" }}
           />
         )}
         <EventCardContent>
           <Typography variant="h6" gutterBottom>
-            {event.title}
+            {event.name}
           </Typography>
           <Typography variant="body1" color="text.secondary" gutterBottom>
             {new Date(event.date).toLocaleDateString(undefined, {
@@ -68,13 +73,13 @@ const FanEventCard: React.FC<FanEventCardProps> = ({
               day: "numeric",
             })}
           </Typography>
-          {event.startTime && (
+          {event.time && (
             <Typography variant="body2" color="text.secondary" gutterBottom>
-              {event.startTime} - {event.endTime}
+              {event.time} - {event.endTime}
             </Typography>
           )}
           <Typography variant="body2" color="text.secondary" gutterBottom>
-            {event.location}
+            {getLocationString(event)}
           </Typography>
           {event.description && (
             <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -135,8 +140,8 @@ const FanEventCard: React.FC<FanEventCardProps> = ({
       >
         <DialogContent sx={{ p: 0, position: "relative" }}>
           <img
-            src={event.imageUrl}
-            alt={event.title}
+            src={event.flyerUrl}
+            alt={event.name}
             style={{
               width: "100%",
               height: "auto",

@@ -53,11 +53,11 @@ export const CreateEventForm: React.FC<CreateEventFormProps> = ({
       <Grid item xs={12}>
         <TextField
           fullWidth
-          label="Title"
-          value={formData.title}
-          onChange={(e) => handleChange("title", e.target.value)}
-          error={!!errors.title}
-          helperText={errors.title}
+          label="Event Name"
+          value={formData.name}
+          onChange={(e) => handleChange("name", e.target.value)}
+          error={!!errors.name}
+          helperText={errors.name}
         />
       </Grid>
 
@@ -92,10 +92,10 @@ export const CreateEventForm: React.FC<CreateEventFormProps> = ({
           fullWidth
           type="time"
           label="Start Time"
-          value={formData.startTime}
-          onChange={(e) => handleChange("startTime", e.target.value)}
-          error={!!errors.startTime}
-          helperText={errors.startTime}
+          value={formData.time}
+          onChange={(e) => handleChange("time", e.target.value)}
+          error={!!errors.time}
+          helperText={errors.time}
           InputLabelProps={{ shrink: true }}
         />
       </Grid>
@@ -113,14 +113,36 @@ export const CreateEventForm: React.FC<CreateEventFormProps> = ({
         />
       </Grid>
 
-      <Grid item xs={12}>
+      <Grid item xs={12} sm={6}>
         <TextField
           fullWidth
-          label="Location"
-          value={formData.location}
-          onChange={(e) => handleChange("location", e.target.value)}
-          error={!!errors.location}
-          helperText={errors.location}
+          label="Venue"
+          value={formData.venue}
+          onChange={(e) => handleChange("venue", e.target.value)}
+          error={!!errors.venue}
+          helperText={errors.venue}
+        />
+      </Grid>
+
+      <Grid item xs={12} sm={3}>
+        <TextField
+          fullWidth
+          label="City"
+          value={formData.city}
+          onChange={(e) => handleChange("city", e.target.value)}
+          error={!!errors.city}
+          helperText={errors.city}
+        />
+      </Grid>
+
+      <Grid item xs={12} sm={3}>
+        <TextField
+          fullWidth
+          label="Country"
+          value={formData.country}
+          onChange={(e) => handleChange("country", e.target.value)}
+          error={!!errors.country}
+          helperText={errors.country}
         />
       </Grid>
 
@@ -140,10 +162,10 @@ export const CreateEventForm: React.FC<CreateEventFormProps> = ({
           Event Image
         </Typography>
         <ImageUpload
-          imageUrl={formData.imageUrl}
+          imageUrl={formData.flyerUrl}
           onImageUpload={handleImageChange}
           onImageRemove={() => handleImageChange(undefined)}
-          error={errors.imageFile}
+          error={errors.flyerImage}
         />
       </Grid>
 
@@ -153,7 +175,10 @@ export const CreateEventForm: React.FC<CreateEventFormProps> = ({
             <Switch
               checked={formData.uploadConfig.enabled}
               onChange={(e) =>
-                handleUploadConfigChange("enabled", e.target.checked)
+                handleUploadConfigChange({
+                  ...formData.uploadConfig,
+                  enabled: e.target.checked,
+                })
               }
             />
           }
@@ -166,7 +191,7 @@ export const CreateEventForm: React.FC<CreateEventFormProps> = ({
           <UploadConfigForm
             config={formData.uploadConfig}
             onChange={handleUploadConfigChange}
-            errors={errors}
+            errors={errors.uploadConfig || {}}
           />
         </Grid>
       )}

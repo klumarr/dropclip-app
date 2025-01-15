@@ -5,7 +5,8 @@
 export interface EventDetails {
   name: string;
   description: string;
-  type: string;
+  type: EventType;
+  title?: string;
   tags: string[];
   suggestedTags: string[];
   date: string;
@@ -22,36 +23,48 @@ export interface EventDetails {
   };
   flyerImage?: File | null;
   flyerImageUrl?: string;
+  flyerUrl?: string;
+  isAutomatic?: boolean;
 }
 
 export interface UploadConfig {
   enabled: boolean;
-  startTime?: string;
-  endTime?: string;
-  maxFileSize?: number;
-  allowedTypes?: string[];
-  maxFiles?: number;
+  startDate: string;
+  endDate: string;
+  startTime: string;
+  endTime: string;
+  maxFileSize: number;
+  allowedTypes: string[];
+  maxFiles: number;
+  remainingUploads?: number;
 }
 
 export interface Event {
   id: string;
   creativeId: string;
   identityId: string;
+  dateId: string; // For date-based querying
+  dateCreativeId: string; // For date-creative compound querying
   name: string;
+  title?: string;
   description: string;
-  flyerUrl?: string; // Optional for now as we're not implementing upload yet
-  date: string; // Start date
-  time: string; // Start time
-  endDate?: string; // For events ending next day
-  endTime?: string; // End time
+  flyerUrl?: string;
+  imageUrl?: string;
+  date: string;
+  time: string;
+  endDate?: string;
+  endTime?: string;
   venue: string;
   city: string;
   country: string;
+  location?: string;
   ticketLink?: string;
-  type: EventType; // For dropdown
-  tags?: string[]; // Optional tags
+  type: EventType;
+  tags?: string[];
+  isAutomatic?: boolean;
   createdAt: string;
   updatedAt: string;
+  uploadConfig?: UploadConfig;
 }
 
 export type EventType =
@@ -66,6 +79,7 @@ export interface EventFormData {
   name: string;
   description: string;
   flyerUrl?: string;
+  flyerImage?: File | null;
   date: string;
   time: string;
   endDate?: string;
@@ -76,6 +90,7 @@ export interface EventFormData {
   ticketLink?: string;
   type: EventType;
   tags?: string[];
+  uploadConfig: UploadConfig;
 }
 
 export interface EventFormErrors {
@@ -88,9 +103,20 @@ export interface EventFormErrors {
   venue?: string;
   city?: string;
   country?: string;
+  tags?: string;
   type?: string;
   ticketLink?: string;
-  general?: string;
+  flyerImage?: string;
+  uploadConfig?: {
+    startTime?: string;
+    endTime?: string;
+    maxFileSize?: string;
+    maxFiles?: string;
+    allowedTypes?: string;
+    enabled?: string;
+    startDate?: string;
+    endDate?: string;
+  };
 }
 
 export interface EventsContextType {
@@ -98,6 +124,11 @@ export interface EventsContextType {
   loading: boolean;
   error: string | null;
   isCreateDialogOpen: boolean;
+  isScannerOpen: boolean;
+  newEvent: Partial<EventFormData> | null;
+  setNewEvent: (event: Partial<EventFormData> | null) => void;
+  setIsScannerOpen: (isOpen: boolean) => void;
+  handleScannedEvent: (eventData: Partial<EventFormData>) => void;
   createEvent: (formData: EventFormData) => Promise<Event>;
   updateEvent: (id: string, formData: EventFormData) => Promise<Event>;
   deleteEvent: (id: string) => Promise<void>;
@@ -106,3 +137,34 @@ export interface EventsContextType {
   setError: (error: string | null) => void;
   setIsCreateDialogOpen: (isOpen: boolean) => void;
 }
+
+export interface CategorizedEvents {
+  upcoming: Event[];
+  past: Event[];
+}
+
+export const defaultUploadConfig: UploadConfig = {
+  enabled: false,
+  startDate: "",
+  endDate: "",
+  startTime: "",
+  endTime: "",
+  maxFileSize: 100 * 1024 * 1024, // 100MB
+  allowedTypes: ["video/*"],
+  maxFiles: 10,
+};
+
+export const initialEventFormData: EventFormData = {
+  name: "",
+  description: "",
+  type: "Other",
+  tags: [],
+  date: "",
+  time: "",
+  endDate: "",
+  endTime: "",
+  venue: "",
+  city: "",
+  country: "",
+  uploadConfig: defaultUploadConfig,
+};

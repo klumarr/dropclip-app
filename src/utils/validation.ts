@@ -2,7 +2,7 @@ import { EventFormData, UploadConfig } from "../types/events";
 
 // Constants for validation
 export const VALIDATION_RULES = {
-  TITLE: {
+  NAME: {
     MIN_LENGTH: 3,
     MAX_LENGTH: 100,
   },
@@ -46,20 +46,20 @@ export const isValidTime = (time: string): boolean => {
 
 // Helper function to validate time range
 export const isValidTimeRange = (
-  startTime: string,
+  time: string,
   endTime: string,
   date: string
 ): boolean => {
-  if (!startTime || !endTime || !date) return false;
+  if (!time || !endTime || !date) return false;
 
-  const startDateTime = new Date(`${date}T${startTime}`);
+  const startDateTime = new Date(`${date}T${time}`);
   const endDateTime = new Date(`${date}T${endTime}`);
 
   return endDateTime > startDateTime;
 };
 
 // Helper function to validate image file
-export const isValidImageFile = (file: File | undefined): boolean => {
+export const isValidImageFile = (file: File | null | undefined): boolean => {
   if (!file) return true; // Optional field
   return (
     VALIDATION_RULES.IMAGE.ALLOWED_TYPES.includes(file.type) &&
@@ -74,17 +74,17 @@ export const validateUploadConfig = (
   const errors: Record<string, string> = {};
 
   if (config.enabled) {
-    if (!config.startDate) {
-      errors["uploadConfig.startDate"] = "Start date is required";
+    if (!config.startTime) {
+      errors["uploadConfig.startTime"] = "Start time is required";
     }
-    if (!config.endDate) {
-      errors["uploadConfig.endDate"] = "End date is required";
+    if (!config.endTime) {
+      errors["uploadConfig.endTime"] = "End time is required";
     }
-    if (config.startDate && config.endDate) {
-      const startDate = new Date(config.startDate);
-      const endDate = new Date(config.endDate);
-      if (endDate <= startDate) {
-        errors["uploadConfig.endDate"] = "End date must be after start date";
+    if (config.startTime && config.endTime) {
+      const startTime = new Date(`1970-01-01T${config.startTime}`);
+      const endTime = new Date(`1970-01-01T${config.endTime}`);
+      if (endTime <= startTime) {
+        errors["uploadConfig.endTime"] = "End time must be after start time";
       }
     }
     if (config.maxFileSize < VALIDATION_RULES.UPLOAD_CONFIG.MAX_FILE_SIZE.MIN) {
@@ -108,13 +108,13 @@ export const validateEventForm = (
 ): Record<string, string> => {
   const errors: Record<string, string> = {};
 
-  // Title validation
-  if (!formData.title) {
-    errors.title = "Title is required";
-  } else if (formData.title.length < VALIDATION_RULES.TITLE.MIN_LENGTH) {
-    errors.title = `Title must be at least ${VALIDATION_RULES.TITLE.MIN_LENGTH} characters`;
-  } else if (formData.title.length > VALIDATION_RULES.TITLE.MAX_LENGTH) {
-    errors.title = `Title cannot exceed ${VALIDATION_RULES.TITLE.MAX_LENGTH} characters`;
+  // Name validation
+  if (!formData.name) {
+    errors.name = "Name is required";
+  } else if (formData.name.length < VALIDATION_RULES.NAME.MIN_LENGTH) {
+    errors.name = `Name must be at least ${VALIDATION_RULES.NAME.MIN_LENGTH} characters`;
+  } else if (formData.name.length > VALIDATION_RULES.NAME.MAX_LENGTH) {
+    errors.name = `Name cannot exceed ${VALIDATION_RULES.NAME.MAX_LENGTH} characters`;
   }
 
   // Description validation
@@ -138,10 +138,10 @@ export const validateEventForm = (
   }
 
   // Time validation
-  if (!formData.startTime) {
-    errors.startTime = "Start time is required";
-  } else if (!isValidTime(formData.startTime)) {
-    errors.startTime = "Invalid start time format";
+  if (!formData.time) {
+    errors.time = "Time is required";
+  } else if (!isValidTime(formData.time)) {
+    errors.time = "Invalid time format";
   }
 
   if (!formData.endTime) {
@@ -151,17 +151,25 @@ export const validateEventForm = (
   }
 
   // Time range validation
-  if (formData.startTime && formData.endTime && formData.date) {
-    if (
-      !isValidTimeRange(formData.startTime, formData.endTime, formData.date)
-    ) {
-      errors.endTime = "End time must be after start time";
+  if (formData.time && formData.endTime && formData.date) {
+    if (!isValidTimeRange(formData.time, formData.endTime, formData.date)) {
+      errors.endTime = "End time must be after time";
     }
   }
 
-  // Location validation
-  if (!formData.location) {
-    errors.location = "Location is required";
+  // Venue validation
+  if (!formData.venue) {
+    errors.venue = "Venue is required";
+  }
+
+  // City validation
+  if (!formData.city) {
+    errors.city = "City is required";
+  }
+
+  // Country validation
+  if (!formData.country) {
+    errors.country = "Country is required";
   }
 
   // Ticket link validation
@@ -170,8 +178,8 @@ export const validateEventForm = (
   }
 
   // Image validation
-  if (formData.imageFile && !isValidImageFile(formData.imageFile)) {
-    errors.imageFile = `Invalid image file. Must be JPG, PNG, or GIF under ${
+  if (formData.flyerImage && !isValidImageFile(formData.flyerImage)) {
+    errors.flyerImage = `Invalid image file. Must be JPG, PNG, or GIF under ${
       VALIDATION_RULES.IMAGE.MAX_SIZE / (1024 * 1024)
     }MB`;
   }

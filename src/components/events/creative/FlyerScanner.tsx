@@ -15,13 +15,14 @@ import { extractEventData } from "../../../utils/eventExtractor";
 export interface FlyerScannerProps {
   open: boolean;
   onClose: () => void;
+  onEventDetected: (eventData: Partial<EventFormData>) => void;
 }
 
 export const FlyerScanner: React.FC<FlyerScannerProps> = ({
   open,
   onClose,
+  onEventDetected,
 }) => {
-  const { setNewEvent } = useEvents();
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,19 +40,31 @@ export const FlyerScanner: React.FC<FlyerScannerProps> = ({
 
         // Create partial event data
         const newEventData: Partial<EventFormData> = {
-          title: extractedData.title,
-          description: extractedData.description,
-          date: extractedData.date,
-          startTime: extractedData.startTime,
+          name: extractedData.name || "Untitled Event",
+          description: extractedData.description || "",
+          date: extractedData.date || new Date().toISOString().split("T")[0],
+          time: extractedData.time || "18:00",
           endTime: extractedData.endTime,
-          location: extractedData.location,
+          venue: extractedData.venue || "",
+          city: "", // Will need to be filled in by user
+          country: "", // Will need to be filled in by user
           ticketLink: extractedData.ticketLink,
-          imageFile: file,
-          imageUrl: URL.createObjectURL(file),
-          isAutomatic: true,
+          flyerImage: file,
+          flyerUrl: URL.createObjectURL(file),
+          type: "Other", // Default type
+          uploadConfig: {
+            enabled: false,
+            startDate: "",
+            endDate: "",
+            startTime: "",
+            endTime: "",
+            maxFileSize: 100,
+            allowedTypes: ["video/mp4", "video/quicktime"],
+            maxFiles: 1,
+          },
         };
 
-        setNewEvent(newEventData);
+        onEventDetected(newEventData);
         onClose();
       } catch (error) {
         console.error("Error scanning flyer:", error);
@@ -62,7 +75,7 @@ export const FlyerScanner: React.FC<FlyerScannerProps> = ({
         setScanning(false);
       }
     },
-    [setNewEvent, onClose]
+    [onEventDetected, onClose]
   );
 
   return (
