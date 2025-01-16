@@ -6,6 +6,7 @@ export const ScrollSection = styled(Box)(({ theme }) => ({
   whiteSpace: "nowrap",
   padding: theme.spacing(1, 0),
   marginTop: 0,
+  width: "100%",
   "&::-webkit-scrollbar": {
     height: 8,
   },
@@ -24,25 +25,33 @@ export const ScrollSection = styled(Box)(({ theme }) => ({
 
 export const EventsRow = styled(Box)({
   display: "inline-flex",
-  gap: "8px",
-  padding: "0 8px",
+  gap: "16px",
+  padding: "8px",
+  "& > *": {
+    width: "300px",
+    minWidth: "300px",
+    flexShrink: 0,
+  },
 });
 
-export const EventCard = styled(Card)(({ theme }) => ({
+export const StyledEventCard = styled(Card)(({ theme }) => ({
   position: "relative",
-  width: 280,
-  minWidth: 280,
+  width: "300px",
+  minWidth: "300px",
   height: 400,
-  borderRadius: theme.shape.borderRadius,
-  overflow: "hidden",
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: theme.shadows[2],
-  transition: "transform 0.2s ease-in-out",
-  cursor: "pointer",
+  display: "flex",
+  flexDirection: "column",
+  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
   "&:hover": {
-    transform: "translateY(-4px)",
-    boxShadow: theme.shadows[4],
+    transform: "scale(1.02)",
+    "& .MuiIconButton-root": {
+      opacity: 1,
+      transform: "translateY(0)",
+    },
   },
+  overflow: "hidden",
+  borderRadius: theme.spacing(2),
+  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
 }));
 
 export const EventCardMedia = styled("img")({
@@ -51,76 +60,54 @@ export const EventCardMedia = styled("img")({
   objectFit: "cover",
 });
 
-export const EventCardContent = styled(CardContent)(({ theme }) => ({
+export const EventCardContent = styled(Box)(({ theme }) => ({
   position: "absolute",
   bottom: 0,
   left: 0,
   right: 0,
-  padding: theme.spacing(2),
+  padding: theme.spacing(3),
+  paddingBottom: theme.spacing(8),
   background:
-    "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 60%, transparent 100%)",
+    "linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0) 100%)",
+  color: "white",
+  zIndex: 1,
+  height: "60%",
   display: "flex",
   flexDirection: "column",
   justifyContent: "flex-end",
-  height: "60%",
-  "& .MuiTypography-root": {
-    color: "#fff",
-    textShadow: "0 1px 2px rgba(0,0,0,0.6)",
-  },
-  "& .MuiTypography-h6": {
-    fontSize: "1.1rem",
-    fontWeight: 600,
-    marginBottom: theme.spacing(0.5),
-  },
-  "& .MuiTypography-body1": {
-    fontSize: "0.9rem",
-    marginBottom: theme.spacing(0.5),
-  },
-  "& .MuiTypography-body2": {
-    fontSize: "0.8rem",
-    opacity: 0.9,
-    marginBottom: theme.spacing(0.5),
-  },
-  "& .MuiIconButton-root": {
-    color: "#fff",
-    backgroundColor: "rgba(0,0,0,0.3)",
-    "&:hover": {
-      backgroundColor: "rgba(0,0,0,0.5)",
-    },
-  },
+  gap: theme.spacing(0.5),
 }));
 
-export const EventStatusIndicator = styled(Box, {
-  shouldForwardProp: (prop) => prop !== "isPast",
-})<{ isPast?: boolean }>(({ theme, isPast }) => ({
-  position: "absolute",
-  top: theme.spacing(2),
-  right: theme.spacing(2),
-  padding: theme.spacing(0.5, 1.5),
-  borderRadius: theme.spacing(2),
-  backgroundColor: isPast
-    ? alpha(theme.palette.grey[500], 0.9)
-    : alpha(theme.palette.primary.main, 0.9),
-  color: "#fff",
-  fontSize: "0.75rem",
-  fontWeight: 500,
-  textTransform: "uppercase",
-  letterSpacing: "0.5px",
-  backdropFilter: "blur(4px)",
-  zIndex: 1,
-}));
+export const EventStatusIndicator = styled("div")<{ $isPast: boolean }>(
+  ({ theme, $isPast }) => ({
+    position: "absolute",
+    top: theme.spacing(1),
+    left: theme.spacing(1),
+    padding: theme.spacing(0.5, 1),
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: $isPast ? "rgba(0,0,0,0.7)" : theme.palette.primary.main,
+    color: "white",
+    fontSize: "0.75rem",
+    fontWeight: 500,
+    zIndex: 2,
+  })
+);
 
 export const ActionButtonsWrapper = styled(Box)(({ theme }) => ({
+  position: "absolute",
+  bottom: theme.spacing(2),
+  right: theme.spacing(2),
   display: "flex",
   gap: theme.spacing(1),
-  marginTop: theme.spacing(2),
+  zIndex: 2,
   "& .MuiIconButton-root": {
-    color: "#fff",
-    backgroundColor: alpha(theme.palette.common.black, 0.3),
-    backdropFilter: "blur(4px)",
-    transition: "all 0.2s ease",
+    color: "white",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backdropFilter: "blur(8px)",
+    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+    opacity: 1,
     "&:hover": {
-      backgroundColor: alpha(theme.palette.common.black, 0.5),
+      backgroundColor: "rgba(255, 255, 255, 0.2)",
       transform: "scale(1.1)",
     },
   },

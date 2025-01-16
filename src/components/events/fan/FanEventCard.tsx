@@ -19,6 +19,7 @@ import {
 import { Event } from "../../../types/events";
 import { useEventActions } from "../../../hooks/useEventActions";
 import ShareMenu from "../creative/EventActions/ShareMenu";
+import ImageWithFallback from "../../common/ImageWithFallback";
 
 interface FanEventCardProps {
   event: Event;
@@ -54,12 +55,25 @@ const FanEventCard: React.FC<FanEventCardProps> = ({
     <>
       <StyledEventCard sx={{ opacity: isPast ? 0.7 : 1 }}>
         {event.flyerUrl && (
-          <EventCardMedia
-            src={event.flyerUrl}
-            alt={event.name}
+          <Box
+            sx={{
+              position: "relative",
+              height: 200,
+              cursor: "pointer",
+            }}
             onClick={handleImageClick}
-            style={{ cursor: "pointer" }}
-          />
+          >
+            <ImageWithFallback
+              src={event.flyerUrl}
+              alt={event.name}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+              fallbackText="Event flyer not available"
+            />
+          </Box>
         )}
         <EventCardContent>
           <Typography variant="h6" gutterBottom>
@@ -139,7 +153,7 @@ const FanEventCard: React.FC<FanEventCardProps> = ({
         }}
       >
         <DialogContent sx={{ p: 0, position: "relative" }}>
-          <img
+          <ImageWithFallback
             src={event.flyerUrl}
             alt={event.name}
             style={{
@@ -148,6 +162,7 @@ const FanEventCard: React.FC<FanEventCardProps> = ({
               maxHeight: "90vh",
               objectFit: "contain",
             }}
+            fallbackText="Full size flyer not available"
           />
         </DialogContent>
       </Dialog>

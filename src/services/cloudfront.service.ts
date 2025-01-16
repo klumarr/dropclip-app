@@ -17,7 +17,14 @@ const DISTRIBUTION_DOMAIN = import.meta.env.VITE_AWS_CLOUDFRONT_DOMAIN;
 export const cloudfrontOperations = {
   // Get the CloudFront URL for a file
   getFileUrl: (key: string): string => {
-    return `https://${DISTRIBUTION_DOMAIN}/${key}`;
+    // Remove any protocol and trailing slashes from the domain
+    const domain = DISTRIBUTION_DOMAIN.replace(/^https?:\/\//, "").replace(
+      /\/+$/,
+      ""
+    );
+    // Ensure the key doesn't start with a slash
+    const cleanKey = key.replace(/^\/+/, "");
+    return `https://${domain}/${cleanKey}`;
   },
 
   // Invalidate CloudFront cache for specific paths

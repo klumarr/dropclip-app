@@ -6,6 +6,7 @@ import {
   UploadConfig,
 } from "../types/events";
 import { useEvents } from "../contexts/EventsContext";
+import { useImageUpload } from "./useImageUpload";
 
 export const useEventForm = (initialData?: EventFormData) => {
   const { newEvent } = useEvents();
@@ -15,6 +16,7 @@ export const useEventForm = (initialData?: EventFormData) => {
   const [errors, setErrors] = useState<EventFormErrors>({});
   const [isDirty, setIsDirty] = useState(false);
   const [isValid, setIsValid] = useState(false);
+  const { handleImageUpload } = useImageUpload("events");
 
   // Initialize form with newEvent data when available
   useEffect(() => {
@@ -52,14 +54,32 @@ export const useEventForm = (initialData?: EventFormData) => {
     setIsDirty(true);
   }, []);
 
-  const handleImageChange = useCallback((file?: File) => {
-    setFormData((prev) => ({
-      ...prev,
-      flyerImage: file || null,
-      flyerUrl: file ? URL.createObjectURL(file) : undefined,
-    }));
-    setIsDirty(true);
-  }, []);
+  const handleImageChange = useCallback(
+    async (file?: File) => {
+      try {
+        if (file) {
+          const flyerUrl = await handleImageUpload(file);
+          setFormData((prev) => ({
+            ...prev,
+            flyerImage: file,
+            flyerUrl,
+          }));
+          console.log("Form data updated with new image:", { file, flyerUrl });
+        } else {
+          setFormData((prev) => ({
+            ...prev,
+            flyerImage: null,
+            flyerUrl: undefined,
+          }));
+          console.log("Form data cleared of image");
+        }
+        setIsDirty(true);
+      } catch (error) {
+        console.error("Failed to handle image change:", error);
+      }
+    },
+    [handleImageUpload]
+  );
 
   const validateForm = useCallback(() => {
     const newErrors: EventFormErrors = {};

@@ -125,17 +125,27 @@ const EventsPage: React.FC = () => {
   };
 
   return (
-    <Box sx={{ height: "100%", position: "relative" }}>
+    <Box
+      sx={{
+        height: "100%",
+        position: "relative",
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       {loading ? (
         <Typography>Loading events...</Typography>
       ) : error ? (
         <Alert severity="error">{error}</Alert>
       ) : (
-        <EventCardList
-          events={events}
-          onEditClick={handleEditClick}
-          onDeleteClick={handleDeleteClick}
-        />
+        <Box sx={{ flex: 1, width: "100%", overflow: "hidden" }}>
+          <EventCardList
+            events={events}
+            onEditClick={handleEditClick}
+            onDeleteClick={handleDeleteClick}
+          />
+        </Box>
       )}
 
       <ActionButtons

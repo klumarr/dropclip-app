@@ -22,7 +22,6 @@ export interface EventDetails {
     longitude: number;
   };
   flyerImage?: File | null;
-  flyerImageUrl?: string;
   flyerUrl?: string;
   isAutomatic?: boolean;
 }
@@ -89,7 +88,8 @@ export interface EventFormData {
   country: string;
   ticketLink?: string;
   type: EventType;
-  tags?: string[];
+  tags: string[];
+  suggestedTags: string[];
   uploadConfig: UploadConfig;
 }
 
@@ -170,6 +170,7 @@ export const initialEventFormData: EventFormData = {
   description: "",
   type: "Other",
   tags: [],
+  suggestedTags: [],
   date: "",
   time: "",
   endDate: "",

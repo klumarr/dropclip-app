@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getCredentials } from "./auth.service";
+import { cloudfrontOperations } from "./cloudfront.service";
 
 const BUCKET_NAME = import.meta.env.VITE_AWS_S3_IMAGES_BUCKET;
 const REGION = import.meta.env.VITE_AWS_REGION;
@@ -58,9 +59,8 @@ export const uploadImage = async (file: File): Promise<string> => {
 };
 
 export const getImageUrl = (key: string): string => {
-  if (!BUCKET_NAME || !REGION) {
-    throw new Error("S3 configuration is missing");
+  if (!key) {
+    throw new Error("Image key is required");
   }
-
-  return `https://${BUCKET_NAME}.s3.${REGION}.amazonaws.com/${key}`;
+  return cloudfrontOperations.getFileUrl(key);
 };

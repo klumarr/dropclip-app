@@ -28,6 +28,7 @@ import {
 } from "../../../../types/events";
 import { styled } from "@mui/material/styles";
 import { useImageUpload } from "../../../../hooks/useImageUpload";
+import ImageWithFallback from "../../../common/ImageWithFallback";
 
 // Styled components
 const VisuallyHiddenInput = styled("input")({
@@ -59,7 +60,8 @@ const ImagePreview = styled(Box)({
 interface EventDetailsFormProps {
   details: EventDetails;
   errors: EventFormErrors;
-  onChange: (details: EventDetails) => void;
+  onChange: (field: keyof EventDetails, value: any) => void;
+  onImageChange?: (file?: File) => Promise<void>;
 }
 
 const eventTypes: EventType[] = [
@@ -75,6 +77,7 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
   details,
   errors,
   onChange,
+  onImageChange,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const {
@@ -87,7 +90,8 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
   const [isImageExpanded, setIsImageExpanded] = useState(false);
 
   const handleChange = (field: keyof EventDetails, value: any) => {
-    onChange({ ...details, [field]: value });
+    console.log(`🔄 State update - ${field}:`, value);
+    onChange(field, value);
   };
 
   const handleTagsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,20 +103,33 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
-    if (file) {
-      try {
-        const flyerUrl = await uploadToS3(file);
-        handleChange("flyerUrl", flyerUrl);
-      } catch (error) {
-        console.error("Failed to upload image:", error);
+    if (!file) return;
+
+    try {
+      console.log("🖼️ Starting image upload in EventDetailsForm");
+      const cloudFrontUrl = await uploadToS3(file);
+      console.log("✅ Image uploaded successfully:", cloudFrontUrl);
+
+      handleChange("flyerUrl", cloudFrontUrl);
+      handleChange("flyerImage", file);
+
+      if (onImageChange) {
+        await onImageChange(file);
       }
+    } catch (err) {
+      console.error("❌ Failed to upload image:", err);
     }
   };
 
-  const handleRemoveImage = () => {
-    handleChange("flyerImage", null);
-    handleChange("flyerUrl", undefined);
+  const handleRemoveImage = async () => {
+    console.log("🗑️ Removing image in EventDetailsForm");
     handleImageRemove();
+    handleChange("flyerUrl", undefined);
+    handleChange("flyerImage", undefined);
+
+    if (onImageChange) {
+      await onImageChange(undefined);
+    }
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -120,6 +137,7 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
 
   return (
     <Grid container spacing={3}>
+      {console.log("🎨 Render - Current details:", details)}
       <Grid item xs={12}>
         <TextField
           fullWidth
@@ -144,26 +162,28 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
             style={{ display: "none" }}
             onChange={handleImageChange}
           />
-          {!details.flyerUrl ? (
-            <Button
-              component="label"
-              variant="outlined"
-              startIcon={
-                isUploading ? <CircularProgress size={20} /> : <UploadIcon />
-              }
-              onClick={() => fileInputRef.current?.click()}
-              fullWidth
-              sx={{ height: 200 }}
-              disabled={isUploading}
-            >
-              {isUploading
-                ? `Uploading... ${uploadProgress}%`
-                : "Upload Flyer Image"}
-            </Button>
-          ) : (
-            <>
-              <ImagePreview onClick={() => setIsImageExpanded(true)}>
-                <img src={details.flyerUrl} alt="Event flyer preview" />
+          {details.flyerUrl ? (
+            <Box sx={{ position: "relative", mb: 2 }}>
+              {console.log(
+                "🖼️ Rendering image preview with URL:",
+                details.flyerUrl
+              )}
+              <ImagePreview
+                onClick={() => {
+                  setIsImageExpanded(true);
+                  return undefined;
+                }}
+              >
+                <ImageWithFallback
+                  src={details.flyerUrl}
+                  alt="Event flyer"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                  fallbackText="Preview not available"
+                />
                 <IconButton
                   sx={{
                     position: "absolute",
@@ -174,28 +194,27 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
                   onClick={(e) => {
                     e.stopPropagation();
                     handleRemoveImage();
+                    return undefined;
                   }}
-                  disabled={isUploading}
                 >
                   <DeleteIcon />
                 </IconButton>
               </ImagePreview>
-
               <Dialog
                 open={isImageExpanded}
                 onClose={() => setIsImageExpanded(false)}
-                maxWidth={false}
+                maxWidth="md"
+                fullWidth
               >
                 <DialogContent sx={{ p: 0 }}>
-                  <Box
-                    component="img"
+                  <ImageWithFallback
                     src={details.flyerUrl}
-                    alt="Event flyer full size"
-                    sx={{
-                      width: "90vw",
-                      maxHeight: "90vh",
-                      objectFit: "contain",
+                    alt="Event flyer"
+                    style={{
+                      width: "100%",
+                      height: "auto",
                     }}
+                    fallbackText="Full size preview not available"
                   />
                 </DialogContent>
                 <DialogActions>
@@ -204,12 +223,35 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
                   </Button>
                 </DialogActions>
               </Dialog>
-            </>
+            </Box>
+          ) : (
+            <Button
+              component="label"
+              variant="outlined"
+              startIcon={<UploadIcon />}
+              disabled={isUploading}
+              fullWidth
+            >
+              {isUploading ? (
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <CircularProgress size={24} sx={{ mr: 1 }} />
+                  Uploading... {Math.round(uploadProgress)}%
+                </Box>
+              ) : (
+                "Upload Flyer"
+              )}
+              <VisuallyHiddenInput
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                ref={fileInputRef}
+              />
+            </Button>
           )}
           {error && (
-            <Typography color="error" variant="caption" sx={{ mt: 1 }}>
+            <FormHelperText error sx={{ mt: 1 }}>
               {error}
-            </Typography>
+            </FormHelperText>
           )}
         </Box>
       </Grid>

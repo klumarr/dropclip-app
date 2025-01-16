@@ -24,21 +24,6 @@ const client = new DynamoDBClient({
 export const docClient = DynamoDBDocumentClient.from(client);
 
 // Type definitions
-export interface EventItem {
-  id: string;
-  creativeId: string;
-  identityId: string; // Temporary AWS identity ID for permissions
-  name: string;
-  description: string;
-  date: string;
-  location: string;
-  imageUrl?: string;
-  createdAt: string;
-  updatedAt: string;
-  dateId: string; // YYYY-MM
-  dateCreativeId: string; // date#creativeId
-}
-
 export interface UploadItem {
   id: string;
   eventId: string;

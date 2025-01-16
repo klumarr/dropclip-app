@@ -5,6 +5,7 @@ import RouteGuard from "../components/auth/RouteGuard";
 import { UserType } from "../types/auth.types";
 import { ErrorBoundary } from "../components/error/ErrorBoundary";
 import { LoadingState } from "../components/common/LoadingState";
+import { EventsProvider } from "../contexts/EventsContext";
 
 // Lazy load all pages
 const SignInPage = lazy(() => import("../pages/auth/SignInPage"));
@@ -79,7 +80,9 @@ export const routes = [
     path: "/creative",
     element: (
       <RouteGuard allowedUserTypes={[UserType.CREATIVE]}>
-        <MainLayout />
+        <EventsProvider>
+          <MainLayout />
+        </EventsProvider>
       </RouteGuard>
     ),
     errorElement: <ErrorBoundary />,

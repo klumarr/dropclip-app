@@ -62,6 +62,14 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
   // Memoize the safeDispatch function
   const safeDispatch = React.useCallback(
     (action: any) => {
+      if (!mounted.current) {
+        console.warn(
+          "EventsContext - Attempted dispatch while unmounted:",
+          action.type
+        );
+        return;
+      }
+
       console.log("EventsContext - safeDispatch called with:", {
         actionType: action.type,
         isMounted: mounted.current,
@@ -72,27 +80,20 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
           : "not an array",
       });
 
-      if (mounted.current) {
-        console.log("EventsContext - Dispatching action:", action);
-        dispatch(action);
-
-        // Add a small delay before logging state to ensure it's updated
-        setTimeout(() => {
-          console.log("EventsContext - State after dispatch:", {
-            events: state.events?.length,
-            loading: state.loading,
-            error: state.error,
-          });
-        }, 0);
-      } else {
-        console.warn(
-          "EventsContext - Attempted dispatch while unmounted:",
-          action.type
-        );
-      }
+      dispatch(action);
     },
     [dispatch]
-  ); // Only depend on dispatch which is stable
+  );
+
+  // Add effect to log state changes
+  useEffect(() => {
+    console.log("EventsContext - State updated:", {
+      events: state.events?.length || 0,
+      eventsData: state.events,
+      loading: state.loading,
+      error: state.error,
+    });
+  }, [state]);
 
   // State management refs
   const isRequestInProgress = useRef(false);
@@ -375,44 +376,61 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsCreateDialogOpen(true);
   };
 
-  const value = {
-    events: state.events,
-    loading: state.loading,
-    error: state.error,
-    fetchStatus,
-    retryInfo,
-    isCreateDialogOpen,
-    setIsCreateDialogOpen,
-    fetchEvents,
-    createEvent,
-    updateEvent,
-    deleteEvent,
-    shareEvent: async (eventId: string) => {
-      if (!isAuthenticated || !user?.id) {
-        throw new Error("User not authenticated");
-      }
+  const value = React.useMemo(
+    () => ({
+      events: state.events,
+      loading: state.loading,
+      error: state.error,
+      isCreateDialogOpen,
+      isScannerOpen,
+      newEvent,
+      setNewEvent,
+      setIsScannerOpen,
+      handleScannedEvent,
+      createEvent,
+      updateEvent,
+      deleteEvent,
+      shareEvent: async (eventId: string) => {
+        if (!isAuthenticated || !user?.id) {
+          throw new Error("User not authenticated");
+        }
 
-      try {
-        safeDispatch({ type: "SET_LOADING", payload: true });
-        console.log("EventsContext - Sharing event:", eventId);
-        // TODO: Implement share functionality
-        console.log("EventsContext - Event shared successfully");
-      } catch (error) {
-        console.error("EventsContext - Error sharing event:", error);
-        safeDispatch({
-          type: "SET_ERROR",
-          payload: "Failed to share event. Please try again.",
-        });
-        throw error;
-      } finally {
-        safeDispatch({ type: "SET_LOADING", payload: false });
-      }
-    },
-    setError: (error: string | null) => {
-      safeDispatch({ type: "SET_ERROR", payload: error });
-    },
-    newEvent,
-  };
+        try {
+          safeDispatch({ type: "SET_LOADING", payload: true });
+          console.log("EventsContext - Sharing event:", eventId);
+          // TODO: Implement share functionality
+          console.log("EventsContext - Event shared successfully");
+        } catch (error) {
+          console.error("EventsContext - Error sharing event:", error);
+          safeDispatch({
+            type: "SET_ERROR",
+            payload: "Failed to share event. Please try again.",
+          });
+          throw error;
+        } finally {
+          safeDispatch({ type: "SET_LOADING", payload: false });
+        }
+      },
+      setError: (error: string | null) => {
+        safeDispatch({ type: "SET_ERROR", payload: error });
+      },
+      setIsCreateDialogOpen,
+      fetchEvents,
+    }),
+    [
+      state,
+      isCreateDialogOpen,
+      isScannerOpen,
+      newEvent,
+      isAuthenticated,
+      user?.id,
+      safeDispatch,
+      createEvent,
+      updateEvent,
+      deleteEvent,
+      fetchEvents,
+    ]
+  );
 
   console.log("EventsContext - Providing context value:", {
     eventsCount: value.events?.length,

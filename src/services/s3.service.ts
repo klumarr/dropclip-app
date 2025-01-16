@@ -3,12 +3,14 @@ import {
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
+  CopyObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { Upload } from "@aws-sdk/lib-storage";
 import { getAWSClient } from "./aws-client.factory";
 import { region as AWS_REGION } from "../config/amplify-config";
 import { getCredentials } from "./auth.service";
+import { cloudfrontOperations } from "./cloudfront.service";
 
 // Define the progress event type
 interface ProgressEvent {
@@ -17,6 +19,7 @@ interface ProgressEvent {
 }
 
 const BUCKET_NAME = import.meta.env.VITE_AWS_S3_UPLOADS_BUCKET;
+const CONTENT_BUCKET = import.meta.env.VITE_AWS_S3_BUCKET_NAME;
 
 interface UploadResult {
   url: string;
@@ -41,6 +44,7 @@ interface S3Operations {
   ) => string;
   generateFlyerKey: (eventId: string, fileName: string) => Promise<string>;
   getUploadUrl: (key: string, contentType: string) => Promise<string>;
+  copyFile: (sourceKey: string, destinationKey: string) => Promise<void>;
 }
 
 // Get S3 client using our factory
@@ -110,17 +114,11 @@ export const s3Operations: S3Operations = {
   },
 
   async getFileUrl(key: string): Promise<string> {
-    const params = {
-      Bucket: BUCKET_NAME,
-      Key: key,
-    };
-
     try {
       console.log("🔍 Getting file URL:", key);
-      const s3Client = await getS3Client();
-      const command = new GetObjectCommand(params);
-      const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
-      console.log("✅ Got file URL");
+      // Always use CloudFront URL
+      const url = cloudfrontOperations.getFileUrl(key);
+      console.log("✅ Got file URL (via CloudFront)");
       return url;
     } catch (error) {
       console.error("❌ Error getting file URL:", error);
@@ -136,20 +134,11 @@ export const s3Operations: S3Operations = {
     key: string,
     contentDisposition?: string
   ): Promise<string> {
-    const params = {
-      Bucket: BUCKET_NAME,
-      Key: key,
-      ...(contentDisposition && {
-        ResponseContentDisposition: contentDisposition,
-      }),
-    };
-
     try {
       console.log("🔐 Getting signed URL:", key);
-      const s3Client = await getS3Client();
-      const command = new GetObjectCommand(params);
-      const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
-      console.log("✅ Got signed URL");
+      // Use CloudFront URL instead of signed S3 URL
+      const url = cloudfrontOperations.getFileUrl(key);
+      console.log("✅ Got CloudFront URL");
       return url;
     } catch (error) {
       console.error("❌ Error getting signed URL:", error);
@@ -162,21 +151,13 @@ export const s3Operations: S3Operations = {
   },
 
   async getDownloadUrl(fileUrl: string): Promise<string> {
-    // Extract the key from the fileUrl
-    const key = fileUrl.split("/").slice(3).join("/");
-
-    const params = {
-      Bucket: BUCKET_NAME,
-      Key: key,
-      ResponseContentDisposition: "attachment", // Force download
-    };
-
     try {
-      console.log("🔽 Getting download URL:", key);
-      const s3Client = await getS3Client();
-      const command = new GetObjectCommand(params);
-      const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
-      console.log("✅ Got download URL");
+      console.log("🔽 Getting download URL for:", fileUrl);
+      // Extract the key from the fileUrl (remove the CloudFront domain)
+      const key = fileUrl.split("/").slice(3).join("/");
+      // Use CloudFront URL
+      const url = cloudfrontOperations.getFileUrl(key);
+      console.log("✅ Got CloudFront download URL");
       return url;
     } catch (error) {
       console.error("❌ Error getting download URL:", error);
@@ -247,6 +228,34 @@ export const s3Operations: S3Operations = {
         error instanceof Error
           ? `Failed to get upload URL: ${error.message}`
           : "Failed to get upload URL: Unknown error"
+      );
+    }
+  },
+
+  async copyFile(sourceKey: string, destinationKey: string): Promise<void> {
+    try {
+      console.log("📋 Copying file:", {
+        from: `${BUCKET_NAME}/${sourceKey}`,
+        to: `${CONTENT_BUCKET}/${destinationKey}`,
+      });
+
+      const s3Client = await getS3Client();
+      const command = new CopyObjectCommand({
+        Bucket: CONTENT_BUCKET,
+        CopySource: encodeURIComponent(`${BUCKET_NAME}/${sourceKey}`),
+        Key: destinationKey,
+        ACL: "private",
+        MetadataDirective: "COPY",
+      });
+
+      await s3Client.send(command);
+      console.log("✅ File copied successfully");
+    } catch (error) {
+      console.error("❌ Error copying file:", error);
+      throw new Error(
+        error instanceof Error
+          ? `Failed to copy file: ${error.message}`
+          : "Failed to copy file: Unknown error"
       );
     }
   },

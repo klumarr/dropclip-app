@@ -1,41 +1,27 @@
-import { RouterProvider } from "react-router-dom";
-import { createBrowserRouter } from "react-router-dom";
-import { routes } from "./config/routes.config";
-import { ThemeProvider } from "./providers/ThemeProvider";
+import { ThemeProvider } from "@mui/material/styles";
+import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "./contexts/AuthContext";
-import { SnackbarProvider } from "./contexts/SnackbarContext";
-import { EventsProvider } from "./contexts/EventsContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
-import { verifyAWSConfiguration } from "./services/aws-client.verify";
-import { useEffect } from "react";
+import { theme } from "./theme";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { routes } from "./config/routes.config";
+import CssBaseline from "@mui/material/CssBaseline";
 
 const router = createBrowserRouter(routes);
 
-function App() {
-  useEffect(() => {
-    // Verify AWS configuration on app startup
-    verifyAWSConfiguration().then((result) => {
-      if (result.success) {
-        console.log("🚀 AWS Configuration Verified:", result.message);
-      } else {
-        console.error("❌ AWS Configuration Failed:", result.error);
-      }
-    });
-  }, []);
-
+const App = () => {
   return (
-    <ThemeProvider>
-      <SnackbarProvider>
+    <HelmetProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
         <AuthProvider>
           <NotificationProvider>
-            <EventsProvider>
-              <RouterProvider router={router} />
-            </EventsProvider>
+            <RouterProvider router={router} />
           </NotificationProvider>
         </AuthProvider>
-      </SnackbarProvider>
-    </ThemeProvider>
+      </ThemeProvider>
+    </HelmetProvider>
   );
-}
+};
 
 export default App;

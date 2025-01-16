@@ -25,6 +25,11 @@ export const EventCardList: React.FC<EventCardListProps> = ({
 }) => {
   const [filter, setFilter] = useState<FilterType>("all");
 
+  console.log("EventCardList - Received events:", {
+    count: events?.length || 0,
+    events: events,
+  });
+
   const handleFilterChange = (
     _event: React.MouseEvent<HTMLElement>,
     newFilter: FilterType | null
@@ -35,8 +40,13 @@ export const EventCardList: React.FC<EventCardListProps> = ({
   };
 
   const filteredEvents = React.useMemo(() => {
+    console.log("EventCardList - Filtering events:", {
+      filter,
+      totalEvents: events?.length || 0,
+    });
+
     const now = new Date();
-    return events
+    const filtered = events
       .filter((event) => {
         const eventDate = new Date(`${event.date}T${event.time}`);
         switch (filter) {
@@ -53,10 +63,25 @@ export const EventCardList: React.FC<EventCardListProps> = ({
         const dateB = new Date(`${b.date}T${b.time}`);
         return dateA.getTime() - dateB.getTime();
       });
+
+    console.log("EventCardList - Filtered events:", {
+      filter,
+      filteredCount: filtered.length,
+    });
+
+    return filtered;
   }, [events, filter]);
 
   return (
-    <Paper elevation={2} sx={{ bgcolor: "background.paper", p: 2 }}>
+    <Paper
+      elevation={2}
+      sx={{
+        bgcolor: "background.paper",
+        p: 2,
+        width: "100%",
+        overflow: "hidden",
+      }}
+    >
       <Box mb={2}>
         <Typography variant="h6" gutterBottom>
           Events
@@ -85,22 +110,24 @@ export const EventCardList: React.FC<EventCardListProps> = ({
           No {filter === "all" ? "" : filter} events found
         </Typography>
       ) : (
-        <ScrollSection>
-          <EventsRow>
-            {filteredEvents.map((event) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                onEdit={() => onEditClick(event)}
-                onDelete={() => onDeleteClick(event)}
-                onShare={async () => {
-                  console.log("Share clicked for event:", event.name);
-                }}
-                isPast={new Date(`${event.date}T${event.time}`) < new Date()}
-              />
-            ))}
-          </EventsRow>
-        </ScrollSection>
+        <Box sx={{ width: "100%", overflow: "hidden" }}>
+          <ScrollSection>
+            <EventsRow>
+              {filteredEvents.map((event) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  onEdit={() => onEditClick(event)}
+                  onDelete={() => onDeleteClick(event)}
+                  onShare={async () => {
+                    console.log("Share clicked for event:", event.name);
+                  }}
+                  isPast={new Date(`${event.date}T${event.time}`) < new Date()}
+                />
+              ))}
+            </EventsRow>
+          </ScrollSection>
+        </Box>
       )}
     </Paper>
   );

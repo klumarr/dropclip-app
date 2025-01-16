@@ -5,12 +5,15 @@ import {
   QueryCommand,
   GetCommand,
   DeleteCommand,
+  UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { Event, EventFormData, UploadConfig } from "../types/events";
 import { v4 as uuidv4 } from "uuid";
 import { TableNames } from "../config/dynamodb";
 import { createAWSClient } from "./aws-client.factory";
 import { getCredentials } from "./auth.service";
+import { s3Operations } from "./s3.service";
+import { cloudfrontOperations } from "./cloudfront.service";
 
 export const eventOperations = {
   getFanEvents: async (userId: string): Promise<Event[]> => {
@@ -18,9 +21,12 @@ export const eventOperations = {
     return service.getFanEvents(userId);
   },
 
-  getEventById: async (eventId: string): Promise<Event | null> => {
+  getEventById: async (
+    eventId: string,
+    creativeId?: string
+  ): Promise<Event | null> => {
     const service = new EventsService();
-    return service.getEventById(eventId);
+    return service.getEventById(eventId, creativeId);
   },
 
   getEventByLinkId: async (linkId: string): Promise<Event | null> => {
@@ -30,10 +36,11 @@ export const eventOperations = {
 
   createEvent: async (
     userId: string,
-    eventData: EventFormData
+    eventData: EventFormData,
+    flyerFile?: File
   ): Promise<Event> => {
     const service = new EventsService();
-    return service.createEvent(userId, eventData);
+    return service.createEvent(userId, eventData, flyerFile);
   },
 
   updateEvent: async (
@@ -211,13 +218,13 @@ export class EventsService {
   }
 
   async createEvent(
-    creativeId: string,
-    eventData: EventFormData
+    userId: string,
+    eventData: EventFormData,
+    flyerFile?: File
   ): Promise<Event> {
-    console.log("EventsService - Creating event for creative:", creativeId);
+    console.log("EventsService - Creating event for creative:", userId);
 
     return this.executeWithRetry(async (client) => {
-      // Get AWS identity ID
       const credentials = await getCredentials();
       const identityId = credentials.identityId;
       console.log(
@@ -227,16 +234,62 @@ export class EventsService {
 
       const eventId = uuidv4();
       const now = new Date().toISOString();
+      let imageUrl: string | undefined;
+      let fileKey: string | undefined;
+
+      // Handle flyer upload if provided
+      if (flyerFile) {
+        try {
+          // Generate the key for the upload bucket
+          fileKey = await s3Operations.generateFlyerKey(
+            eventId,
+            flyerFile.name
+          );
+
+          // Get pre-signed URL for upload
+          const uploadUrl = await s3Operations.getUploadUrl(
+            fileKey,
+            flyerFile.type
+          );
+
+          // Upload the file
+          await fetch(uploadUrl, {
+            method: "PUT",
+            body: flyerFile,
+            headers: {
+              "Content-Type": flyerFile.type,
+            },
+          });
+
+          // Copy the file to the content bucket with the same key
+          await s3Operations.copyFile(fileKey, fileKey);
+
+          // Delete the file from the uploads bucket
+          await s3Operations.deleteFile(fileKey);
+
+          // Get the CloudFront URL for the file in the content bucket
+          imageUrl = cloudfrontOperations.getFileUrl(fileKey);
+          console.log("✅ Generated CloudFront URL for flyer:", imageUrl);
+        } catch (error) {
+          console.error("Failed to handle flyer file:", error);
+          throw new Error("Failed to upload flyer file");
+        }
+      }
+
       const dateId = eventData.date.replace(/-/g, "");
-      const dateCreativeId = `${dateId}#${creativeId}`;
+      const dateCreativeId = `${dateId}#${userId}`;
+
+      // Destructure eventData to exclude flyerImage
+      const { flyerImage, ...eventDataWithoutFile } = eventData;
 
       const event: Event = {
         id: eventId,
-        creativeId,
+        creativeId: userId,
         identityId,
         dateId,
         dateCreativeId,
-        ...eventData,
+        ...eventDataWithoutFile,
+        flyerUrl: imageUrl,
         endDate: eventData.endDate || eventData.date,
         endTime: eventData.endTime || eventData.time,
         createdAt: now,
@@ -325,12 +378,13 @@ export class EventsService {
     );
 
     return this.executeWithRetry(async (client) => {
+      // Get the event first to check if it has an image
+      const event = await this.getEventById(eventId, creativeId);
+
+      // Delete the event from DynamoDB
       const command = new DeleteCommand({
         TableName: TableNames.EVENTS,
-        Key: {
-          id: eventId,
-          creativeId,
-        },
+        Key: { id: eventId, creativeId },
       });
 
       console.log(
@@ -338,6 +392,12 @@ export class EventsService {
         JSON.stringify(command.input, null, 2)
       );
       await client.send(command);
+
+      // If event had an image, invalidate its cache
+      if (event?.flyerUrl) {
+        await cloudfrontOperations.invalidateEventCache(eventId);
+      }
+
       console.log("EventsService - Event deleted successfully");
     });
   }
@@ -351,28 +411,14 @@ export class EventsService {
       eventId,
       creativeId,
       eventDataKeys: Object.keys(eventData),
-      identityMatch: `Checking if creativeId ${creativeId} matches the AWS identity ID`,
     });
 
     return this.executeWithRetry(async (client) => {
-      // Get AWS identity ID
       const credentials = await getCredentials();
       const identityId = credentials.identityId;
-      console.log(
-        "EventsService - Got identity ID for event update:",
-        identityId
-      );
 
       // Get the existing event first
       const existingEvent = await this.getEventById(eventId, creativeId);
-      console.log("📝 EventsService - Existing Event:", {
-        found: !!existingEvent,
-        eventId,
-        existingCreativeId: existingEvent?.creativeId,
-        requestedCreativeId: creativeId,
-        matched: existingEvent?.creativeId === creativeId,
-      });
-
       if (!existingEvent) {
         throw new Error(`Event not found: ${eventId}`);
       }
@@ -381,18 +427,9 @@ export class EventsService {
       const updatedEvent = {
         ...existingEvent,
         ...eventData,
-        identityId, // Update with current identity ID
+        identityId,
         updatedAt: new Date().toISOString(),
       };
-
-      console.log("📦 EventsService - Preparing Update:", {
-        eventId: updatedEvent.id,
-        creativeId: updatedEvent.creativeId,
-        identityId: updatedEvent.identityId,
-        originalCreativeId: existingEvent.creativeId,
-        requestedCreativeId: creativeId,
-        matched: updatedEvent.creativeId === creativeId,
-      });
 
       // Update the event in DynamoDB
       const command = new PutCommand({
@@ -405,21 +442,11 @@ export class EventsService {
         },
       });
 
-      console.log("🚀 EventsService - Executing Update Command:", {
-        tableName: TableNames.EVENTS,
-        itemId: updatedEvent.id,
-        itemCreativeId: updatedEvent.creativeId,
-        itemIdentityId: updatedEvent.identityId,
-        conditionCreativeId: creativeId,
-        command: JSON.stringify(command.input, null, 2),
-      });
-
       await client.send(command);
       console.log("✅ EventsService - Update Successful:", {
         eventId,
         creativeId,
         identityId,
-        matched: updatedEvent.creativeId === creativeId,
       });
 
       return updatedEvent;

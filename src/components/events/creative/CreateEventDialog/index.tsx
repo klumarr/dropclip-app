@@ -189,6 +189,8 @@ export const CreateEventDialog: React.FC<CreateEventDialogProps> = ({
         flyerImage: details.flyerImage,
         flyerUrl: details.flyerUrl,
         uploadConfig,
+        tags: details.tags,
+        suggestedTags: details.suggestedTags,
       });
       handleClose();
     } catch (error) {
@@ -206,6 +208,22 @@ export const CreateEventDialog: React.FC<CreateEventDialogProps> = ({
     onClose();
   };
 
+  const handleDetailsChange = (field: keyof EventDetails, value: any) => {
+    console.log("🔄 CreateEventDialog - handleDetailsChange:", {
+      field,
+      value,
+      currentDetails: JSON.stringify(details, null, 2),
+    });
+    setDetails((prev) => {
+      const newDetails = { ...prev, [field]: value };
+      console.log(
+        "🔄 CreateEventDialog - New details:",
+        JSON.stringify(newDetails, null, 2)
+      );
+      return newDetails;
+    });
+  };
+
   const getStepContent = (step: number) => {
     switch (step) {
       case 0:
@@ -213,7 +231,7 @@ export const CreateEventDialog: React.FC<CreateEventDialogProps> = ({
           <EventDetailsForm
             details={details}
             errors={errors}
-            onChange={setDetails}
+            onChange={handleDetailsChange}
           />
         );
       case 1:

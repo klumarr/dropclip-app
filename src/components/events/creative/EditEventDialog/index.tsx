@@ -83,7 +83,7 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
         city: event.city,
         country: event.country,
         ticketLink: event.ticketLink || "",
-        flyerImageUrl: event.flyerUrl,
+        flyerUrl: event.flyerUrl,
       });
 
       // Initialize upload config with default values if not present in event
@@ -211,6 +211,7 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
         description: details.description,
         type: details.type,
         tags: details.tags,
+        suggestedTags: details.suggestedTags,
         date: details.date,
         time: details.time,
         endDate: details.endDate,
@@ -219,7 +220,7 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
         city: details.city,
         country: details.country,
         ticketLink: details.ticketLink,
-        flyerUrl: details.flyerImageUrl,
+        flyerUrl: details.flyerUrl,
         uploadConfig,
       });
       handleClose();
@@ -228,6 +229,10 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleDetailsChange = (field: keyof EventDetails, value: any) => {
+    setDetails((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleClose = () => {
@@ -243,7 +248,7 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
           <EventDetailsForm
             details={details}
             errors={errors}
-            onChange={setDetails}
+            onChange={handleDetailsChange}
           />
         );
       case 1:
@@ -251,7 +256,7 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
           <UploadConfigForm
             config={uploadConfig}
             errors={errors}
-            onChange={(config: UploadConfig) => setUploadConfig(config)}
+            onChange={setUploadConfig}
           />
         );
       case 2:

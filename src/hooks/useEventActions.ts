@@ -1,87 +1,66 @@
 import { useState } from "react";
 import { Event } from "../types/events";
-import { SharePlatform } from "../components/events/creative/EventActions/types";
+import { SharePlatform } from "../types/share";
+import { generateEventDeepLink } from "../utils/deepLinks";
 
 export const useEventActions = () => {
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  const handleInitiateDelete = async (event: Event) => {
-    setSelectedEvent(event);
-    setError(null);
+  const handleShareClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
   };
 
-  const handleInitiateEdit = async (event: Event) => {
-    setSelectedEvent(event);
-    setError(null);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!selectedEvent) return;
-    setIsLoading(true);
-    setError(null);
-    try {
-      // Implement delete logic here
-      console.log("Deleting event:", selectedEvent.id);
-    } catch (err) {
-      setError("Failed to delete event");
-      console.error("Error deleting event:", err);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleShareClose = () => {
+    setAnchorEl(null);
   };
 
   const handleShare = async (event: Event, platform: SharePlatform) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const url = `${window.location.origin}/events/${event.id}`;
-      switch (platform) {
-        case "facebook":
-          window.open(
-            `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-              url
-            )}`,
-            "_blank"
-          );
-          break;
-        case "twitter":
-          window.open(
-            `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-              url
-            )}&text=${encodeURIComponent(`Check out ${event.name}!`)}`,
-            "_blank"
-          );
-          break;
-        case "whatsapp":
-          window.open(
-            `https://wa.me/?text=${encodeURIComponent(
-              `Check out ${event.name}! ${url}`
-            )}`,
-            "_blank"
-          );
-          break;
-        case "copy":
-          await navigator.clipboard.writeText(url);
-          console.log("URL copied to clipboard:", url);
-          break;
-      }
-    } catch (err) {
-      setError("Failed to share event");
-      console.error("Error sharing event:", err);
-    } finally {
-      setIsLoading(false);
+    const eventUrl = generateEventDeepLink(event);
+    const eventText = `Check out ${event.name} on ${event.date} at ${event.venue}!`;
+    const encodedText = encodeURIComponent(eventText);
+    const encodedUrl = encodeURIComponent(eventUrl);
+
+    switch (platform) {
+      case "facebook":
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`, "_blank");
+        break;
+      case "twitter":
+        window.open(`https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`, "_blank");
+        break;
+      case "instagram":
+        // Instagram doesn't support direct sharing via URL
+        // Instead, we'll copy the event details to clipboard for manual sharing
+        await navigator.clipboard.writeText(`${eventText}\n\n${eventUrl}`);
+        alert("Event details copied! Open Instagram and paste in your story or post.");
+        break;
+      case "whatsapp":
+        window.open(`https://wa.me/?text=${encodedText}%20${encodedUrl}`, "_blank");
+        break;
+      case "sms":
+        // Check if device is mobile
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+          window.location.href = `sms:?&body=${encodedText}%20${encodedUrl}`;
+        } else {
+          alert("SMS sharing is only available on mobile devices");
+        }
+        break;
+      case "email":
+        window.location.href = `mailto:?subject=${encodedText}&body=${eventText}%0A%0A${eventUrl}`;
+        break;
+      case "copy":
+        await navigator.clipboard.writeText(eventUrl);
+        alert("Link copied to clipboard!");
+        break;
+      case "qr":
+        // QR code handling is done in the ShareMenu component
+        break;
     }
   };
 
   return {
-    selectedEvent,
-    isLoading,
-    error,
-    handleInitiateDelete,
-    handleInitiateEdit,
-    handleConfirmDelete,
+    anchorEl,
+    handleShareClick,
+    handleShareClose,
     handleShare,
   };
 };
