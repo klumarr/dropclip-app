@@ -37,16 +37,36 @@ export const eventsReducer = (state: State, action: Action): State => {
   });
 
   switch (action.type) {
-    case "SET_EVENTS": {
-      const newEvents = Array.isArray(action.payload) ? action.payload : [];
-      return {
+    case "SET_EVENTS":
+      console.log("🎯 EventsReducer - SET_EVENTS - Payload:", {
+        eventsCount: action.payload?.length,
+        firstEvent: action.payload?.[0],
+        isArray: Array.isArray(action.payload),
+        payloadType: typeof action.payload,
+      });
+
+      if (!Array.isArray(action.payload)) {
+        console.error("SET_EVENTS received non-array payload:", action.payload);
+        return {
+          ...state,
+          error: "Invalid events data received",
+          loading: false,
+        };
+      }
+
+      const newState = {
         ...state,
-        events: newEvents,
-        eventsCount: newEvents.length,
-        loading: false,
+        events: [...action.payload],
         error: null,
       };
-    }
+
+      console.log("✅ EventsReducer - SET_EVENTS - New state:", {
+        eventsCount: newState.events.length,
+        firstEvent: newState.events[0],
+        isArray: Array.isArray(newState.events),
+      });
+
+      return newState;
 
     case "ADD_EVENT":
       return {

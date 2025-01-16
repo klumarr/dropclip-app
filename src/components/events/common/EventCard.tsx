@@ -28,7 +28,6 @@ import {
 import { Event } from "../../../types/events";
 import ShareMenu from "../creative/EventActions/ShareMenu";
 import ImageWithFallback from "../../common/ImageWithFallback";
-import { FlyerScanner } from "../creative/FlyerScanner";
 
 interface EventCardProps {
   event: Event;
@@ -48,7 +47,6 @@ const EventCard: React.FC<EventCardProps> = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   const handleShareClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -72,16 +70,7 @@ const EventCard: React.FC<EventCardProps> = ({
   };
 
   const handleImageClick = () => {
-    if (event.flyerUrl) {
-      setIsImageDialogOpen(true);
-    } else {
-      setIsScannerOpen(true);
-    }
-  };
-
-  const handleScanComplete = (scannedData: any) => {
-    setIsScannerOpen(false);
-    onEdit({ ...event, ...scannedData });
+    setIsImageDialogOpen(true);
   };
 
   const getLocationString = (event: Event) => {
@@ -213,6 +202,14 @@ const EventCard: React.FC<EventCardProps> = ({
             </IconButton>
           )}
         </ActionButtonsWrapper>
+
+        <ShareMenu
+          event={event}
+          anchorEl={anchorEl}
+          onClose={handleShareClose}
+          onShare={onShare}
+          open={Boolean(anchorEl)}
+        />
       </StyledEventCard>
 
       <Dialog
@@ -354,12 +351,6 @@ const EventCard: React.FC<EventCardProps> = ({
           </Button>
         </Box>
       </Dialog>
-
-      <FlyerScanner
-        open={isScannerOpen}
-        onClose={() => setIsScannerOpen(false)}
-        onEventDetected={handleScanComplete}
-      />
 
       <ShareMenu
         event={event}

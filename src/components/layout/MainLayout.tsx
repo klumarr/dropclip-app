@@ -6,6 +6,7 @@ import { SideMenu } from "./SideMenu";
 import MobileNavigation from "./MobileNavigation";
 import { LoadingState } from "../common/LoadingState";
 import { ErrorBoundary } from "../common/ErrorBoundary";
+import { EventsProvider } from "../../contexts/EventsContext";
 
 const MainLayout = () => {
   const theme = useTheme();
@@ -25,26 +26,7 @@ const MainLayout = () => {
   };
 
   return (
-    <>
-      <GlobalStyles
-        styles={{
-          body: {
-            margin: 0,
-            padding: 0,
-            backgroundColor: theme.palette.background.default,
-            minHeight: "100vh",
-            width: "100vw",
-            overflowX: "hidden",
-            overflowY: "auto",
-          },
-          "#root": {
-            minHeight: "100vh",
-            width: "100vw",
-            overflowX: "hidden",
-            overflowY: "auto",
-          },
-        }}
-      />
+    <EventsProvider>
       <Box
         sx={{
           display: "flex",
@@ -58,6 +40,25 @@ const MainLayout = () => {
           overflowY: "auto",
         }}
       >
+        <GlobalStyles
+          styles={{
+            body: {
+              margin: 0,
+              padding: 0,
+              backgroundColor: theme.palette.background.default,
+              minHeight: "100vh",
+              width: "100vw",
+              overflowX: "hidden",
+              overflowY: "auto",
+            },
+            "#root": {
+              minHeight: "100vh",
+              width: "100vw",
+              overflowX: "hidden",
+              overflowY: "auto",
+            },
+          }}
+        />
         <Header onMenuOpen={handleSidebarToggle} />
 
         <Box
@@ -102,7 +103,7 @@ const MainLayout = () => {
 
         {isMobile && <MobileNavigation />}
       </Box>
-    </>
+    </EventsProvider>
   );
 };
 

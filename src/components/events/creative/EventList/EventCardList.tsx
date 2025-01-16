@@ -75,12 +75,7 @@ export const EventCardList: React.FC<EventCardListProps> = ({
   return (
     <Paper
       elevation={2}
-      sx={{
-        bgcolor: "background.paper",
-        p: 2,
-        width: "100%",
-        overflow: "hidden",
-      }}
+      sx={{ bgcolor: "background.paper", p: 2, width: "100%" }}
     >
       <Box mb={2}>
         <Typography variant="h6" gutterBottom>

@@ -33,11 +33,11 @@ export const EventPreview: React.FC<EventPreviewProps> = ({
 
   return (
     <Card variant="outlined">
-      {details.flyerUrl && (
+      {details.flyerImageUrl && (
         <CardMedia
           component="img"
           height="300"
-          image={details.flyerUrl}
+          image={details.flyerImageUrl}
           alt="Event flyer"
           sx={{ objectFit: "cover" }}
         />

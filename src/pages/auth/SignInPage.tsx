@@ -13,32 +13,34 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link as RouterLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { signIn, fetchUserAttributes, signOut } from "aws-amplify/auth";
+import { UserType } from "../../types/auth.types";
 
 const SignInPage: React.FC = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { completeNewPassword, isAuthenticated, user } = useAuth();
-  const [error, setError] = useState<string>("");
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [isNewPasswordRequired, setIsNewPasswordRequired] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    newPassword: "",
-    confirmNewPassword: "",
   });
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { signIn, user, isAuthenticated } = useAuth();
+  const location = useLocation();
+  const [showPassword, setShowPassword] = useState(false);
+  const [isNewPasswordRequired, setIsNewPasswordRequired] = useState(false);
 
-  // Add effect to check authentication state
+  // This useEffect handles the redirect after successful authentication
   useEffect(() => {
     if (isAuthenticated && user) {
-      console.log("User already authenticated, redirecting...");
-      const defaultPath =
-        user.userType === "CREATIVE" ? "/creative/dashboard" : "/dashboard";
-      const returnUrl = (location.state as { returnUrl?: string })?.returnUrl;
-      navigate(returnUrl || defaultPath);
+      console.log("User authenticated, redirecting...", {
+        userType: user.userType,
+      });
+      const redirectPath =
+        user.userType === UserType.CREATIVE
+          ? "/creative/dashboard"
+          : "/fan/search";
+      navigate(redirectPath, { replace: true });
     }
-  }, [isAuthenticated, user, navigate, location.state]);
+  }, [isAuthenticated, user, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -48,56 +50,24 @@ const SignInPage: React.FC = () => {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError(null);
+    setLoading(true);
+
     try {
-      setError("");
-      setLoading(true);
-      console.log("🔐 Starting sign in process...");
-
-      try {
-        // First try to sign out any existing session
-        await signOut();
-        console.log("Successfully signed out existing session");
-      } catch (signOutError) {
-        // Ignore sign out errors, as there might not be an existing session
-        console.log("No existing session to sign out");
-      }
-
-      const signInResult = await signIn({
-        username: formData.email,
-        password: formData.password,
-        options: {
-          authFlowType: "USER_PASSWORD_AUTH",
-        },
+      console.log("🔑 SignInPage - Attempting sign in:", {
+        email: formData.email,
       });
 
-      console.log("Sign in result:", signInResult);
-
-      if (signInResult.isSignedIn) {
-        // Get user attributes to determine user type
-        const attributes = await fetchUserAttributes();
-        console.log("User attributes:", attributes);
-
-        const userType = attributes?.["custom:userType"];
-        const defaultPath =
-          userType === "CREATIVE" ? "/creative/dashboard" : "/dashboard";
-
-        // Navigate to return URL or default path
-        const returnUrl = (location.state as { returnUrl?: string })?.returnUrl;
-        navigate(returnUrl || defaultPath);
-      } else if (
-        signInResult.nextStep?.signInStep ===
-        "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED"
-      ) {
-        setIsNewPasswordRequired(true);
-      }
+      await signIn(formData.email, formData.password);
+      // The useEffect above will handle the redirect once auth state updates
     } catch (err) {
-      console.error("Sign in error:", err);
+      console.error("🔑 SignInPage - Sign in error:", err);
       setError(
         err instanceof Error
           ? err.message
-          : "Failed to sign in. Please check your credentials."
+          : "Failed to sign in. Please try again."
       );
     } finally {
       setLoading(false);

@@ -2,6 +2,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "./contexts/AuthContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import { EventsProvider } from "./contexts/EventsContext";
 import { theme } from "./theme";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { routes } from "./config/routes.config";
@@ -16,7 +17,9 @@ const App = () => {
         <CssBaseline />
         <AuthProvider>
           <NotificationProvider>
-            <RouterProvider router={router} />
+            <EventsProvider>
+              <RouterProvider router={router} />
+            </EventsProvider>
           </NotificationProvider>
         </AuthProvider>
       </ThemeProvider>

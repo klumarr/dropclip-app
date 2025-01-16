@@ -83,7 +83,7 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
         city: event.city,
         country: event.country,
         ticketLink: event.ticketLink || "",
-        flyerUrl: event.flyerUrl,
+        flyerImageUrl: event.flyerUrl,
       });
 
       // Initialize upload config with default values if not present in event
@@ -220,7 +220,7 @@ export const EditEventDialog: React.FC<EditEventDialogProps> = ({
         city: details.city,
         country: details.country,
         ticketLink: details.ticketLink,
-        flyerUrl: details.flyerUrl,
+        flyerUrl: details.flyerImageUrl,
         uploadConfig,
       });
       handleClose();

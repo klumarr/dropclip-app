@@ -14,6 +14,8 @@ import { createAWSClient } from "./aws-client.factory";
 import { getCredentials } from "./auth.service";
 import { s3Operations } from "./s3.service";
 import { cloudfrontOperations } from "./cloudfront.service";
+import { CognitoIdentityClient } from "@aws-sdk/client-cognito-identity";
+import { fromCognitoIdentityPool } from "@aws-sdk/credential-providers";
 
 export const eventOperations = {
   getFanEvents: async (userId: string): Promise<Event[]> => {
@@ -77,15 +79,111 @@ export const eventOperations = {
     const service = new EventsService();
     return service.getUploadConfig(eventId, linkId);
   },
+
+  getPublicEvent: async (eventId: string): Promise<Event | null> => {
+    const service = new EventsService();
+    return service.getPublicEventById(eventId);
+  },
 };
 
 export class EventsService {
   private docClient: DynamoDBDocumentClient | null = null;
+  private unauthClient: DynamoDBDocumentClient | null = null;
   private retryCount = 3;
-  private retryDelay = 1000; // Start with 1 second delay
+  private retryDelay = 1000;
 
   constructor() {
     console.log("EventsService - Initializing with table:", TableNames.EVENTS);
+  }
+
+  private async getUnauthenticatedClient(): Promise<DynamoDBDocumentClient> {
+    if (this.unauthClient) return this.unauthClient;
+
+    try {
+      console.log("EventsService - Creating unauthenticated DynamoDB client");
+      const region = import.meta.env.VITE_AWS_REGION;
+      const identityPoolId = import.meta.env.VITE_IDENTITY_POOL_ID;
+
+      if (!region || !identityPoolId) {
+        throw new Error("Missing required AWS configuration");
+      }
+
+      const credentials = fromCognitoIdentityPool({
+        clientConfig: { region },
+        identityPoolId,
+      });
+
+      const client = new DynamoDBClient({
+        region,
+        credentials,
+      });
+
+      this.unauthClient = DynamoDBDocumentClient.from(client, {
+        marshallOptions: {
+          removeUndefinedValues: true,
+          convertEmptyValues: true,
+        },
+      });
+
+      console.log(
+        "EventsService - Successfully created unauthenticated client"
+      );
+      return this.unauthClient;
+    } catch (error) {
+      console.error(
+        "EventsService - Failed to create unauthenticated client:",
+        error
+      );
+      throw new Error("Failed to initialize database connection");
+    }
+  }
+
+  async getPublicEventById(eventId: string): Promise<Event | null> {
+    console.log(`EventsService - Fetching public event with ID: ${eventId}`);
+    try {
+      const region = import.meta.env.VITE_AWS_REGION;
+      const identityPoolId = import.meta.env.VITE_IDENTITY_POOL_ID;
+
+      if (!region || !identityPoolId) {
+        throw new Error("Missing required AWS configuration");
+      }
+
+      const credentials = fromCognitoIdentityPool({
+        clientConfig: { region },
+        identityPoolId,
+      });
+
+      const client = DynamoDBDocumentClient.from(
+        new DynamoDBClient({
+          region,
+          credentials,
+        })
+      );
+
+      const command = new QueryCommand({
+        TableName: TableNames.EVENTS,
+        KeyConditionExpression: "id = :id",
+        ExpressionAttributeValues: {
+          ":id": eventId,
+        },
+        Limit: 1,
+      });
+
+      const response = await client.send(command);
+      if (!response.Items || response.Items.length === 0) {
+        console.log(`EventsService - No event found with ID: ${eventId}`);
+        return null;
+      }
+
+      console.log(
+        `EventsService - Successfully fetched public event:`,
+        response.Items[0]
+      );
+      return response.Items[0] as Event;
+    } catch (error) {
+      console.error(`EventsService - Error fetching public event:`, error);
+      throw new Error("Failed to fetch event details");
+    }
   }
 
   private async ensureClient(): Promise<DynamoDBDocumentClient> {
@@ -269,7 +367,6 @@ export class EventsService {
 
           // Get the CloudFront URL for the file in the content bucket
           imageUrl = cloudfrontOperations.getFileUrl(fileKey);
-          console.log("✅ Generated CloudFront URL for flyer:", imageUrl);
         } catch (error) {
           console.error("Failed to handle flyer file:", error);
           throw new Error("Failed to upload flyer file");
@@ -279,16 +376,13 @@ export class EventsService {
       const dateId = eventData.date.replace(/-/g, "");
       const dateCreativeId = `${dateId}#${userId}`;
 
-      // Destructure eventData to exclude flyerImage
-      const { flyerImage, ...eventDataWithoutFile } = eventData;
-
       const event: Event = {
         id: eventId,
         creativeId: userId,
         identityId,
         dateId,
         dateCreativeId,
-        ...eventDataWithoutFile,
+        ...eventData,
         flyerUrl: imageUrl,
         endDate: eventData.endDate || eventData.date,
         endTime: eventData.endTime || eventData.time,

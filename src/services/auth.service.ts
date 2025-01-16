@@ -137,9 +137,13 @@ export const getCredentials = async () => {
 
 // Authentication service using Amplify
 export const AuthService = {
-  signIn: async (email: string, password: string) => {
+  signIn: async (
+    email: string,
+    password: string
+  ): Promise<{ isSignedIn: boolean }> => {
     try {
-      console.log("🔐 Attempting to sign in with email:", email);
+      console.log("🔑 AuthService - Starting sign in process");
+
       const signInResult = await signIn({
         username: email,
         password,
@@ -147,10 +151,21 @@ export const AuthService = {
           authFlowType: "USER_PASSWORD_AUTH",
         },
       });
-      console.log("✅ Sign in successful:", signInResult);
+
+      console.log("🔑 AuthService - Sign in result:", signInResult);
+
+      // Immediately fetch user attributes after successful sign in
+      if (signInResult.isSignedIn) {
+        const attributes = await fetchUserAttributes();
+        console.log(
+          "🔑 AuthService - User attributes after sign in:",
+          attributes
+        );
+      }
+
       return signInResult;
     } catch (error) {
-      console.error("❌ Error signing in:", error);
+      console.error("🔑 AuthService - Sign in error:", error);
       throw error;
     }
   },
@@ -191,12 +206,28 @@ export const AuthService = {
     }
   },
 
-  getCurrentUser: async () => {
+  getCurrentUser: async (): Promise<Record<string, any> | null> => {
     try {
-      return await getCurrentUser();
+      console.log("🔑 AuthService - Getting current user");
+      const currentUser = await getCurrentUser();
+      const attributes = await fetchUserAttributes();
+
+      console.log("🔑 AuthService - Current user data:", {
+        currentUser,
+        attributes,
+      });
+
+      return attributes;
     } catch (error) {
-      console.error("Error getting current user:", error);
-      return null;
+      if (
+        error instanceof Error &&
+        error.message.includes("User needs to be authenticated")
+      ) {
+        console.log("🔑 AuthService - No authenticated user");
+        return null;
+      }
+      console.error("🔑 AuthService - Error getting current user:", error);
+      throw error;
     }
   },
 

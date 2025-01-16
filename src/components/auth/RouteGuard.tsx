@@ -11,13 +11,18 @@ interface RouteGuardProps {
 const RouteGuard = ({ children, allowedUserTypes }: RouteGuardProps) => {
   const location = useLocation();
   const { isAuthenticated, isLoading, user } = useAuth();
+  const currentPath = location.pathname;
 
-  console.log("🔒 RouteGuard:", {
+  // Prevent infinite loops by checking if we're already on the signin page
+  const isAuthPath = currentPath.startsWith("/auth/");
+
+  console.log("🔒 RouteGuard Check:", {
     isAuthenticated,
     isLoading,
-    user,
+    userType: user?.userType,
     allowedUserTypes,
-    pathname: location.pathname,
+    currentPath,
+    isAuthPath,
   });
 
   if (isLoading) {
@@ -35,26 +40,42 @@ const RouteGuard = ({ children, allowedUserTypes }: RouteGuardProps) => {
     );
   }
 
-  if (!isAuthenticated || !user) {
+  // If not authenticated and not already on an auth path, redirect to signin
+  if (!isAuthenticated && !isAuthPath) {
     console.log("⚠️ User not authenticated, redirecting to signin");
     return <Navigate to="/auth/signin" state={{ from: location }} replace />;
   }
 
-  if (!allowedUserTypes.includes(user.userType)) {
-    console.log("⚠️ User type not allowed, redirecting to dashboard");
-    return (
-      <Navigate
-        to={
-          user.userType === UserType.CREATIVE
-            ? "/creative/dashboard"
-            : "/fan/search"
-        }
-        replace
-      />
-    );
+  // If authenticated but wrong user type, redirect to appropriate dashboard
+  if (isAuthenticated && user && !allowedUserTypes.includes(user.userType)) {
+    const redirectPath =
+      user.userType === UserType.CREATIVE
+        ? "/creative/dashboard"
+        : "/fan/search";
+
+    console.log(`⚠️ Wrong user type, redirecting to ${redirectPath}`);
+    return <Navigate to={redirectPath} replace />;
   }
 
-  return <>{children}</>;
+  // If authenticated and correct user type, render children
+  if (isAuthenticated && user && allowedUserTypes.includes(user.userType)) {
+    console.log("✅ Access granted to:", currentPath);
+    return <>{children}</>;
+  }
+
+  // Default case - show loading
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+      }}
+    >
+      <CircularProgress />
+    </Box>
+  );
 };
 
 export default RouteGuard;

@@ -23,21 +23,25 @@ export const ScrollSection = styled(Box)(({ theme }) => ({
   },
 }));
 
-export const EventsRow = styled(Box)({
+export const EventsRow = styled(Box)(({ theme }) => ({
   display: "inline-flex",
-  gap: "16px",
-  padding: "8px",
+  gap: theme.spacing(2),
+  padding: theme.spacing(1),
   "& > *": {
-    width: "300px",
-    minWidth: "300px",
+    width: {
+      xs: "280px",
+      sm: "320px",
+      md: "360px",
+      lg: "400px",
+    },
     flexShrink: 0,
+    margin: theme.spacing(1),
   },
-});
+}));
 
 export const StyledEventCard = styled(Card)(({ theme }) => ({
   position: "relative",
-  width: "300px",
-  minWidth: "300px",
+  width: "100%",
   height: 400,
   display: "flex",
   flexDirection: "column",

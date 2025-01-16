@@ -29,6 +29,7 @@
     "@aws-sdk/client-lambda": "^3.716.0",
     "@aws-sdk/client-s3": "^3.717.0",
     "@aws-sdk/credential-provider-cognito-identity": "^3.723.0",
+    "@aws-sdk/credential-providers": "^3.729.0",
     "@aws-sdk/lib-dynamodb": "^3.716.0",
     "@aws-sdk/lib-storage": "^3.721.0",
     "@aws-sdk/s3-request-presigner": "^3.717.0",

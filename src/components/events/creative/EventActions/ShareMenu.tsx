@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  Snackbar,
 } from "@mui/material";
 import {
   Facebook as FacebookIcon,
@@ -23,6 +24,7 @@ import {
 import { QRCodeSVG } from "qrcode.react";
 import { Event } from "../../../../types/events";
 import { SharePlatform } from "../../../../types/share";
+import { generateEventDeepLink } from "../../../../utils/deepLinks";
 
 interface ShareMenuProps {
   event: Event | null;
@@ -40,19 +42,84 @@ const ShareMenu: React.FC<ShareMenuProps> = ({
   onShare,
 }) => {
   const [qrDialogOpen, setQrDialogOpen] = React.useState(false);
-  const eventUrl = event ? `${window.location.origin}/events/${event.id}` : "";
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+  const [snackbarMessage, setSnackbarMessage] = React.useState("");
 
-  const handleShare = (platform: SharePlatform) => {
-    if (event) {
-      onShare(event, platform);
-      if (platform !== "qr") {
-        onClose();
-      }
-    }
+  const getShareUrl = (event: Event) => {
+    return generateEventDeepLink(event);
   };
 
-  const handleQrClick = () => {
-    setQrDialogOpen(true);
+  const handleShare = async (platform: SharePlatform) => {
+    if (!event) return;
+
+    const shareUrl = getShareUrl(event);
+    const shareText = `Check out ${event.name} at ${event.venue}!`;
+
+    try {
+      switch (platform) {
+        case "facebook":
+          window.open(
+            `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+              shareUrl
+            )}`,
+            "_blank"
+          );
+          break;
+        case "twitter":
+          window.open(
+            `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+              shareText
+            )}&url=${encodeURIComponent(shareUrl)}`,
+            "_blank"
+          );
+          break;
+        case "whatsapp":
+          window.open(
+            `https://wa.me/?text=${encodeURIComponent(
+              `${shareText}\n${shareUrl}`
+            )}`,
+            "_blank"
+          );
+          break;
+        case "email":
+          window.location.href = `mailto:?subject=${encodeURIComponent(
+            event.name
+          )}&body=${encodeURIComponent(`${shareText}\n\n${shareUrl}`)}`;
+          break;
+        case "sms":
+          // Only works on mobile devices
+          window.location.href = `sms:?body=${encodeURIComponent(
+            `${shareText}\n${shareUrl}`
+          )}`;
+          break;
+        case "instagram":
+          // Copy to clipboard since Instagram doesn't support direct sharing
+          await navigator.clipboard.writeText(shareUrl);
+          setSnackbarMessage(
+            "Link copied! Share it in your Instagram bio or story"
+          );
+          setSnackbarOpen(true);
+          break;
+        case "copy":
+          await navigator.clipboard.writeText(shareUrl);
+          setSnackbarMessage("Link copied to clipboard!");
+          setSnackbarOpen(true);
+          break;
+        case "qr":
+          setQrDialogOpen(true);
+          break;
+      }
+
+      await onShare(event, platform);
+    } catch (error) {
+      console.error("Error sharing:", error);
+      setSnackbarMessage("Failed to share. Please try again.");
+      setSnackbarOpen(true);
+    }
+
+    if (platform !== "qr") {
+      onClose();
+    }
   };
 
   return (
@@ -102,7 +169,7 @@ const ShareMenu: React.FC<ShareMenuProps> = ({
           </ListItemIcon>
           <ListItemText>Share via Email</ListItemText>
         </MenuItem>
-        <MenuItem onClick={handleQrClick}>
+        <MenuItem onClick={() => handleShare("qr")}>
           <ListItemIcon>
             <QrCodeIcon fontSize="small" />
           </ListItemIcon>
@@ -131,12 +198,14 @@ const ShareMenu: React.FC<ShareMenuProps> = ({
             py: 3,
           }}
         >
-          <QRCodeSVG
-            value={eventUrl}
-            size={256}
-            level="H"
-            includeMargin={true}
-          />
+          {event && (
+            <QRCodeSVG
+              value={getShareUrl(event)}
+              size={256}
+              level="H"
+              includeMargin={true}
+            />
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setQrDialogOpen(false)}>Close</Button>
@@ -166,6 +235,13 @@ const ShareMenu: React.FC<ShareMenuProps> = ({
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        message={snackbarMessage}
+      />
     </>
   );
 };

@@ -90,68 +90,62 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const checkAuthState = async () => {
     try {
-      console.log("Checking auth state...");
-      const currentUser = await AuthService.getCurrentUser();
-      console.log("Current user:", currentUser);
+      // Check if this is a public route (like event preview)
+      const isPublicRoute = window.location.pathname.startsWith("/events/");
 
-      if (!currentUser) {
+      if (isPublicRoute) {
+        console.log(
+          "AuthContext - Accessing public route, skipping auth check"
+        );
+        setState((prev) => ({ ...prev, isLoading: false }));
+        return;
+      }
+
+      console.log("Checking auth state...");
+      const user = await AuthService.getCurrentUser();
+
+      if (user) {
+        setState({
+          user: {
+            id: user.sub || "",
+            email: user.email || "",
+            userType:
+              (user["custom:userType"]?.toUpperCase() as UserType) ||
+              UserType.FAN,
+            creativeCategory:
+              (user["custom:creativeCategory"] as CreativeCategory) ||
+              undefined,
+            customCategory: user["custom:customCategory"] || undefined,
+            securitySettings: {
+              twoFactorEnabled: user["custom:twoFactorEnabled"] === "true",
+              emailNotifications: user["custom:emailNotifications"] === "true",
+              sessionTimeout: parseInt(
+                user["custom:sessionTimeout"] || "30",
+                10
+              ),
+              passwordLastChanged: new Date(
+                user["custom:passwordLastChanged"] || Date.now()
+              ),
+              backupCodes: user["custom:backupCodes"]?.split(",") || [],
+            },
+            isEmailVerified: user.email_verified === "true",
+            createdAt: new Date(user["custom:createdAt"] || Date.now()),
+            updatedAt: new Date(user["custom:updatedAt"] || Date.now()),
+          },
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+        });
+      } else {
         setState({
           user: null,
           isAuthenticated: false,
           isLoading: false,
           error: null,
         });
-        return;
       }
-
-      const attributes = await AuthService.getUserAttributes();
-      console.log("User attributes:", attributes);
-
-      if (!attributes) {
-        throw new Error("Failed to get user attributes");
-      }
-
-      // Verify AWS configuration after getting user
-      const awsVerification = await verifyAWSConfiguration();
-      if (!awsVerification.success) {
-        console.error("AWS verification failed:", awsVerification.error);
-        throw new Error("AWS configuration error");
-      }
-
-      setState({
-        user: {
-          id: attributes.sub || "",
-          email: attributes.email || "",
-          userType:
-            (attributes["custom:userType"]?.toUpperCase() as UserType) ||
-            UserType.FAN,
-          creativeCategory:
-            (attributes["custom:creativeCategory"] as CreativeCategory) ||
-            undefined,
-          customCategory: attributes["custom:customCategory"] || undefined,
-          securitySettings: {
-            twoFactorEnabled: attributes["custom:twoFactorEnabled"] === "true",
-            emailNotifications:
-              attributes["custom:emailNotifications"] === "true",
-            sessionTimeout: parseInt(
-              attributes["custom:sessionTimeout"] || "30",
-              10
-            ),
-            passwordLastChanged: new Date(
-              attributes["custom:passwordLastChanged"] || Date.now()
-            ),
-            backupCodes: attributes["custom:backupCodes"]?.split(",") || [],
-          },
-          isEmailVerified: attributes.email_verified === "true",
-          createdAt: new Date(attributes["custom:createdAt"] || Date.now()),
-          updatedAt: new Date(attributes["custom:updatedAt"] || Date.now()),
-        },
-        isAuthenticated: true,
-        isLoading: false,
-        error: null,
-      });
     } catch (error) {
-      console.error("Auth check failed:", error);
+      console.error("Error getting current user:", error);
       setState({
         user: null,
         isAuthenticated: false,
@@ -161,6 +155,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             ? error
             : new Error("Authentication check failed"),
       });
+      if (!window.location.pathname.startsWith("/events/")) {
+        setState((prev) => ({ ...prev, error: true }));
+      }
+    } finally {
+      setState((prev) => ({ ...prev, isLoading: false }));
     }
   };
 
@@ -170,16 +169,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   ): Promise<void> => {
     try {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
+      console.log("🔑 AuthContext - Starting sign in process");
 
       const signInResult = await AuthService.signIn(email, password);
+      console.log("🔑 AuthContext - Sign in result:", signInResult);
 
       if (!signInResult.isSignedIn) {
         throw new Error("Sign in failed");
       }
 
-      await checkAuthState();
+      // Immediately fetch and set user data after successful sign in
+      const userData = await AuthService.getCurrentUser();
+      console.log("🔑 AuthContext - User data fetched:", userData);
+
+      if (!userData) {
+        throw new Error("Failed to get user data after sign in");
+      }
+
+      // Update state with user data
+      setState({
+        user: {
+          id: userData.sub || "",
+          email: userData.email || "",
+          userType:
+            (userData["custom:userType"]?.toUpperCase() as UserType) ||
+            UserType.FAN,
+          creativeCategory: userData[
+            "custom:creativeCategory"
+          ] as CreativeCategory,
+          customCategory: userData["custom:customCategory"],
+          securitySettings: {
+            twoFactorEnabled: userData["custom:twoFactorEnabled"] === "true",
+            emailNotifications:
+              userData["custom:emailNotifications"] === "true",
+            sessionTimeout: parseInt(
+              userData["custom:sessionTimeout"] || "30",
+              10
+            ),
+            passwordLastChanged: new Date(
+              userData["custom:passwordLastChanged"] || Date.now()
+            ),
+            backupCodes: userData["custom:backupCodes"]?.split(",") || [],
+          },
+          isEmailVerified: userData.email_verified === "true",
+          createdAt: new Date(userData["custom:createdAt"] || Date.now()),
+          updatedAt: new Date(userData["custom:updatedAt"] || Date.now()),
+        },
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+
+      console.log("🔑 AuthContext - Authentication state updated successfully");
     } catch (error) {
-      console.error("Sign in error:", error);
+      console.error("🔑 AuthContext - Sign in error:", error);
       setState((prev) => ({
         ...prev,
         isLoading: false,

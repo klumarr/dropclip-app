@@ -5,7 +5,6 @@ import RouteGuard from "../components/auth/RouteGuard";
 import { UserType } from "../types/auth.types";
 import { ErrorBoundary } from "../components/error/ErrorBoundary";
 import { LoadingState } from "../components/common/LoadingState";
-import { EventsProvider } from "../contexts/EventsContext";
 
 // Lazy load all pages
 const SignInPage = lazy(() => import("../pages/auth/SignInPage"));
@@ -25,6 +24,7 @@ const MemoryManagerPage = lazy(
 );
 const SearchPage = lazy(() => import("../pages/fan/SearchPage"));
 const EventsPageFan = lazy(() => import("../pages/fan/EventsPageFan"));
+const EventPreviewPage = lazy(() => import("../pages/events/EventPreviewPage"));
 
 const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
   <Suspense fallback={<LoadingState message="Loading page..." />}>
@@ -80,9 +80,7 @@ export const routes = [
     path: "/creative",
     element: (
       <RouteGuard allowedUserTypes={[UserType.CREATIVE]}>
-        <EventsProvider>
-          <MainLayout />
-        </EventsProvider>
+        <MainLayout />
       </RouteGuard>
     ),
     errorElement: <ErrorBoundary />,
@@ -179,6 +177,15 @@ export const routes = [
         ),
       },
     ],
+  },
+  {
+    path: "/events/:id",
+    element: (
+      <SuspenseWrapper>
+        <EventPreviewPage />
+      </SuspenseWrapper>
+    ),
+    errorElement: <ErrorBoundary />,
   },
   {
     path: "*",

@@ -5,10 +5,12 @@ import React, {
   useReducer,
   useRef,
   useState,
+  useMemo,
+  useCallback,
 } from "react";
 import { Event, EventFormData, EventsContextType } from "../types/events";
 import { eventsReducer, initialState } from "./eventsReducer";
-import { EventsService } from "../services/eventsService";
+import { eventOperations } from "../services/eventsService";
 import { useAuth } from "./AuthContext";
 
 const EventsContext = createContext<EventsContextType | undefined>(undefined);
@@ -37,6 +39,28 @@ const EventsContext = createContext<EventsContextType | undefined>(undefined);
  *    - Tracks user activity across multiple events
  */
 
+export interface EventsContextType {
+  events: Event[];
+  loading: boolean;
+  error: string | null;
+  isCreateDialogOpen: boolean;
+  isScannerOpen: boolean;
+  newEvent: Partial<EventFormData> | null;
+  setNewEvent: React.Dispatch<
+    React.SetStateAction<Partial<EventFormData> | null>
+  >;
+  setIsScannerOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  handleScannedEvent: (eventData: Partial<EventFormData>) => void;
+  createEvent: (eventData: EventFormData) => Promise<Event>;
+  updateEvent: (eventId: string, eventData: Partial<Event>) => Promise<Event>;
+  deleteEvent: (eventId: string) => Promise<void>;
+  shareEvent: (eventId: string) => Promise<void>;
+  fetchEvents: () => Promise<void>;
+  setError: (error: string | null) => void;
+  setIsCreateDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  getPublicEvent: (eventId: string) => Promise<Event | null>;
+}
+
 export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -45,7 +69,6 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [newEvent, setNewEvent] = useState<Partial<EventFormData> | null>(null);
   const { isAuthenticated, user } = useAuth();
-  const eventsService = useRef(new EventsService());
 
   // Prevent state updates after unmount
   const mounted = useRef(true);
@@ -181,7 +204,7 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
       });
 
       safeDispatch({ type: "SET_LOADING", payload: true });
-      const events = await eventsService.current.listEvents(user.id);
+      const events = await eventOperations.listEvents(user.id);
 
       // Log raw response before validation
       console.log(`${logPrefix} - Received response:`, {
@@ -278,7 +301,7 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       safeDispatch({ type: "SET_LOADING", payload: true });
       console.log("EventsContext - Creating event for user:", user.id);
-      const event = await eventsService.current.createEvent(user.id, eventData);
+      const event = await eventOperations.createEvent(user.id, eventData);
       console.log("EventsContext - Event created successfully:", event.id);
       safeDispatch({ type: "ADD_EVENT", payload: event });
       return event;
@@ -316,7 +339,7 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
         cognitoSub: user.id, // This should match creativeId
       });
 
-      const updatedEvent = await eventsService.current.updateEvent(
+      const updatedEvent = await eventOperations.updateEvent(
         eventId,
         user.id,
         eventData
@@ -355,7 +378,7 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       safeDispatch({ type: "SET_LOADING", payload: true });
       console.log("EventsContext - Deleting event:", eventId);
-      await eventsService.current.deleteEvent(eventId, user.id);
+      await eventOperations.deleteEvent(eventId, user.id);
       console.log("EventsContext - Event deleted successfully");
       safeDispatch({ type: "DELETE_EVENT", payload: eventId });
     } catch (error) {
@@ -376,7 +399,41 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsCreateDialogOpen(true);
   };
 
-  const value = React.useMemo(
+  const getPublicEvent = useCallback(
+    async (eventId: string): Promise<Event | null> => {
+      try {
+        safeDispatch({ type: "SET_LOADING", payload: true });
+        safeDispatch({ type: "SET_ERROR", payload: null });
+
+        console.log("EventsContext - Fetching public event:", eventId);
+        const event = await eventOperations.getPublicEvent(eventId);
+
+        if (!event) {
+          console.log("EventsContext - Event not found:", eventId);
+          safeDispatch({ type: "SET_ERROR", payload: "Event not found" });
+          return null;
+        }
+
+        console.log("EventsContext - Successfully fetched event:", event);
+        return event;
+      } catch (error) {
+        console.error("EventsContext - Error fetching public event:", error);
+        safeDispatch({
+          type: "SET_ERROR",
+          payload:
+            error instanceof Error
+              ? error.message
+              : "Failed to load event details",
+        });
+        return null;
+      } finally {
+        safeDispatch({ type: "SET_LOADING", payload: false });
+      }
+    },
+    [safeDispatch]
+  );
+
+  const value = useMemo(
     () => ({
       events: state.events,
       loading: state.loading,
@@ -416,9 +473,12 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
       },
       setIsCreateDialogOpen,
       fetchEvents,
+      getPublicEvent,
     }),
     [
-      state,
+      state.events,
+      state.loading,
+      state.error,
       isCreateDialogOpen,
       isScannerOpen,
       newEvent,
@@ -429,6 +489,7 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
       updateEvent,
       deleteEvent,
       fetchEvents,
+      getPublicEvent,
     ]
   );
 
@@ -539,6 +600,7 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
         setError: (error) =>
           safeDispatch({ type: "SET_ERROR", payload: error }),
         setIsCreateDialogOpen,
+        getPublicEvent,
       }}
     >
       {children}

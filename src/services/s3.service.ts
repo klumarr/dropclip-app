@@ -116,7 +116,6 @@ export const s3Operations: S3Operations = {
   async getFileUrl(key: string): Promise<string> {
     try {
       console.log("🔍 Getting file URL:", key);
-      // Always use CloudFront URL
       const url = cloudfrontOperations.getFileUrl(key);
       console.log("✅ Got file URL (via CloudFront)");
       return url;

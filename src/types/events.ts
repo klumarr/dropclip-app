@@ -22,6 +22,7 @@ export interface EventDetails {
     longitude: number;
   };
   flyerImage?: File | null;
+  flyerImageUrl?: string;
   flyerUrl?: string;
   isAutomatic?: boolean;
 }
