@@ -1,5 +1,5 @@
 import { lambdaOperations } from "./lambda.service";
-import { uploadOperations } from "./dynamodb.service";
+import { uploadOperations } from "./operations/upload.operations";
 
 export interface VideoMetadata {
   duration: number;

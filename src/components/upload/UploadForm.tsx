@@ -18,7 +18,7 @@ import {
   CheckCircle as CheckIcon,
   Error as ErrorIcon,
 } from "@mui/icons-material";
-import { uploadService } from "../../services/upload.service";
+import { uploadOperations } from "../../services/operations/upload.operations";
 
 interface UploadFile {
   id: string;
@@ -76,14 +76,28 @@ export const UploadForm: React.FC<UploadFormProps> = ({
         )
       );
 
-      await uploadService.createUpload(
+      const fileType = fileItem.file.type.startsWith("video/")
+        ? "video"
+        : "image";
+
+      const fileKey = `${eventId}/${fileItem.id}/${fileItem.file.name}`;
+
+      await uploadOperations.createUpload(
         {
+          id: fileItem.id,
           eventId,
-          filename: fileItem.file.name,
+          userId,
+          eventOwnerId: userId, // Since this is a fan upload form
+          fileType,
+          fileKey,
+          key: fileKey,
+          bucket: "dropclip-uploads-dev", // This should come from env config
           fileSize: fileItem.file.size,
-          fileType: fileItem.file.type,
-          file: fileItem.file,
+          status: "pending",
+          userEventId: `${userId}#${eventId}`,
+          uploadDateEventId: `${new Date().toISOString()}#${eventId}`,
         },
+        fileItem.file,
         (progress) => {
           setFiles((prev) =>
             prev.map((f) =>

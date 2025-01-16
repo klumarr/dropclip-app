@@ -12,11 +12,13 @@ import {
   Link as LinkIcon,
 } from "@mui/icons-material";
 import {
-  EventCard as StyledEventCard,
+  EventCard,
   EventCardMedia,
   EventCardContent,
-} from "../creative/EventsPageStyles";
+  ActionButtonsWrapper,
+} from "../common/EventsPageStyles";
 import { Event } from "../../../types/events";
+import { SharePlatform } from "../../../types/share";
 import { useEventActions } from "../../../hooks/useEventActions";
 import ShareMenu from "../creative/EventActions/ShareMenu";
 import ImageWithFallback from "../../common/ImageWithFallback";
@@ -42,6 +44,19 @@ const FanEventCard: React.FC<FanEventCardProps> = ({
     setAnchorEl(null);
   };
 
+  const handleShareWrapper = async (
+    event: Event,
+    platform: SharePlatform
+  ): Promise<void> => {
+    try {
+      await handleShare(event, platform);
+      handleShareClose();
+    } catch (error) {
+      console.error("Error sharing event:", error);
+      // You might want to add error handling UI here
+    }
+  };
+
   const handleImageClick = () => {
     setIsImageDialogOpen(true);
   };
@@ -53,7 +68,7 @@ const FanEventCard: React.FC<FanEventCardProps> = ({
 
   return (
     <>
-      <StyledEventCard sx={{ opacity: isPast ? 0.7 : 1 }}>
+      <EventCard sx={{ opacity: isPast ? 0.7 : 1 }}>
         {event.flyerUrl && (
           <Box
             sx={{
@@ -134,10 +149,10 @@ const FanEventCard: React.FC<FanEventCardProps> = ({
           event={event}
           anchorEl={anchorEl}
           onClose={handleShareClose}
-          onShare={handleShare}
+          onShare={handleShareWrapper}
           open={Boolean(anchorEl)}
         />
-      </StyledEventCard>
+      </EventCard>
 
       <Dialog
         open={isImageDialogOpen}

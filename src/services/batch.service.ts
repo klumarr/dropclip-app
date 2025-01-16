@@ -1,4 +1,4 @@
-import { uploadOperations } from "./dynamodb.service";
+import { uploadOperations } from "./operations/upload.operations";
 import { playlistOperations } from "./playlist.service";
 import { videoOperations, ProcessingOptions } from "./video.service";
 import { UploadItem } from "../config/dynamodb";

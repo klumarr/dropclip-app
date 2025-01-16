@@ -84,6 +84,11 @@ export const eventOperations = {
     const service = new EventsService();
     return service.getPublicEventById(eventId);
   },
+
+  shareEvent: async (eventId: string): Promise<void> => {
+    const service = new EventsService();
+    await service.shareEvent(eventId);
+  },
 };
 
 export class EventsService {
@@ -643,5 +648,28 @@ export class EventsService {
 
       return response.Item.uploadConfig as UploadConfig;
     });
+  }
+
+  async shareEvent(eventId: string): Promise<void> {
+    try {
+      console.log("EventsService - Sharing event:", eventId);
+      const event = await this.getEventById(eventId);
+
+      if (!event) {
+        throw new Error("Event not found");
+      }
+
+      // TODO: Implement actual sharing logic
+      // This could involve:
+      // 1. Generating a shareable link
+      // 2. Creating a public access token
+      // 3. Updating event sharing settings
+      // 4. Returning sharing details
+
+      console.log("EventsService - Event shared successfully");
+    } catch (error) {
+      console.error("EventsService - Error sharing event:", error);
+      throw error;
+    }
   }
 }

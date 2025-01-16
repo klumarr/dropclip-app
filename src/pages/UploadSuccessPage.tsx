@@ -8,7 +8,7 @@ import {
   Paper,
 } from "@mui/material";
 import { CheckCircle } from "@mui/icons-material";
-import { uploadOperations } from "../services/dynamodb.service";
+import { uploadOperations } from "../services/operations/upload.operations";
 import { UploadItem } from "../config/dynamodb";
 
 const UploadSuccessPage = () => {

@@ -75,14 +75,17 @@ export const eventsReducer = (state: State, action: Action): State => {
         error: null,
       };
 
-    case "UPDATE_EVENT":
-      return {
+    case "UPDATE_EVENT": {
+      const updatedEvent = action.payload;
+      const newState = {
         ...state,
         events: state.events.map((event) =>
-          event.id === action.payload.id ? action.payload : event
+          event.id === updatedEvent.id ? updatedEvent : event
         ),
         error: null,
       };
+      return newState;
+    }
 
     case "DELETE_EVENT":
       return {

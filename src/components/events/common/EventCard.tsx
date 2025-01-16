@@ -19,22 +19,23 @@ import {
   Close as CloseIcon,
 } from "@mui/icons-material";
 import {
-  StyledEventCard,
+  EventCard as StyledEventCard,
   EventCardMedia,
   EventCardContent,
-  EventStatusIndicator,
   ActionButtonsWrapper,
-} from "../creative/EventsPageStyles";
+  EventStatusIndicator,
+} from "./EventsPageStyles";
 import { Event } from "../../../types/events";
 import ShareMenu from "../creative/EventActions/ShareMenu";
 import ImageWithFallback from "../../common/ImageWithFallback";
 
 interface EventCardProps {
   event: Event;
-  onEdit: (event: Event) => void;
-  onDelete: (event: Event) => void;
-  onShare: (event: Event) => Promise<void>;
+  onEdit?: (event: Event) => void;
+  onDelete?: (event: Event) => void;
+  onShare?: (event: Event) => Promise<void>;
   isPast?: boolean;
+  isPublicView?: boolean;
 }
 
 const EventCard: React.FC<EventCardProps> = ({
@@ -43,6 +44,7 @@ const EventCard: React.FC<EventCardProps> = ({
   onDelete,
   onShare,
   isPast = false,
+  isPublicView = false,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
@@ -168,40 +170,48 @@ const EventCard: React.FC<EventCardProps> = ({
           </Typography>
         </EventCardContent>
 
-        <ActionButtonsWrapper>
-          <IconButton
-            onClick={() => onEdit(event)}
-            size="small"
-            sx={{ color: "white" }}
-          >
-            <EditIcon />
-          </IconButton>
-          <IconButton
-            onClick={handleDeleteClick}
-            size="small"
-            sx={{ color: "white" }}
-          >
-            <DeleteIcon />
-          </IconButton>
-          <IconButton
-            onClick={handleShareClick}
-            size="small"
-            sx={{ color: "white" }}
-          >
-            <ShareIcon />
-          </IconButton>
-          {event.ticketLink && (
-            <IconButton
-              href={event.ticketLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              size="small"
-              sx={{ color: "white" }}
-            >
-              <TicketIcon />
-            </IconButton>
-          )}
-        </ActionButtonsWrapper>
+        {!isPublicView && (
+          <ActionButtonsWrapper>
+            {onEdit && (
+              <IconButton
+                onClick={() => onEdit(event)}
+                size="small"
+                sx={{ color: "white" }}
+              >
+                <EditIcon />
+              </IconButton>
+            )}
+            {onDelete && (
+              <IconButton
+                onClick={handleDeleteClick}
+                size="small"
+                sx={{ color: "white" }}
+              >
+                <DeleteIcon />
+              </IconButton>
+            )}
+            {onShare && (
+              <IconButton
+                onClick={handleShareClick}
+                size="small"
+                sx={{ color: "white" }}
+              >
+                <ShareIcon />
+              </IconButton>
+            )}
+            {event.ticketLink && (
+              <IconButton
+                href={event.ticketLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                size="small"
+                sx={{ color: "white" }}
+              >
+                <TicketIcon />
+              </IconButton>
+            )}
+          </ActionButtonsWrapper>
+        )}
 
         <ShareMenu
           event={event}
@@ -227,7 +237,9 @@ const EventCard: React.FC<EventCardProps> = ({
             alignItems: "center",
           }}
         >
-          <Typography variant="h6">{event.name}</Typography>
+          <Typography variant="h6" component="div">
+            {event.name}
+          </Typography>
           <IconButton
             onClick={() => setIsImageDialogOpen(false)}
             sx={{ color: "text.secondary" }}

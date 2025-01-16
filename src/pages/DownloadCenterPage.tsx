@@ -17,7 +17,7 @@ import {
   PlayArrow as PlayIcon,
 } from "@mui/icons-material";
 import { useAuth } from "../contexts/AuthContext";
-import { uploadOperations } from "../services/dynamodb.service";
+import { uploadOperations } from "../services/operations/upload.operations";
 import { UploadItem } from "../config/dynamodb";
 import { s3Operations } from "../services/s3.service";
 

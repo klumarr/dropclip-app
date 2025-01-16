@@ -1073,3 +1073,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Improved error reporting for missing configurations
   - Added proper fallbacks for configuration values
   - Enhanced development documentation
+
+## [16 January 2025] - Major Updates to Events System
+
+### Added
+
+- Public event preview functionality for non-authenticated users
+- Unauthenticated DynamoDB access for public events
+- New EventPreviewPage component with role-based content display
+- Progressive disclosure pattern for event details based on user status
+
+### Changed
+
+- Moved EventsProvider to MainLayout for better context management
+- Updated event card styling for consistent responsive design
+- Enhanced DynamoDB IAM permissions for public access
+- Improved error handling in EventsService
+- Optimized event fetching with proper loading states
+
+### Fixed
+
+- Resolved "useEvents must be used within an EventsProvider" error
+- Fixed event card width consistency issues
+- Corrected authentication flow for public event access
+- Resolved infinite loop in event fetching
+- Fixed DynamoDB key schema validation errors
+
+### Security
+
+- Implemented proper IAM role configuration for unauthenticated access
+- Updated Cognito Identity Pool settings for public access
+- Added attribute-based access control for event data
+- Enhanced trust relationships for IAM roles
+
+### Technical Debt
+
+- Refactored EventsService for better error handling
+- Improved type definitions for event-related interfaces
+- Enhanced logging for debugging purposes
+- Optimized component re-rendering patterns

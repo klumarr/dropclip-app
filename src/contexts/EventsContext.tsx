@@ -8,7 +8,7 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
-import { Event, EventFormData, EventsContextType } from "../types/events";
+import { Event, EventFormData } from "../types/events";
 import { eventsReducer, initialState } from "./eventsReducer";
 import { eventOperations } from "../services/eventsService";
 import { useAuth } from "./AuthContext";
@@ -433,6 +433,31 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
     [safeDispatch]
   );
 
+  const shareEvent = useCallback(
+    async (eventId: string): Promise<void> => {
+      try {
+        safeDispatch({ type: "SET_LOADING", payload: true });
+        safeDispatch({ type: "SET_ERROR", payload: null });
+
+        console.log("EventsContext - Sharing event:", eventId);
+        await eventOperations.shareEvent(eventId);
+
+        console.log("EventsContext - Successfully shared event");
+      } catch (error) {
+        console.error("EventsContext - Error sharing event:", error);
+        safeDispatch({
+          type: "SET_ERROR",
+          payload:
+            error instanceof Error ? error.message : "Failed to share event",
+        });
+        throw error;
+      } finally {
+        safeDispatch({ type: "SET_LOADING", payload: false });
+      }
+    },
+    [safeDispatch]
+  );
+
   const value = useMemo(
     () => ({
       events: state.events,
@@ -447,32 +472,12 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
       createEvent,
       updateEvent,
       deleteEvent,
-      shareEvent: async (eventId: string) => {
-        if (!isAuthenticated || !user?.id) {
-          throw new Error("User not authenticated");
-        }
-
-        try {
-          safeDispatch({ type: "SET_LOADING", payload: true });
-          console.log("EventsContext - Sharing event:", eventId);
-          // TODO: Implement share functionality
-          console.log("EventsContext - Event shared successfully");
-        } catch (error) {
-          console.error("EventsContext - Error sharing event:", error);
-          safeDispatch({
-            type: "SET_ERROR",
-            payload: "Failed to share event. Please try again.",
-          });
-          throw error;
-        } finally {
-          safeDispatch({ type: "SET_LOADING", payload: false });
-        }
-      },
+      shareEvent,
+      fetchEvents,
       setError: (error: string | null) => {
         safeDispatch({ type: "SET_ERROR", payload: error });
       },
       setIsCreateDialogOpen,
-      fetchEvents,
       getPublicEvent,
     }),
     [
@@ -595,7 +600,7 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
         createEvent,
         updateEvent,
         deleteEvent,
-        shareEvent: value.shareEvent,
+        shareEvent,
         fetchEvents,
         setError: (error) =>
           safeDispatch({ type: "SET_ERROR", payload: error }),

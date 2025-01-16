@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { Event } from "../../../../types/events";
 import EventCard from "../../common/EventCard";
-import { ScrollSection, EventsRow } from "../EventsPageStyles";
+import { ScrollSection, EventsRow } from "../../common/EventsPageStyles";
 
 type FilterType = "all" | "upcoming" | "past";
 

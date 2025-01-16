@@ -130,3 +130,21 @@ export const transformUserAttributes = (
     backupCodes: attrs["custom:backupCodes"]?.split(","),
   };
 };
+
+export interface AuthServiceType {
+  signIn: (email: string, password: string) => Promise<{ isSignedIn: boolean }>;
+  signUp: (data: SignUpInput) => Promise<any>;
+  signOut: () => Promise<void>;
+  getCurrentUser: () => Promise<Record<string, any> | null>;
+  getUserAttributes: () => Promise<Record<string, any> | null>;
+  updateUserAttributes: (
+    attributes: Record<string, string>
+  ) => Promise<boolean>;
+  completeNewPassword: (
+    email: string,
+    oldPassword: string,
+    newPassword: string
+  ) => Promise<boolean>;
+  confirmSignUp: (username: string, code: string) => Promise<boolean>;
+  isAuthenticated: () => Promise<boolean>;
+}

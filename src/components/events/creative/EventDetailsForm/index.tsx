@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   Grid,
   TextField,
@@ -135,9 +135,18 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
     }
   };
 
+  useEffect(() => {
+    console.log("🎨 Render - Current details:", details);
+  }, [details]);
+
+  useEffect(() => {
+    if (details.flyerUrl) {
+      console.log("🖼️ Rendering image preview with URL:", details.flyerUrl);
+    }
+  }, [details.flyerUrl]);
+
   return (
     <Grid container spacing={3}>
-      {console.log("🎨 Render - Current details:", details)}
       <Grid item xs={12}>
         <TextField
           fullWidth
@@ -164,10 +173,6 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
           />
           {details.flyerUrl ? (
             <Box sx={{ position: "relative", mb: 2 }}>
-              {console.log(
-                "🖼️ Rendering image preview with URL:",
-                details.flyerUrl
-              )}
               <ImagePreview
                 onClick={() => {
                   setIsImageExpanded(true);

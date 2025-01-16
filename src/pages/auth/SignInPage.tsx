@@ -15,15 +15,24 @@ import { useAuth } from "../../contexts/AuthContext";
 import { signIn, fetchUserAttributes, signOut } from "aws-amplify/auth";
 import { UserType } from "../../types/auth.types";
 
+interface SignInFormData {
+  email: string;
+  password: string;
+  newPassword?: string;
+  confirmNewPassword?: string;
+}
+
 const SignInPage: React.FC = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<SignInFormData>({
     email: "",
     password: "",
+    newPassword: "",
+    confirmNewPassword: "",
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { signIn, user, isAuthenticated } = useAuth();
+  const { signIn, completeNewPassword, user, isAuthenticated } = useAuth();
   const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const [isNewPasswordRequired, setIsNewPasswordRequired] = useState(false);

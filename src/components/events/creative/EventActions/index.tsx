@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  Box,
-  Button,
-  IconButton,
-  Tooltip,
-  Snackbar,
-  Alert,
-} from "@mui/material";
+import { Box, IconButton, Tooltip, Snackbar, Alert } from "@mui/material";
 import {
   Share as ShareIcon,
   Delete as DeleteIcon,
@@ -18,37 +11,35 @@ import { LoadingState } from "../../../common/LoadingState";
 import ShareMenu from "./ShareMenu";
 import DeleteDialog from "./DeleteDialog";
 import QRDialog from "./QRDialog";
-import { EventActionsProps, SharePlatform } from "./types";
+import { EventActionsProps } from "./types";
 import { Event } from "../../../../types/events";
+import { SharePlatform } from "../../../../types/share";
 
-const EventActions: React.FC<EventActionsProps> = ({ className }) => {
+const EventActions: React.FC<{ className?: string }> = ({ className }) => {
   const {
     selectedEvent,
     isLoading,
     error,
+    anchorEl,
+    handleShareClick,
+    handleShareClose,
+    handleShare,
     handleInitiateDelete,
     handleConfirmDelete,
-    handleShare,
   } = useEventActions();
 
-  const [shareAnchorEl, setShareAnchorEl] = useState<null | HTMLElement>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isQRDialogOpen, setIsQRDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [shareError, setShareError] = useState<string | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
 
-  const handleShareClick = (event: React.MouseEvent<HTMLElement>) => {
-    setShareAnchorEl(event.currentTarget);
-  };
-
-  const handleShareClose = () => {
-    setShareAnchorEl(null);
-  };
-
-  const handleShareWrapper = async (event: Event, platform: SharePlatform) => {
+  const handleShareWrapper = async (
+    eventToShare: Event,
+    platform: SharePlatform
+  ) => {
     try {
-      await handleShare(event, platform);
+      await handleShare(eventToShare, platform);
       if (platform === "copy") {
         setCopySuccess(true);
       }
@@ -113,7 +104,12 @@ const EventActions: React.FC<EventActionsProps> = ({ className }) => {
 
         <Tooltip title="Delete Event">
           <IconButton
-            onClick={() => setIsDeleteDialogOpen(true)}
+            onClick={() => {
+              if (selectedEvent) {
+                handleInitiateDelete(selectedEvent);
+                setIsDeleteDialogOpen(true);
+              }
+            }}
             disabled={!selectedEvent}
             color="error"
           >
@@ -124,8 +120,8 @@ const EventActions: React.FC<EventActionsProps> = ({ className }) => {
 
       <ShareMenu
         event={selectedEvent}
-        open={Boolean(shareAnchorEl)}
-        anchorEl={shareAnchorEl}
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
         onClose={handleShareClose}
         onShare={handleShareWrapper}
       />

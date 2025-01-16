@@ -18,7 +18,7 @@ import {
   CheckCircle as CheckIcon,
   Error as ErrorIcon,
 } from "@mui/icons-material";
-import { uploadService } from "../../../services/upload.service";
+import { uploadOperations } from "../../../services/operations/upload.operations";
 import { UploadConfig } from "../../../types/events";
 
 interface UploadFile {
@@ -77,14 +77,28 @@ export const UploadForm: React.FC<UploadFormProps> = ({
         )
       );
 
-      await uploadService.createUpload(
+      const fileType = fileItem.file.type.startsWith("video/")
+        ? "video"
+        : "image";
+
+      const fileKey = `${eventId}/${fileItem.id}/${fileItem.file.name}`;
+
+      await uploadOperations.createUpload(
         {
+          id: fileItem.id,
           eventId,
-          filename: fileItem.file.name,
+          userId: linkId,
+          eventOwnerId: eventId,
+          fileType,
+          fileKey,
+          key: fileKey,
+          bucket: "dropclip-uploads-dev",
           fileSize: fileItem.file.size,
-          fileType: fileItem.file.type,
-          file: fileItem.file,
+          status: "pending",
+          userEventId: `${linkId}#${eventId}`,
+          uploadDateEventId: `${new Date().toISOString()}#${eventId}`,
         },
+        fileItem.file,
         (progress) => {
           setFiles((prev) =>
             prev.map((f) =>

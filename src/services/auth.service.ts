@@ -14,7 +14,12 @@ import {
   confirmSignUp,
   type SignUpInput as AmplifySignUpInput,
 } from "aws-amplify/auth";
-import type { AuthUser, UserType, SignUpInput } from "../types/auth.types";
+import type {
+  AuthUser,
+  UserType,
+  SignUpInput,
+  AuthServiceType,
+} from "../types/auth.types";
 
 // Cache for AWS credentials
 interface CachedCredentials {
@@ -136,7 +141,7 @@ export const getCredentials = async () => {
 };
 
 // Authentication service using Amplify
-export const AuthService = {
+export const AuthService: AuthServiceType = {
   signIn: async (
     email: string,
     password: string
@@ -250,7 +255,37 @@ export const AuthService = {
     }
   },
 
-  confirmSignUp: async (username: string, code: string) => {
+  completeNewPassword: async (
+    email: string,
+    oldPassword: string,
+    newPassword: string
+  ): Promise<boolean> => {
+    try {
+      // First sign in with the old password
+      const signInResult = await signIn({
+        username: email,
+        password: oldPassword,
+        options: {
+          authFlowType: "USER_PASSWORD_AUTH",
+        },
+      });
+
+      if (!signInResult.isSignedIn) {
+        throw new Error("Failed to sign in with old password");
+      }
+
+      // TODO: Implement the actual password change logic here
+      // This will depend on your specific AWS Cognito setup
+      // You might need to use the Cognito API directly
+
+      return true;
+    } catch (error) {
+      console.error("Error completing new password:", error);
+      throw error;
+    }
+  },
+
+  confirmSignUp: async (username: string, code: string): Promise<boolean> => {
     try {
       await confirmSignUp({ username, confirmationCode: code });
       return true;
@@ -260,7 +295,7 @@ export const AuthService = {
     }
   },
 
-  isAuthenticated: async () => {
+  isAuthenticated: async (): Promise<boolean> => {
     try {
       const currentUser = await getCurrentUser();
       const session = await fetchAuthSession();

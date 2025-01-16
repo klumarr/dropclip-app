@@ -1,4 +1,5 @@
 import { Event } from "../../../../types/events";
+import { SharePlatform } from "../../../../types/share";
 
 export interface ShareMenuProps {
   event: Event | null;
@@ -21,8 +22,6 @@ export interface QRDialogProps {
   open: boolean;
   onClose: () => void;
 }
-
-export type SharePlatform = "facebook" | "twitter" | "whatsapp" | "copy";
 
 export interface EventActionsProps {
   selectedEvent: Event;

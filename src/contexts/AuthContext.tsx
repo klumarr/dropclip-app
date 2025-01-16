@@ -7,6 +7,7 @@ import {
   UserType,
   CreativeCategory,
   SignUpInput,
+  AuthServiceType,
 } from "../types/auth.types";
 import { clearAWSClients } from "../services/aws-client.factory";
 import { verifyAWSConfiguration } from "../services/aws-client.verify";
@@ -156,7 +157,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             : new Error("Authentication check failed"),
       });
       if (!window.location.pathname.startsWith("/events/")) {
-        setState((prev) => ({ ...prev, error: true }));
+        setState((prev) => ({
+          ...prev,
+          error: new Error("Authentication check failed"),
+        }));
       }
     } finally {
       setState((prev) => ({ ...prev, isLoading: false }));
@@ -274,9 +278,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     email: string,
     code: string
   ): Promise<void> => {
-    const success = await AuthService.confirmSignUp(email, code);
-    if (!success) {
-      throw new Error("Failed to confirm sign up");
+    try {
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+      const result = await AuthService.confirmSignUp(email, code);
+      if (result === false) {
+        throw new Error("Failed to confirm sign up");
+      }
+      setState((prev) => ({ ...prev, isLoading: false }));
+    } catch (error) {
+      console.error("Error confirming sign up:", error);
+      setState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error:
+          error instanceof Error
+            ? error
+            : new Error("Failed to confirm sign up"),
+      }));
+      throw error;
     }
   };
 
@@ -390,6 +409,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const handleCompleteNewPassword = async (
+    email: string,
+    oldPassword: string,
+    newPassword: string
+  ): Promise<void> => {
+    try {
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+      const success = await AuthService.completeNewPassword(
+        email,
+        oldPassword,
+        newPassword
+      );
+      if (!success) {
+        throw new Error("Failed to complete new password");
+      }
+      setState((prev) => ({ ...prev, isLoading: false }));
+    } catch (error) {
+      console.error("Error completing new password:", error);
+      setState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error:
+          error instanceof Error
+            ? error
+            : new Error("Failed to complete new password"),
+      }));
+      throw error;
+    }
+  };
+
   const value = {
     user: state.user,
     userAttributes: state.user,
@@ -419,10 +468,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       console.log("Reset password:", { email, code });
     },
     updateUserAttributes: handleUpdateUserAttributes,
-    completeNewPassword: async (email, oldPassword, newPassword) => {
-      // Implementation will be added later
-      console.log("Complete new password:", { email });
-    },
+    completeNewPassword: handleCompleteNewPassword,
     toggleTwoFactor: handleToggleTwoFactor,
     generateBackupCodes: handleGenerateBackupCodes,
   };

@@ -3,4 +3,7 @@ export type SharePlatform =
   | "twitter"
   | "whatsapp"
   | "email"
-  | "copy";
+  | "copy"
+  | "sms"
+  | "instagram"
+  | "qr";

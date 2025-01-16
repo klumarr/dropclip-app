@@ -26,6 +26,17 @@ import { Event } from "../../../../types/events";
 import { SharePlatform } from "../../../../types/share";
 import { generateEventDeepLink } from "../../../../utils/deepLinks";
 
+const SHARE_PLATFORMS = {
+  FACEBOOK: "facebook" as SharePlatform,
+  TWITTER: "twitter" as SharePlatform,
+  WHATSAPP: "whatsapp" as SharePlatform,
+  EMAIL: "email" as SharePlatform,
+  COPY: "copy" as SharePlatform,
+  SMS: "sms" as SharePlatform,
+  INSTAGRAM: "instagram" as SharePlatform,
+  QR: "qr" as SharePlatform,
+} as const;
+
 interface ShareMenuProps {
   event: Event | null;
   open: boolean;
@@ -117,7 +128,8 @@ const ShareMenu: React.FC<ShareMenuProps> = ({
       setSnackbarOpen(true);
     }
 
-    if (platform !== "qr") {
+    const isQRPlatform = (p: SharePlatform): p is SharePlatform => p === "qr";
+    if (!isQRPlatform(platform)) {
       onClose();
     }
   };
@@ -133,49 +145,49 @@ const ShareMenu: React.FC<ShareMenuProps> = ({
           "aria-labelledby": "share-button",
         }}
       >
-        <MenuItem onClick={() => handleShare("facebook")}>
+        <MenuItem onClick={() => handleShare(SHARE_PLATFORMS.FACEBOOK)}>
           <ListItemIcon>
             <FacebookIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>Share on Facebook</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => handleShare("twitter")}>
+        <MenuItem onClick={() => handleShare(SHARE_PLATFORMS.TWITTER)}>
           <ListItemIcon>
             <TwitterIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>Share on Twitter</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => handleShare("instagram")}>
+        <MenuItem onClick={() => handleShare(SHARE_PLATFORMS.INSTAGRAM)}>
           <ListItemIcon>
             <InstagramIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>Share on Instagram</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => handleShare("whatsapp")}>
+        <MenuItem onClick={() => handleShare(SHARE_PLATFORMS.WHATSAPP)}>
           <ListItemIcon>
             <WhatsAppIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>Share on WhatsApp</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => handleShare("sms")}>
+        <MenuItem onClick={() => handleShare(SHARE_PLATFORMS.SMS)}>
           <ListItemIcon>
             <SmsIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>Share via SMS</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => handleShare("email")}>
+        <MenuItem onClick={() => handleShare(SHARE_PLATFORMS.EMAIL)}>
           <ListItemIcon>
             <EmailIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>Share via Email</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => handleShare("qr")}>
+        <MenuItem onClick={() => handleShare(SHARE_PLATFORMS.QR)}>
           <ListItemIcon>
             <QrCodeIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>Show QR Code</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => handleShare("copy")}>
+        <MenuItem onClick={() => handleShare(SHARE_PLATFORMS.COPY)}>
           <ListItemIcon>
             <ContentCopyIcon fontSize="small" />
           </ListItemIcon>

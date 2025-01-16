@@ -27,15 +27,13 @@ import {
   LocationOn as LocationIcon,
 } from "@mui/icons-material";
 import { uploadLinkService } from "../../../../services/uploadLink.service";
-import {
-  uploadService,
-  UploadError,
-} from "../../../../services/upload.service";
+import { UploadError } from "../../../../services/operations/upload.operations";
 import { eventOperations } from "../../../../services/eventsService";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { nanoid } from "nanoid";
 import { ErrorBoundary } from "../../../../components/ErrorBoundary";
 import { UploadGuidelines } from "../../../../components/upload/UploadGuidelines";
+import { uploadOperations } from "../../../../services/operations/upload.operations";
 
 interface UploadFile {
   id: string;
@@ -121,7 +119,7 @@ export const UploadPage = () => {
 
       Array.from(fileList).forEach((file) => {
         try {
-          uploadService.validateFile(file);
+          uploadOperations.validateFile(file);
 
           if (files.length + newFiles.length >= remainingUploads) {
             throw new UploadError(
@@ -166,14 +164,28 @@ export const UploadPage = () => {
         )
       );
 
-      await uploadService.createUpload(
+      const fileType = fileItem.file.type.startsWith("video/")
+        ? "video"
+        : "image";
+
+      const fileKey = `${eventId}/${fileItem.id}/${fileItem.file.name}`;
+
+      await uploadOperations.createUpload(
         {
+          id: fileItem.id,
           eventId,
-          filename: fileItem.file.name,
+          userId: user.id,
+          eventOwnerId: eventId,
+          fileType,
+          fileKey,
+          key: fileKey,
+          bucket: "dropclip-uploads-dev",
           fileSize: fileItem.file.size,
-          fileType: fileItem.file.type,
-          file: fileItem.file,
+          status: "pending",
+          userEventId: `${user.id}#${eventId}`,
+          uploadDateEventId: `${new Date().toISOString()}#${eventId}`,
         },
+        fileItem.file,
         (progress) => {
           setFiles((prev) =>
             prev.map((f) =>
