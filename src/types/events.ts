@@ -39,12 +39,26 @@ export interface UploadConfig {
   remainingUploads?: number;
 }
 
-export interface Event {
+export interface CreativeStats {
+  upcomingEvents: number;
+  totalEvents: number;
+  followers: number;
+}
+
+export interface CreativeDetails {
+  creativeName: string;
+  creativeType: string;
+  creativePhotoUrl?: string;
+  creativeBio?: string;
+  creativeStats?: CreativeStats;
+}
+
+export interface Event extends CreativeDetails {
   id: string;
   creativeId: string;
   identityId: string;
-  dateId: string; // For date-based querying
-  dateCreativeId: string; // For date-creative compound querying
+  dateId: string;
+  dateCreativeId: string;
   name: string;
   title?: string;
   description: string;
@@ -92,6 +106,11 @@ export interface EventFormData {
   tags: string[];
   suggestedTags: string[];
   uploadConfig: UploadConfig;
+  creativeName?: string;
+  creativeType?: string;
+  creativePhotoUrl?: string;
+  creativeBio?: string;
+  creativeStats?: CreativeStats;
 }
 
 export interface ConfidenceScores {

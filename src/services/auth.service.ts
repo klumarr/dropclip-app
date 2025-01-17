@@ -229,7 +229,7 @@ export const AuthService: AuthServiceType = {
         error.message.includes("User needs to be authenticated")
       ) {
         console.log("🔑 AuthService - No authenticated user");
-        return null;
+      return null;
       }
       console.error("🔑 AuthService - Error getting current user:", error);
       throw error;

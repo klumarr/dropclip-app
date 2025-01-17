@@ -103,7 +103,7 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
           : "not an array",
       });
 
-      dispatch(action);
+        dispatch(action);
     },
     [dispatch]
   );
@@ -474,9 +474,9 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
       deleteEvent,
       shareEvent,
       fetchEvents,
-      setError: (error: string | null) => {
-        safeDispatch({ type: "SET_ERROR", payload: error });
-      },
+    setError: (error: string | null) => {
+      safeDispatch({ type: "SET_ERROR", payload: error });
+    },
       setIsCreateDialogOpen,
       getPublicEvent,
     }),
@@ -486,7 +486,7 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
       state.error,
       isCreateDialogOpen,
       isScannerOpen,
-      newEvent,
+    newEvent,
       isAuthenticated,
       user?.id,
       safeDispatch,

@@ -25,6 +25,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { Event } from "../../../../types/events";
 import { SharePlatform } from "../../../../types/share";
 import { generateEventDeepLink } from "../../../../utils/deepLinks";
+import { trackEventShare } from "../../../../services/analyticsService";
 
 const SHARE_PLATFORMS = {
   FACEBOOK: "facebook" as SharePlatform,
@@ -60,19 +61,36 @@ const ShareMenu: React.FC<ShareMenuProps> = ({
     return generateEventDeepLink(event);
   };
 
+  const getShareText = (event: Event) => {
+    const date = new Date(event.date);
+    const formattedDate = date.toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+    });
+    const formattedTime = date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+
+    return `🎉 Join me at ${event.name}!\n\n📍 ${event.location}\n🗓️ ${formattedDate}\n⏰ ${formattedTime}\n\n${event.description}\n\n`;
+  };
+
   const handleShare = async (platform: SharePlatform) => {
     if (!event) return;
 
     const shareUrl = getShareUrl(event);
-    const shareText = `Check out ${event.name} at ${event.venue}!`;
+    const shareText = getShareText(event);
 
     try {
+      await trackEventShare(event, platform);
+
       switch (platform) {
         case "facebook":
           window.open(
             `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
               shareUrl
-            )}`,
+            )}&quote=${encodeURIComponent(shareText)}`,
             "_blank"
           );
           break;
@@ -94,26 +112,26 @@ const ShareMenu: React.FC<ShareMenuProps> = ({
           break;
         case "email":
           window.location.href = `mailto:?subject=${encodeURIComponent(
-            event.name
-          )}&body=${encodeURIComponent(`${shareText}\n\n${shareUrl}`)}`;
+            `Join me at ${event.name}!`
+          )}&body=${encodeURIComponent(
+            `${shareText}\n\nRSVP here: ${shareUrl}`
+          )}`;
           break;
         case "sms":
-          // Only works on mobile devices
           window.location.href = `sms:?body=${encodeURIComponent(
             `${shareText}\n${shareUrl}`
           )}`;
           break;
         case "instagram":
-          // Copy to clipboard since Instagram doesn't support direct sharing
-          await navigator.clipboard.writeText(shareUrl);
+          await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
           setSnackbarMessage(
-            "Link copied! Share it in your Instagram bio or story"
+            "Event details copied! Share it in your Instagram bio or story"
           );
           setSnackbarOpen(true);
           break;
         case "copy":
-          await navigator.clipboard.writeText(shareUrl);
-          setSnackbarMessage("Link copied to clipboard!");
+          await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+          setSnackbarMessage("Event details copied to clipboard!");
           setSnackbarOpen(true);
           break;
         case "qr":
@@ -143,7 +161,10 @@ const ShareMenu: React.FC<ShareMenuProps> = ({
         onClose={onClose}
         MenuListProps={{
           "aria-labelledby": "share-button",
+          autoFocus: false,
         }}
+        disableEnforceFocus
+        disableRestoreFocus={false}
       >
         <MenuItem onClick={() => handleShare(SHARE_PLATFORMS.FACEBOOK)}>
           <ListItemIcon>
