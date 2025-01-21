@@ -1,21 +1,27 @@
 export interface EventItem {
   id: string;
   creativeId: string;
+  identityId: string;
   name: string;
   description: string;
   date: string;
+  time: string;
   venue: string;
   city: string;
   country: string;
-  coordinates?: {
-    latitude: number;
-    longitude: number;
+  flyerUrl?: string;
+  type: string;
+  creativeName: string;
+  creativeType: string;
+  creativePhotoUrl?: string;
+  creativeBio?: string;
+  creativeStats?: {
+    upcomingEvents: number;
+    totalEvents: number;
+    followers: number;
   };
-  imageUrl?: string;
   createdAt: string;
   updatedAt: string;
-  dateId: string; // YYYY-MM
-  dateCreativeId: string; // date#creativeId
 }
 
 export interface UploadItem {

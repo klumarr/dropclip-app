@@ -27,6 +27,9 @@ interface AuthContextType {
     };
     isDormantCreative?: boolean;
     picture?: string;
+    avatarUrl?: string;
+    displayName?: string;
+    creativeType?: string;
     bio?: string;
     website?: string;
     location?: string;
@@ -105,46 +108,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       console.log("Checking auth state...");
       const user = await AuthService.getCurrentUser();
 
-      if (user) {
-        setState({
-          user: {
-            id: user.sub || "",
-            email: user.email || "",
-            userType:
-              (user["custom:userType"]?.toUpperCase() as UserType) ||
-              UserType.FAN,
-            creativeCategory:
-              (user["custom:creativeCategory"] as CreativeCategory) ||
-              undefined,
-            customCategory: user["custom:customCategory"] || undefined,
-            securitySettings: {
-              twoFactorEnabled: user["custom:twoFactorEnabled"] === "true",
-              emailNotifications: user["custom:emailNotifications"] === "true",
-              sessionTimeout: parseInt(
-                user["custom:sessionTimeout"] || "30",
-                10
-              ),
-              passwordLastChanged: new Date(
-                user["custom:passwordLastChanged"] || Date.now()
-              ),
-              backupCodes: user["custom:backupCodes"]?.split(",") || [],
-            },
-            isEmailVerified: user.email_verified === "true",
-            createdAt: new Date(user["custom:createdAt"] || Date.now()),
-            updatedAt: new Date(user["custom:updatedAt"] || Date.now()),
-          },
-          isAuthenticated: true,
-          isLoading: false,
-          error: null,
-        });
-      } else {
+      if (!user) {
+        console.log("No user found, setting unauthenticated state");
         setState({
           user: null,
           isAuthenticated: false,
           isLoading: false,
           error: null,
         });
+        return;
       }
+
+      console.log("🔑 AuthContext - User attributes:", user);
+
+      // Safely get user attributes with fallbacks
+      const userType = user["custom:userType"]?.toUpperCase();
+      const email = user.email || "";
+      const displayName =
+        user["custom:displayName"] ||
+        user.name ||
+        (email ? email.split("@")[0] : "User") ||
+        "User";
+
+      setState({
+        user: {
+          id: user.sub || "",
+          email,
+          userType: Object.values(UserType).includes(userType as UserType)
+            ? (userType as UserType)
+            : UserType.FAN,
+          displayName,
+          creativeType: user["custom:creativeType"] || undefined,
+          bio: user["custom:bio"] || undefined,
+          avatarUrl: user["custom:avatarUrl"] || undefined,
+          website: user["custom:website"] || undefined,
+          location: user["custom:location"] || undefined,
+          isEmailVerified: user.email_verified === "true",
+          createdAt: new Date(user["custom:createdAt"] || Date.now()),
+          updatedAt: new Date(user["custom:updatedAt"] || Date.now()),
+          securitySettings: {
+            twoFactorEnabled: user["custom:twoFactorEnabled"] === "true",
+            emailNotifications: user["custom:emailNotifications"] === "true",
+            sessionTimeout: parseInt(user["custom:sessionTimeout"] || "30"),
+            passwordLastChanged: new Date(
+              user["custom:passwordLastChanged"] || Date.now()
+            ),
+            backupCodes:
+              user["custom:backupCodes"]?.split(",").filter(Boolean) || [],
+          },
+        },
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
     } catch (error) {
       console.error("Error getting current user:", error);
       setState({
@@ -152,9 +168,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         isAuthenticated: false,
         isLoading: false,
         error:
-          error instanceof Error
-            ? error
-            : new Error("Authentication check failed"),
+          error instanceof Error ? error : new Error("Authentication error"),
       });
       if (!window.location.pathname.startsWith("/events/")) {
         setState((prev) => ({
@@ -439,9 +453,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const handleUpdateSecuritySettings = async (
+    settings: SecuritySettings
+  ): Promise<void> => {
+    try {
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+      if (!state.user) {
+        throw new Error("No user found");
+      }
+      await AuthService.updateUserAttributes({
+        "custom:twoFactorEnabled": settings.twoFactorEnabled.toString(),
+        "custom:emailNotifications": settings.emailNotifications.toString(),
+        "custom:sessionTimeout": settings.sessionTimeout.toString(),
+      });
+      await checkAuthState();
+      setState((prev) => ({ ...prev, isLoading: false }));
+    } catch (error) {
+      console.error("Update security settings error:", error);
+      setState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error:
+          error instanceof Error
+            ? error
+            : new Error("Failed to update security settings"),
+      }));
+      throw error;
+    }
+  };
+
   const value = {
     user: state.user,
-    userAttributes: state.user,
+    userAttributes: state.user
+      ? {
+          id: state.user.id,
+          email: state.user.email,
+          name: state.user.name,
+          userType: state.user.userType,
+          creativeCategory: state.user.creativeCategory,
+          customCategory: state.user.customCategory,
+          linkedAccounts: state.user.linkedAccounts,
+          isDormantCreative: state.user.isDormantCreative,
+          picture: state.user.photoURL || state.user.picture,
+          avatarUrl: state.user.avatarUrl,
+          displayName:
+            state.user.displayName ||
+            state.user.name ||
+            state.user.email.split("@")[0],
+          creativeType: state.user.creativeType,
+          bio: state.user.bio,
+          website: state.user.website,
+          location: state.user.location,
+        }
+      : null,
     isAuthenticated: state.isAuthenticated,
     isLoading: state.isLoading,
     error: state.error,
@@ -451,12 +515,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     signOut: handleSignOut,
     clearError: () => setState((prev) => ({ ...prev, error: null })),
     updateSecuritySettings: async (settings) => {
-      // Implementation will be added later
       console.log("Update security settings:", settings);
+      return Promise.resolve();
     },
     switchUserType: async (newType) => {
-      // Implementation will be added later
-      console.log("Switch user type:", newType);
+      try {
+        if (!state.user) throw new Error("No user found");
+
+        console.log("🔄 Switching user type to:", newType);
+
+        // Update the user type in Cognito
+        await AuthService.updateUserAttributes({
+          "custom:userType": newType.toLowerCase(),
+        });
+
+        // Refresh auth state
+        await checkAuthState();
+
+        // Navigate to the appropriate dashboard based on user type
+        const navigate = (window.location.href =
+          newType === UserType.CREATIVE
+            ? "/creative/dashboard"
+            : "/fan/search");
+
+        console.log(
+          "✅ User type switched successfully, navigating to:",
+          navigate
+        );
+      } catch (error) {
+        console.error("❌ Error switching user type:", error);
+        throw error;
+      }
     },
     updateProfile: handleUpdateProfile,
     forgotPassword: async (email) => {

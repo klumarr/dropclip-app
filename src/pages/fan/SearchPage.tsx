@@ -26,6 +26,7 @@ import {
   FavoriteBorder,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import { getPlaceholderImage, handleImageError } from "../../utils/image.utils";
 
 interface SearchResult {
   id: string;
@@ -53,17 +54,17 @@ const SearchPage: React.FC = () => {
       type: "creator",
       title: "John Doe",
       description: "Electronic music producer and DJ",
-      thumbnailUrl: "https://via.placeholder.com/150",
-      creatorAvatar: "https://via.placeholder.com/50",
+      thumbnailUrl: getPlaceholderImage("thumbnail"),
+      creatorAvatar: getPlaceholderImage("avatar"),
     },
     {
       id: "2",
       type: "video",
       title: "Live Performance Highlights",
       description: "Best moments from the summer festival",
-      thumbnailUrl: "https://via.placeholder.com/320x180",
+      thumbnailUrl: getPlaceholderImage("thumbnail"),
       creatorName: "Jane Smith",
-      creatorAvatar: "https://via.placeholder.com/50",
+      creatorAvatar: getPlaceholderImage("avatar"),
       views: 1234,
       likes: 89,
       isLiked: false,
@@ -73,7 +74,7 @@ const SearchPage: React.FC = () => {
       type: "event",
       title: "Music Festival 2024",
       description: "Annual electronic music festival",
-      thumbnailUrl: "https://via.placeholder.com/320x180",
+      thumbnailUrl: getPlaceholderImage("thumbnail"),
       date: "2024-07-15",
     },
   ]);
@@ -144,6 +145,7 @@ const SearchPage: React.FC = () => {
                     <Avatar
                       src={result.creatorAvatar}
                       sx={{ width: 80, height: 80 }}
+                      onError={(e) => handleImageError(e, "avatar")}
                     />
                     <Box>
                       <Typography variant="h6">{result.title}</Typography>
@@ -175,6 +177,7 @@ const SearchPage: React.FC = () => {
                     onClick={() =>
                       navigate(`/fan/${result.type}s/${result.id}`)
                     }
+                    onError={(e) => handleImageError(e, "thumbnail")}
                   />
                   <CardContent>
                     <Typography variant="h6" noWrap>
@@ -206,6 +209,7 @@ const SearchPage: React.FC = () => {
                           <Avatar
                             src={result.creatorAvatar}
                             sx={{ width: 24, height: 24, mr: 1 }}
+                            onError={(e) => handleImageError(e, "avatar")}
                           />
                           <Typography variant="body2">
                             {result.creatorName}

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import {
-  Drawer,
+  SwipeableDrawer,
   List,
   ListItem,
   ListItemIcon,
@@ -79,38 +79,9 @@ export const SideMenu: React.FC<SideMenuProps> = ({
   const navigate = useNavigate();
   const { userAttributes, signOut, switchUserType, isAuthenticated } =
     useAuth();
-  const touchStartX = useRef<number | null>(null);
-  const drawerRef = useRef<HTMLDivElement | null>(null);
-
-  // Only add touch handlers for temporary drawers
-  useEffect(() => {
-    if (variant !== "temporary") return;
-
-    const drawer = drawerRef.current;
-    if (!drawer) return;
-
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartX.current = e.touches[0].clientX;
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (!touchStartX.current) return;
-      const currentX = e.touches[0].clientX;
-      const diff = touchStartX.current - currentX;
-      if (diff > 50) {
-        onClose();
-        touchStartX.current = null;
-      }
-    };
-
-    drawer.addEventListener("touchstart", handleTouchStart);
-    drawer.addEventListener("touchmove", handleTouchMove);
-
-    return () => {
-      drawer.removeEventListener("touchstart", handleTouchStart);
-      drawer.removeEventListener("touchmove", handleTouchMove);
-    };
-  }, [variant, onClose]);
+  const iOS =
+    typeof navigator !== "undefined" &&
+    /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   if (!isAuthenticated || !userAttributes) {
     return null;
@@ -151,6 +122,11 @@ export const SideMenu: React.FC<SideMenuProps> = ({
           text: "Memory Manager",
           icon: <Collections />,
           path: "/creative/memories",
+        },
+        {
+          text: "My Profile",
+          icon: <Person />,
+          path: `/profile/${userAttributes?.id}`,
         },
         { text: "Analytics", icon: <Analytics />, path: "/creative/analytics" },
         { text: "Settings", icon: <Settings />, path: "/creative/settings" },
@@ -197,29 +173,39 @@ export const SideMenu: React.FC<SideMenuProps> = ({
       ];
 
   return (
-    <Drawer
-      ref={drawerRef}
+    <SwipeableDrawer
       anchor="left"
       open={open}
       onClose={onClose}
-      variant={variant}
-      ModalProps={{
-        keepMounted: true,
-      }}
-      PaperProps={{
-        sx: {
+      onOpen={() => {}}
+      disableBackdropTransition={!iOS}
+      disableDiscovery={iOS}
+      sx={{
+        "& .MuiDrawer-paper": {
           width: 280,
-          bgcolor: isCreative
-            ? "rgba(0, 0, 0, 0.95)"
-            : "rgba(25, 25, 25, 0.95)",
+          zIndex: 1400,
+          bgcolor: (theme) =>
+            theme.palette.mode === "dark"
+              ? "rgba(0, 0, 0, 0.95)"
+              : "rgba(255, 255, 255, 0.95)",
           backdropFilter: "blur(10px)",
           borderRight: (theme) => `1px solid ${theme.palette.divider}`,
+        },
+        "& .MuiBackdrop-root": {
+          zIndex: 1300,
+        },
+      }}
+      slotProps={{
+        backdrop: {
+          sx: {
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          },
         },
       }}
     >
       <DrawerHeader>
         <Typography variant="h6">Menu</Typography>
-        <IconButton onClick={onClose} sx={{ color: "white" }}>
+        <IconButton onClick={onClose} size="large">
           <Close />
         </IconButton>
       </DrawerHeader>
@@ -227,14 +213,15 @@ export const SideMenu: React.FC<SideMenuProps> = ({
       <UserProfile>
         <UserAvatar
           usertype={isCreative ? "creative" : "fan"}
-          src={userAttributes.picture || undefined}
+          src={userAttributes.avatarUrl || userAttributes.picture || undefined}
         >
-          {!userAttributes.picture &&
-            userAttributes.name?.charAt(0).toUpperCase()}
+          {!userAttributes.avatarUrl &&
+            !userAttributes.picture &&
+            userAttributes.displayName?.charAt(0).toUpperCase()}
         </UserAvatar>
         <Box>
           <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-            {userAttributes.name || "User"}
+            {userAttributes.displayName || userAttributes.name || "User"}
           </Typography>
           <Typography
             variant="body2"
@@ -246,7 +233,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
               fontWeight: 500,
             }}
           >
-            {isCreative ? "Creative" : "Fan"}
+            {isCreative ? userAttributes.creativeType || "Creative" : "Fan"}
           </Typography>
         </Box>
       </UserProfile>
@@ -284,6 +271,6 @@ export const SideMenu: React.FC<SideMenuProps> = ({
           ))}
         </List>
       </Box>
-    </Drawer>
+    </SwipeableDrawer>
   );
 };

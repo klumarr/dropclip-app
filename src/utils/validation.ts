@@ -1,4 +1,5 @@
 import { EventFormData, UploadConfig } from "../types/events";
+import { SocialLinks } from "../types/auth.types";
 
 // Constants for validation
 export const VALIDATION_RULES = {
@@ -189,4 +190,38 @@ export const validateEventForm = (
   Object.assign(errors, uploadConfigErrors);
 
   return errors;
+};
+
+const SOCIAL_MEDIA_PATTERNS = {
+  instagram: /^https?:\/\/(www\.)?instagram\.com\/[a-zA-Z0-9_]+\/?$/,
+  twitter: /^https?:\/\/(www\.)?twitter\.com\/[a-zA-Z0-9_]+\/?$/,
+  facebook: /^https?:\/\/(www\.)?facebook\.com\/[a-zA-Z0-9]+\/?$/,
+  tiktok: /^https?:\/\/(www\.)?tiktok\.com\/@[a-zA-Z0-9]+\/?$/,
+  website: /^https?:\/\/[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}(\/\S*)?$/,
+};
+
+export const validateSocialMediaUrl = (
+  platform: keyof SocialLinks,
+  url: string
+): boolean => {
+  if (!url) return true; // Empty URLs are valid (optional fields)
+  const pattern = SOCIAL_MEDIA_PATTERNS[platform];
+  return pattern ? pattern.test(url) : false;
+};
+
+export const validateSocialLinks = (
+  socialLinks: Partial<SocialLinks>
+): { isValid: boolean; errors: Partial<Record<keyof SocialLinks, string>> } => {
+  const errors: Partial<Record<keyof SocialLinks, string>> = {};
+
+  Object.entries(socialLinks).forEach(([platform, url]) => {
+    if (url && !validateSocialMediaUrl(platform as keyof SocialLinks, url)) {
+      errors[platform as keyof SocialLinks] = `Invalid ${platform} URL format`;
+    }
+  });
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  };
 };

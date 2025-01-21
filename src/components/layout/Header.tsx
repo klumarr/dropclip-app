@@ -59,12 +59,10 @@ export const Header: React.FC<HeaderProps> = ({ onMenuOpen }) => {
 
   return (
     <AppBar
-      position="sticky"
-      elevation={0}
+      position="fixed"
       sx={{
+        zIndex: 1200,
         backgroundColor: "background.paper",
-        borderBottom: "1px solid",
-        borderColor: "divider",
       }}
     >
       <Toolbar

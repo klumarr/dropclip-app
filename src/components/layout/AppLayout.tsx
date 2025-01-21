@@ -19,6 +19,7 @@ const MainContent = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
   backgroundImage: "linear-gradient(rgba(0,0,0,0.6) 0%, rgb(0,0,0) 100%)",
   padding: theme.spacing(3),
+  paddingTop: "50px",
   paddingBottom: theme.spacing(16),
   minHeight: "100vh",
   marginTop: 64,

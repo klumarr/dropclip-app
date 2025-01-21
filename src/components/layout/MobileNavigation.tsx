@@ -44,7 +44,8 @@ const MobileNavigation = () => {
 
   const handleNavigation = (newValue: number) => {
     setValue(newValue);
-    navigate(navItems[newValue].path);
+    const path = navItems[newValue].path;
+    navigate(typeof path === "function" ? path(userAttributes?.id) : path);
   };
 
   return (

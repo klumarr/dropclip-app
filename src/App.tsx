@@ -3,6 +3,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "./contexts/AuthContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import { EventsProvider } from "./contexts/EventsContext";
+import { SignInModalProvider } from "./hooks/useSignInModal";
 import { theme } from "./theme";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { routes } from "./config/routes.config";
@@ -17,9 +18,11 @@ const App = () => {
         <CssBaseline />
         <AuthProvider>
           <NotificationProvider>
-            <EventsProvider>
-              <RouterProvider router={router} />
-            </EventsProvider>
+            <SignInModalProvider>
+              <EventsProvider>
+                <RouterProvider router={router} />
+              </EventsProvider>
+            </SignInModalProvider>
           </NotificationProvider>
         </AuthProvider>
       </ThemeProvider>

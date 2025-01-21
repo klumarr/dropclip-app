@@ -20,6 +20,7 @@ import type {
   SignUpInput,
   AuthServiceType,
 } from "../types/auth.types";
+import { userService } from "./user.service";
 
 // Cache for AWS credentials
 interface CachedCredentials {
@@ -140,6 +141,14 @@ export const getCredentials = async () => {
   }
 };
 
+// Helper to generate a username from email
+const generateUsername = (email: string): string => {
+  return email
+    .split("@")[0]
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+};
+
 // Authentication service using Amplify
 export const AuthService: AuthServiceType = {
   signIn: async (
@@ -177,6 +186,9 @@ export const AuthService: AuthServiceType = {
 
   signUp: async (data: SignUpInput) => {
     try {
+      console.log("🔑 AuthService - Starting sign up process", data);
+
+      // First, create the Cognito user
       const signUpResult = await signUp({
         username: data.email,
         password: data.password,
@@ -193,6 +205,30 @@ export const AuthService: AuthServiceType = {
           },
         },
       });
+
+      console.log("🔑 AuthService - Cognito signup successful:", signUpResult);
+
+      // After successful Cognito signup, create DynamoDB user record
+      if (signUpResult.userId) {
+        try {
+          await userService.createUserRecord({
+            id: signUpResult.userId,
+            email: data.email,
+            userType: data.userType,
+            displayName: data.name || data.email.split("@")[0],
+            username: generateUsername(data.email),
+          });
+          console.log("🔑 AuthService - DynamoDB user record created");
+        } catch (dbError) {
+          console.error(
+            "🔑 AuthService - Error creating DynamoDB record:",
+            dbError
+          );
+          // Don't throw here - user is still created in Cognito
+          // They can complete their profile later
+        }
+      }
+
       return signUpResult;
     } catch (error) {
       console.error("Error signing up:", error);
@@ -229,7 +265,7 @@ export const AuthService: AuthServiceType = {
         error.message.includes("User needs to be authenticated")
       ) {
         console.log("🔑 AuthService - No authenticated user");
-      return null;
+        return null;
       }
       console.error("🔑 AuthService - Error getting current user:", error);
       throw error;
@@ -298,8 +334,7 @@ export const AuthService: AuthServiceType = {
   isAuthenticated: async (): Promise<boolean> => {
     try {
       const currentUser = await getCurrentUser();
-      const session = await fetchAuthSession();
-      return !!(currentUser && session.tokens?.idToken);
+      return !!currentUser;
     } catch (error) {
       console.error("Error checking authentication status:", error);
       return false;

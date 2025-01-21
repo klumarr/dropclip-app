@@ -1,17 +1,11 @@
 import { useState, useEffect } from "react";
-import { Event } from "../types/events";
-import { eventOperations } from "../services/eventsService";
+import { Event } from "../types/events.types";
+import { eventsService } from "../services/eventsService";
 
-interface UseEventReturn {
-  event: Event | null;
-  loading: boolean;
-  error: Error | null;
-}
-
-export const useEvent = (id?: string): UseEventReturn => {
+export const useEvent = (id: string) => {
   const [event, setEvent] = useState<Event | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -22,14 +16,12 @@ export const useEvent = (id?: string): UseEventReturn => {
 
       try {
         setLoading(true);
-        const eventData = await eventOperations.getEventById(id);
-        setEvent(eventData);
         setError(null);
+        const fetchedEvent = await eventsService.getPublicEventById(id);
+        setEvent(fetchedEvent);
       } catch (err) {
-        setError(
-          err instanceof Error ? err : new Error("Failed to fetch event")
-        );
-        setEvent(null);
+        console.error("Error fetching event:", err);
+        setError(err instanceof Error ? err.message : "Failed to fetch event");
       } finally {
         setLoading(false);
       }

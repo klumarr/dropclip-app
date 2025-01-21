@@ -55,7 +55,13 @@ export const DashboardPage = () => {
                 <Button
                   fullWidth
                   variant="contained"
-                  onClick={() => navigate(item.path)}
+                  onClick={() =>
+                    navigate(
+                      typeof item.path === "function"
+                        ? item.path(userAttributes?.id)
+                        : item.path
+                    )
+                  }
                   startIcon={<item.icon />}
                 >
                   Go to {item.label}

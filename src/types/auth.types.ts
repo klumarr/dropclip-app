@@ -1,7 +1,7 @@
 // Core user types for authentication and permissions
 export enum UserType {
-  FAN = "FAN",
   CREATIVE = "CREATIVE",
+  FAN = "FAN",
 }
 
 // AWS Cognito User Attributes type
@@ -43,6 +43,13 @@ export interface SecuritySettings {
   backupCodes: string[];
 }
 
+export interface SocialLinks extends Record<string, string> {
+  instagram?: string;
+  twitter?: string;
+  website?: string;
+  tiktok?: string;
+}
+
 export interface AuthUser {
   id: string;
   email: string;
@@ -55,10 +62,25 @@ export interface AuthUser {
     creative?: boolean;
   };
   isDormantCreative?: boolean;
+  displayName?: string;
+  avatarUrl?: string;
+  photoURL?: string;
   picture?: string;
+  creativeType?: string;
   bio?: string;
   website?: string;
   location?: string;
+  socialLinks?: SocialLinks;
+  bookingAgent?: {
+    name: string;
+    email: string;
+    phone?: string;
+  };
+  management?: {
+    name: string;
+    email: string;
+    phone?: string;
+  };
   securitySettings: SecuritySettings;
   isEmailVerified: boolean;
   createdAt: Date;
@@ -75,9 +97,9 @@ export interface SignUpInput {
 }
 
 export interface AuthState {
-  user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  user: AuthUser | null;
   error: Error | null;
 }
 

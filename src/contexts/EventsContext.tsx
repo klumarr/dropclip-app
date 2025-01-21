@@ -8,7 +8,7 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
-import { Event, EventFormData } from "../types/events";
+import { Event, EventFormData } from "../types/events.types";
 import { eventsReducer, initialState } from "./eventsReducer";
 import { eventOperations } from "../services/eventsService";
 import { useAuth } from "./AuthContext";
@@ -103,7 +103,7 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
           : "not an array",
       });
 
-        dispatch(action);
+      dispatch(action);
     },
     [dispatch]
   );
@@ -400,34 +400,19 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const getPublicEvent = useCallback(
-    async (eventId: string): Promise<Event | null> => {
+    async (eventId: string) => {
+      console.log("EventsContext - Fetching public event:", eventId);
       try {
-        safeDispatch({ type: "SET_LOADING", payload: true });
-        safeDispatch({ type: "SET_ERROR", payload: null });
-
-        console.log("EventsContext - Fetching public event:", eventId);
-        const event = await eventOperations.getPublicEvent(eventId);
-
-        if (!event) {
-          console.log("EventsContext - Event not found:", eventId);
-          safeDispatch({ type: "SET_ERROR", payload: "Event not found" });
-          return null;
-        }
-
-        console.log("EventsContext - Successfully fetched event:", event);
+        const event = await eventOperations.getPublicEventById(eventId);
+        console.log("EventsContext - Public event fetched:", event);
         return event;
       } catch (error) {
         console.error("EventsContext - Error fetching public event:", error);
         safeDispatch({
           type: "SET_ERROR",
-          payload:
-            error instanceof Error
-              ? error.message
-              : "Failed to load event details",
+          payload: "Failed to fetch event details",
         });
         return null;
-      } finally {
-        safeDispatch({ type: "SET_LOADING", payload: false });
       }
     },
     [safeDispatch]
@@ -474,9 +459,8 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
       deleteEvent,
       shareEvent,
       fetchEvents,
-    setError: (error: string | null) => {
-      safeDispatch({ type: "SET_ERROR", payload: error });
-    },
+      setError: (error: string | null) =>
+        safeDispatch({ type: "SET_ERROR", payload: error }),
       setIsCreateDialogOpen,
       getPublicEvent,
     }),
@@ -486,14 +470,17 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
       state.error,
       isCreateDialogOpen,
       isScannerOpen,
-    newEvent,
-      isAuthenticated,
-      user?.id,
-      safeDispatch,
+      newEvent,
+      setNewEvent,
+      setIsScannerOpen,
+      handleScannedEvent,
       createEvent,
       updateEvent,
       deleteEvent,
+      shareEvent,
       fetchEvents,
+      safeDispatch,
+      setIsCreateDialogOpen,
       getPublicEvent,
     ]
   );
@@ -586,36 +573,13 @@ export const EventsProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [isAuthenticated, user?.id, fetchEvents, isUserActive]);
 
   return (
-    <EventsContext.Provider
-      value={{
-        events: state.events,
-        loading: state.loading,
-        error: state.error,
-        isCreateDialogOpen,
-        isScannerOpen,
-        newEvent,
-        setNewEvent,
-        setIsScannerOpen,
-        handleScannedEvent,
-        createEvent,
-        updateEvent,
-        deleteEvent,
-        shareEvent,
-        fetchEvents,
-        setError: (error) =>
-          safeDispatch({ type: "SET_ERROR", payload: error }),
-        setIsCreateDialogOpen,
-        getPublicEvent,
-      }}
-    >
-      {children}
-    </EventsContext.Provider>
+    <EventsContext.Provider value={value}>{children}</EventsContext.Provider>
   );
 };
 
 export const useEvents = () => {
   const context = useContext(EventsContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useEvents must be used within an EventsProvider");
   }
   return context;

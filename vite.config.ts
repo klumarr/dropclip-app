@@ -11,6 +11,7 @@ export default defineConfig({
       buffer: "buffer",
       util: "util",
     },
+    extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],
   },
   define: {
     global: {},

@@ -1,34 +1,67 @@
-import { useState } from "react";
-import { Event } from "../types/events";
+import { useState, useCallback, useEffect } from "react";
+import { eventsService } from "../services/eventsService";
 import { useAuth } from "../contexts/AuthContext";
+import { Event } from "../types/events.types";
 
-const useSaveEvent = (eventId: string) => {
+export const useSaveEvent = (eventId: string) => {
+  const { user } = useAuth();
   const [isSaved, setIsSaved] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
 
-  const toggleSave = async (event: Event) => {
-    if (!user) {
-      setError("Please log in to save events");
-      return;
-    }
+  // Check if event is saved on mount and when eventId changes
+  useEffect(() => {
+    const checkSavedStatus = async () => {
+      if (!user?.id || !eventId) return;
 
-    setIsLoading(true);
-    setError(null);
+      try {
+        const savedEvents = await eventsService.getSavedEvents();
+        setIsSaved(savedEvents.some((event) => event.id === eventId));
+      } catch (err) {
+        console.error("Error checking saved status:", err);
+        setError(
+          err instanceof Error ? err.message : "Failed to check saved status"
+        );
+      }
+    };
 
-    try {
-      // TODO: Implement actual save/unsave functionality
-      setIsSaved(!isSaved);
-      console.log("Toggled save state for event:", eventId);
-    } catch (error) {
-      setError("Failed to save event");
-    } finally {
-      setIsLoading(false);
-    }
+    checkSavedStatus();
+  }, [user?.id, eventId]);
+
+  const toggleSave = useCallback(
+    async (event: Event) => {
+      if (!user?.id || !event?.id) {
+        setError("User must be logged in to save events");
+        return;
+      }
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        if (isSaved) {
+          await eventsService.unsaveEvent(event.id);
+          setIsSaved(false);
+        } else {
+          await eventsService.saveEvent(event.id);
+          setIsSaved(true);
+        }
+      } catch (err) {
+        console.error("Error toggling save:", err);
+        setError(
+          err instanceof Error ? err.message : "Failed to save/unsave event"
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [user?.id, isSaved]
+  );
+
+  return {
+    isSaved,
+    isLoading,
+    error,
+    toggleSave,
   };
-
-  return { isSaved, isLoading, error, toggleSave };
 };
-
-export default useSaveEvent;

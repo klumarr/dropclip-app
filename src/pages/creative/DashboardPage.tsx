@@ -51,7 +51,17 @@ const DashboardContent: React.FC = () => {
   ];
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box
+      sx={{
+        p: 3,
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+        mt: { xs: 2, sm: 3 }, // Add margin top to prevent header overlap
+      }}
+    >
       <Typography variant="h4" gutterBottom>
         Welcome back{userAttributes?.name ? `, ${userAttributes.name}` : ""}
       </Typography>

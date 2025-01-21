@@ -70,6 +70,19 @@ export interface UserItem {
   userType: "creative" | "fan";
   createdAt: string;
   updatedAt: string;
+  displayName?: string;
+  bio?: string;
+  avatarUrl?: string;
+  socialLinks?: Record<string, string>;
+  creativeType?: string;
+  bookingAgent?: {
+    name: string;
+    email: string;
+  };
+  management?: {
+    name: string;
+    email: string;
+  };
 }
 
 export interface UploadLinkItem {

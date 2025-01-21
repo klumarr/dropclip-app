@@ -1,0 +1,38 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["dynamodb:GetItem", "dynamodb:Query"],
+      "Resource": [
+        "arn:aws:dynamodb:eu-north-1:872515266409:table/dev-events",
+        "arn:aws:dynamodb:eu-north-1:872515266409:table/dev-events/index/IdIndex",
+        "arn:aws:dynamodb:eu-north-1:872515266409:table/dev-users"
+      ],
+      "Condition": {
+        "ForAllValues:StringEquals": {
+          "dynamodb:Attributes": [
+            "id",
+            "creativeId",
+            "name",
+            "description",
+            "date",
+            "time",
+            "venue",
+            "city",
+            "country",
+            "flyerUrl",
+            "type",
+            "creativeName",
+            "creativeType",
+            "creativePhotoUrl",
+            "creativeBio",
+            "creativeStats",
+            "createdAt",
+            "updatedAt"
+          ]
+        }
+      }
+    }
+  ]
+}

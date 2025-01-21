@@ -9,12 +9,13 @@ import {
   Settings,
   Analytics,
   Favorite,
+  Person,
 } from "@mui/icons-material";
 
 export interface NavigationItem {
   id: string;
   label: string;
-  path: string;
+  path: string | ((userId?: string) => string);
   icon: any;
   showInMobileNav?: boolean;
   showInDashboard?: boolean;
@@ -69,6 +70,14 @@ export const navigationConfig: NavigationConfig = {
       path: "/creative/analytics",
       icon: Analytics,
       showInMobileNav: true,
+      showInDashboard: true,
+      showInSidebar: true,
+    },
+    {
+      id: "profile",
+      label: "My Profile",
+      path: (userId?: string) => `/profile${userId ? `/${userId}` : ""}`,
+      icon: Person,
       showInDashboard: true,
       showInSidebar: true,
     },
@@ -138,7 +147,8 @@ export const navigationConfig: NavigationConfig = {
 
 export const getAuthorizedNavItems = (
   userType: UserType | undefined,
-  displayLocation: "mobileNav" | "dashboard" | "sidebar"
+  displayLocation: "mobileNav" | "dashboard" | "sidebar",
+  userId?: string
 ): NavigationItem[] => {
   if (!userType) return [];
 
@@ -147,16 +157,21 @@ export const getAuthorizedNavItems = (
       ? navigationConfig.creative
       : navigationConfig.fan;
 
-  return items.filter((item) => {
-    switch (displayLocation) {
-      case "mobileNav":
-        return item.showInMobileNav;
-      case "dashboard":
-        return item.showInDashboard;
-      case "sidebar":
-        return item.showInSidebar;
-      default:
-        return false;
-    }
-  });
+  return items
+    .filter((item) => {
+      switch (displayLocation) {
+        case "mobileNav":
+          return item.showInMobileNav;
+        case "dashboard":
+          return item.showInDashboard;
+        case "sidebar":
+          return item.showInSidebar;
+        default:
+          return false;
+      }
+    })
+    .map((item) => ({
+      ...item,
+      path: typeof item.path === "function" ? item.path(userId) : item.path,
+    }));
 };

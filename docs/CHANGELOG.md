@@ -1112,3 +1112,154 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved type definitions for event-related interfaces
 - Enhanced logging for debugging purposes
 - Optimized component re-rendering patterns
+
+## [1.4.0] - 2025-01-18
+
+### Added
+
+- Profile Picture Management
+
+  - Implemented S3 bucket integration for profile image storage
+  - Added CloudFront distribution for secure image delivery
+  - Created IAM policies for fan and creative roles to manage profile images
+  - Added image preview functionality in profile edit page
+  - Implemented profile image upload, update, and delete capabilities
+
+- Follow System Enhancements
+  - Implemented follow/unfollow functionality with proper error handling
+  - Added real-time follower count updates
+  - Created DynamoDB table for managing follow relationships
+  - Added notifications for follow/unfollow actions
+  - Implemented follow status checks and updates
+
+### Changed
+
+- User Profile System
+
+  - Updated AuthUser interface to include avatarUrl and additional profile fields
+  - Modified profile edit page to handle new user attributes
+  - Enhanced form validation for social media links
+  - Added TikTok to supported social media platforms
+  - Improved error handling in profile updates
+
+- Authentication Flow
+  - Enhanced error handling in auth context
+  - Updated user attributes management
+  - Improved type safety across auth-related components
+  - Added proper loading states for auth actions
+
+### Fixed
+
+- IAM Permissions
+
+  - Fixed S3 bucket access for profile image uploads
+  - Corrected DynamoDB permissions for follow actions
+  - Resolved CloudFront access issues
+  - Fixed fan role permissions for follow operations
+
+- TypeScript Issues
+  - Resolved type mismatches in AuthContext
+  - Fixed interface inconsistencies in user services
+  - Corrected type definitions for social links
+  - Improved type safety in profile components
+
+### Security
+
+- Implemented proper IAM role policies for S3 access
+- Added CloudFront OAC for secure image delivery
+- Enhanced DynamoDB access patterns
+- Improved error handling for unauthorized actions
+
+### Technical Debt
+
+- Refactored user attributes handling
+- Improved type definitions across the application
+- Enhanced error handling patterns
+- Updated documentation for new features
+
+## Update - January 20, 2025
+
+### Authentication and User Management Enhancements
+
+1. AuthContext Improvements
+
+   - Enhanced user state management
+   - Added display name and username support
+   - Improved error handling for auth states
+   - Added proper loading states
+   - Implemented persistent auth state
+
+2. Profile Management Updates
+   - Implemented secure profile picture storage
+   - Added CloudFront integration for image delivery
+   - Enhanced profile editing capabilities
+   - Added follow/unfollow functionality
+   - Implemented real-time follower count updates
+
+### UI/UX Improvements
+
+1. SideMenu Enhancements
+
+   - Added user display name/username
+   - Improved navigation structure
+   - Enhanced mobile responsiveness
+   - Added proper loading states
+   - Implemented proper error boundaries
+
+2. ShareMenu Updates
+   - Enhanced sharing options for events
+   - Implemented deep linking
+   - Added rich preview support
+   - Improved sharing flow based on user type
+   - Added QR code generation
+
+### Event Management System
+
+1. Event Preview Page
+
+   - Implemented public event viewing
+   - Added user-specific content display
+   - Enhanced creative profile integration
+   - Added save/favorite functionality
+   - Improved sharing capabilities
+
+2. Events Page Improvements
+   - Enhanced event listing interface
+   - Added proper filtering options
+   - Improved event card design
+   - Added event analytics tracking
+   - Enhanced mobile responsiveness
+
+### Technical Improvements
+
+1. Error Handling
+
+   - Implemented comprehensive error boundaries
+   - Added detailed error logging
+   - Enhanced error recovery mechanisms
+   - Improved error messaging
+   - Added fallback UI components
+
+2. Performance Optimizations
+   - Enhanced image loading and caching
+   - Improved state management
+   - Optimized database queries
+   - Added proper loading states
+   - Implemented lazy loading
+
+### Security Enhancements
+
+1. Authentication Flow
+
+   - Enhanced session management
+   - Improved token handling
+   - Added rate limiting
+   - Enhanced security headers
+   - Improved CORS configuration
+
+2. Data Protection
+   - Enhanced data encryption
+   - Improved access control
+   - Added proper data validation
+   - Enhanced input sanitization
+   - Improved error masking

@@ -69,3 +69,8 @@ images-to-attach/
 *.mkv
 
 
+# Generated JavaScript files
+src/**/*.js
+src/**/*.jsx
+!src/**/*.config.js
+!src/**/*.config.jsx

@@ -37,7 +37,7 @@ export const eventsReducer = (state: State, action: Action): State => {
   });
 
   switch (action.type) {
-    case "SET_EVENTS":
+    case "SET_EVENTS": {
       console.log("🎯 EventsReducer - SET_EVENTS - Payload:", {
         eventsCount: action.payload?.length,
         firstEvent: action.payload?.[0],
@@ -67,6 +67,7 @@ export const eventsReducer = (state: State, action: Action): State => {
       });
 
       return newState;
+    }
 
     case "ADD_EVENT":
       return {
@@ -77,14 +78,13 @@ export const eventsReducer = (state: State, action: Action): State => {
 
     case "UPDATE_EVENT": {
       const updatedEvent = action.payload;
-      const newState = {
+      return {
         ...state,
         events: state.events.map((event) =>
           event.id === updatedEvent.id ? updatedEvent : event
         ),
         error: null,
       };
-      return newState;
     }
 
     case "DELETE_EVENT":

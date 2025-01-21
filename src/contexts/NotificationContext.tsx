@@ -31,7 +31,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
 
   const fetchNotifications = async () => {
     if (!user?.id) return;
@@ -48,19 +48,26 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   useEffect(() => {
-    if (isAuthenticated && user?.id) {
+    // Only fetch notifications if auth is ready and user is authenticated
+    if (!isLoading && isAuthenticated && user?.id) {
+      console.log("Setting up notifications for authenticated user:", user.id);
       fetchNotifications();
-      // Poll for new notifications every minute
       const interval = setInterval(fetchNotifications, 60000);
       return () => clearInterval(interval);
     }
-  }, [isAuthenticated, user?.id]);
+    // If not authenticated or still loading, reset notifications
+    if (!isLoading && !isAuthenticated) {
+      console.log("Resetting notifications - user not authenticated");
+      setNotifications([]);
+      setUnreadCount(0);
+    }
+  }, [isLoading, isAuthenticated, user?.id]);
 
   const markAsRead = async (notificationId: string) => {
     if (!user?.id) return;
     try {
       await notificationService.markAsRead(user.id, notificationId);
-      await fetchNotifications(); // Refresh the notifications
+      await fetchNotifications();
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
@@ -70,7 +77,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     if (!user?.id) return;
     try {
       await notificationService.markAllAsRead(user.id);
-      await fetchNotifications(); // Refresh the notifications
+      await fetchNotifications();
     } catch (error) {
       console.error("Error marking all notifications as read:", error);
     }
@@ -80,7 +87,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     if (!user?.id) return;
     try {
       await notificationService.deleteNotification(user.id, notificationId);
-      await fetchNotifications(); // Refresh the notifications
+      await fetchNotifications();
     } catch (error) {
       console.error("Error dismissing notification:", error);
     }
@@ -90,6 +97,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     await fetchNotifications();
   };
 
+  // Always render the provider with current state
   return (
     <NotificationContext.Provider
       value={{

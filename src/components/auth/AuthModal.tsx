@@ -36,13 +36,22 @@ const AuthModal: React.FC<AuthModalProps> = ({
       setError(null);
 
       // Sign in with email/password
-      await signIn({
+      const signInResult = await signIn({
         username: email,
         password: password,
       });
 
+      if (!signInResult.isSignedIn) {
+        throw new Error("Sign in failed");
+      }
+
       console.log("Successfully signed in with email/password");
+
+      // Wait a moment for auth context to update
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       onSuccess();
+      onClose(); // Explicitly close the modal
       setEmail("");
       setPassword("");
     } catch (err) {

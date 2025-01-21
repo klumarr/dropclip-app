@@ -130,9 +130,47 @@ const ShareMenu: React.FC<ShareMenuProps> = ({
           setSnackbarOpen(true);
           break;
         case "copy":
-          await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-          setSnackbarMessage("Event details copied to clipboard!");
-          setSnackbarOpen(true);
+          try {
+            // First try the modern clipboard API
+            if (navigator.clipboard && window.isSecureContext) {
+              await navigator.clipboard.writeText(shareUrl);
+              console.log(
+                "ShareMenu - Successfully copied link using Clipboard API"
+              );
+            } else {
+              // Fallback for older browsers or non-HTTPS
+              const textArea = document.createElement("textarea");
+              textArea.value = shareUrl;
+              textArea.style.position = "fixed";
+              textArea.style.left = "-999999px";
+              textArea.style.top = "-999999px";
+              document.body.appendChild(textArea);
+              textArea.focus();
+              textArea.select();
+
+              try {
+                document.execCommand("copy");
+                textArea.remove();
+                console.log(
+                  "ShareMenu - Successfully copied link using execCommand"
+                );
+              } catch (err) {
+                console.error(
+                  "ShareMenu - Failed to copy using execCommand:",
+                  err
+                );
+                textArea.remove();
+                throw new Error("Failed to copy link");
+              }
+            }
+            setSnackbarMessage("Event link copied to clipboard!");
+            setSnackbarOpen(true);
+          } catch (err) {
+            console.error("ShareMenu - Error copying to clipboard:", err);
+            setSnackbarMessage("Failed to copy link. Please try again.");
+            setSnackbarOpen(true);
+            throw err;
+          }
           break;
         case "qr":
           setQrDialogOpen(true);

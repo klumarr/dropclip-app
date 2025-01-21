@@ -5,6 +5,7 @@ import RouteGuard from "../components/auth/RouteGuard";
 import { UserType } from "../types/auth.types";
 import { ErrorBoundary } from "../components/error/ErrorBoundary";
 import { LoadingState } from "../components/common/LoadingState";
+import { EventsProvider } from "../contexts/EventsContext";
 
 // Lazy load all pages
 const SignInPage = lazy(() => import("../pages/auth/SignInPage"));
@@ -25,6 +26,8 @@ const MemoryManagerPage = lazy(
 const SearchPage = lazy(() => import("../pages/fan/SearchPage"));
 const EventsPageFan = lazy(() => import("../pages/fan/EventsPageFan"));
 const EventPreviewPage = lazy(() => import("../pages/events/EventPreviewPage"));
+const ProfilePage = lazy(() => import("../pages/profile/ProfilePage"));
+const EditProfilePage = lazy(() => import("../pages/profile/EditProfilePage"));
 
 const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
   <Suspense fallback={<LoadingState message="Loading page..." />}>
@@ -36,6 +39,18 @@ export const routes = [
   {
     path: "/",
     element: <Navigate to="/auth/signin" replace />,
+    errorElement: <ErrorBoundary />,
+  },
+  // Public routes
+  {
+    path: "/events/:id",
+    element: (
+      <MainLayout>
+        <SuspenseWrapper>
+          <EventPreviewPage />
+        </SuspenseWrapper>
+      </MainLayout>
+    ),
     errorElement: <ErrorBoundary />,
   },
   {
@@ -179,11 +194,26 @@ export const routes = [
     ],
   },
   {
-    path: "/events/:id",
+    path: "/profile/:userId",
     element: (
-      <SuspenseWrapper>
-        <EventPreviewPage />
-      </SuspenseWrapper>
+      <MainLayout>
+        <SuspenseWrapper>
+          <ProfilePage />
+        </SuspenseWrapper>
+      </MainLayout>
+    ),
+    errorElement: <ErrorBoundary />,
+  },
+  {
+    path: "/profile/:userId/edit",
+    element: (
+      <RouteGuard allowedUserTypes={[UserType.CREATIVE]}>
+        <MainLayout>
+          <SuspenseWrapper>
+            <EditProfilePage />
+          </SuspenseWrapper>
+        </MainLayout>
+      </RouteGuard>
     ),
     errorElement: <ErrorBoundary />,
   },
