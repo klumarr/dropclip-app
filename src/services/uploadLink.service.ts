@@ -69,10 +69,7 @@ export class UploadLinkService {
   ): Promise<{ isEligible: boolean; reason?: string }> {
     try {
       // Check if fan is following the creative
-      const isFollowing = await followService.checkFollowStatus(
-        fanId,
-        creativeId
-      );
+      const isFollowing = await followService.checkFollowStatus(creativeId);
       if (!isFollowing) {
         return {
           isEligible: false,

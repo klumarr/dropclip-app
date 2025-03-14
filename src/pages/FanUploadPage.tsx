@@ -13,7 +13,7 @@ import { LoadingState } from "../components/common/LoadingState";
 import { UploadForm } from "../components/upload/UploadForm/index";
 import { UploadGuidelines } from "../components/upload/UploadGuidelines";
 import { eventOperations } from "../services/eventsService";
-import { Event } from "../types/events";
+import { Event, UploadConfig } from "../types/events";
 
 export default function FanUploadPage() {
   const { eventId, linkId } = useParams<{ eventId: string; linkId: string }>();
@@ -22,47 +22,45 @@ export default function FanUploadPage() {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const [uploadConfig, setUploadConfig] = useState<any>(null);
+  const [uploadConfig, setUploadConfig] = useState<UploadConfig | null>(null);
 
-  useEffect(() => {
-    const validateAndFetchConfig = async () => {
+  const validateAndFetchConfig = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
       if (!eventId || !linkId) {
-        setError(new Error("Invalid upload link"));
+        throw new Error("Invalid URL parameters");
+      }
+
+      // First validate the upload link
+      const isValid = await eventOperations.validateUploadLink(eventId, linkId);
+      if (!isValid) {
+        setError(new Error("Invalid or expired upload link"));
         setLoading(false);
         return;
       }
 
-      try {
-        // Validate the upload link
-        const isValid = await eventOperations.validateUploadLink(
-          eventId,
-          linkId
-        );
-        if (!isValid) {
-          setError(new Error("Invalid or expired upload link"));
-          setLoading(false);
-          return;
-        }
+      // Fetch event details
+      const eventData = await eventOperations.getPublicEventById(eventId);
+      setEvent(eventData);
 
-        // Fetch event details
-        const eventData = await eventOperations.getEventById(eventId);
-        setEvent(eventData);
+      // Fetch upload configuration
+      const config = await eventOperations.getUploadConfig(eventId, linkId);
+      setUploadConfig(config as any);
+    } catch (error) {
+      console.error("Error validating upload link:", error);
+      setError(
+        error instanceof Error
+          ? error
+          : new Error("Failed to validate upload link")
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        // Fetch upload configuration
-        const config = await eventOperations.getUploadConfig(eventId, linkId);
-        setUploadConfig(config);
-      } catch (error) {
-        console.error("Error validating upload link:", error);
-        setError(
-          error instanceof Error
-            ? error
-            : new Error("Failed to validate upload link")
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
+  useEffect(() => {
     validateAndFetchConfig();
   }, [eventId, linkId]);
 

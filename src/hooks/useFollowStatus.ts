@@ -12,7 +12,7 @@ export const useFollowStatus = (creativeId: string) => {
   const checkFollowStatus = useCallback(async () => {
     if (!user?.id) return;
     try {
-      const status = await followService.checkFollowStatus(user.id, creativeId);
+      const status = await followService.checkFollowStatus(creativeId);
       setIsFollowing(status);
     } catch (err) {
       console.error("Error checking follow status:", err);
@@ -36,10 +36,10 @@ export const useFollowStatus = (creativeId: string) => {
 
     try {
       if (isFollowing) {
-        await followService.unfollowCreative(user.id, creativeId);
+        await followService.unfollowCreative(creativeId);
         setIsFollowing(false);
       } else {
-        await followService.followCreative(user.id, creativeId);
+        await followService.followCreative(creativeId);
         setIsFollowing(true);
       }
     } catch (err) {

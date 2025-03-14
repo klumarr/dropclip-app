@@ -46,7 +46,7 @@ export default function FanUploadPage() {
         }
 
         // Fetch event details
-        const eventData = await eventOperations.getEventById(eventId);
+        const eventData = await eventOperations.getPublicEventById(eventId);
         setEvent(eventData);
 
         // Fetch upload configuration

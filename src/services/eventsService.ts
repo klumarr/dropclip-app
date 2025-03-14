@@ -422,12 +422,19 @@ export const eventsService = eventsServiceInstance;
 // Export the operations object
 export const eventOperations = {
   listEvents: async (creativeId: string): Promise<Event[]> => {
-    return await eventsServiceInstance.getUpcomingEventsByCreativeId(
-      creativeId
-    );
+    return await eventsServiceInstance.listEvents(creativeId);
   },
   getPublicEventById: async (eventId: string): Promise<Event | null> => {
     return await eventsServiceInstance.getPublicEventById(eventId);
+  },
+  getEventById: async (
+    eventId: string,
+    creativeId?: string
+  ): Promise<Event | null> => {
+    return await eventsServiceInstance.getEventById(eventId, creativeId);
+  },
+  getFanEvents: async (userId: string): Promise<Event[]> => {
+    return await eventsServiceInstance.getFanEvents(userId);
   },
   createEvent: (userId: string, eventData: EventFormData, flyerFile?: File) =>
     eventsServiceInstance.createEvent(userId, eventData, flyerFile),

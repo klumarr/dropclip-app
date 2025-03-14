@@ -26,7 +26,11 @@ import {
   FavoriteBorder,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { getPlaceholderImage, handleImageError } from "../../utils/image.utils";
+import {
+  getPlaceholderImage,
+  handleImageError,
+  getFallbackImage,
+} from "../../utils/image.utils";
 
 interface SearchResult {
   id: string;
@@ -112,6 +116,18 @@ const SearchPage: React.FC = () => {
     return num.toString();
   };
 
+  const handleAvatarError = (
+    e: React.SyntheticEvent<HTMLDivElement, Event>,
+    type: "avatar" | "thumbnail" | "cover"
+  ): void => {
+    const avatarDiv = e.currentTarget;
+    const imgElement = avatarDiv.querySelector("img");
+    if (imgElement) {
+      imgElement.onerror = null;
+      imgElement.src = getFallbackImage(type);
+    }
+  };
+
   const renderResults = () => {
     const filteredResults = results.filter((result) => {
       switch (activeTab) {
@@ -145,7 +161,7 @@ const SearchPage: React.FC = () => {
                     <Avatar
                       src={result.creatorAvatar}
                       sx={{ width: 80, height: 80 }}
-                      onError={(e) => handleImageError(e, "avatar")}
+                      onError={(e) => handleAvatarError(e, "avatar")}
                     />
                     <Box>
                       <Typography variant="h6">{result.title}</Typography>
@@ -209,7 +225,7 @@ const SearchPage: React.FC = () => {
                           <Avatar
                             src={result.creatorAvatar}
                             sx={{ width: 24, height: 24, mr: 1 }}
-                            onError={(e) => handleImageError(e, "avatar")}
+                            onError={(e) => handleAvatarError(e, "avatar")}
                           />
                           <Typography variant="body2">
                             {result.creatorName}

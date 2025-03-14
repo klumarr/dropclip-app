@@ -45,12 +45,12 @@ export default function FanUploadPage() {
         }
 
         // Fetch event details
-        const eventData = await eventOperations.getEventById(eventId);
+        const eventData = await eventOperations.getPublicEventById(eventId);
         setEvent(eventData);
 
         // Fetch upload configuration
         const config = await eventOperations.getUploadConfig(eventId, linkId);
-        setUploadConfig(config);
+        setUploadConfig(config as unknown as UploadConfig);
       } catch (error) {
         console.error("Error validating upload link:", error);
         setError(
