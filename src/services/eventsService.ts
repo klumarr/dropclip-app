@@ -19,6 +19,7 @@ import { CognitoIdentityClient } from "@aws-sdk/client-cognito-identity";
 import { fromCognitoIdentityPool } from "@aws-sdk/credential-providers";
 import { userService } from "./user.service";
 import { EventType } from "../types/events.types";
+import { nanoid } from "nanoid";
 
 // Export the class so it can be used directly if needed
 export class EventsService {
@@ -74,28 +75,56 @@ export class EventsService {
   }
 
   private async getAuthenticatedClient(): Promise<DynamoDBDocumentClient> {
-    if (this.docClient) return this.docClient;
-
     try {
-      console.log("EventsService - Creating authenticated DynamoDB client");
-      const credentials = await getCredentials();
-      const client = await createAWSClient(DynamoDBClient);
+      console.log("📜 EventsService - Getting authenticated DynamoDB client");
 
-      this.docClient = DynamoDBDocumentClient.from(client, {
-        marshallOptions: {
-          removeUndefinedValues: true,
-          convertEmptyValues: true,
-        },
-      });
+      if (!this.docClient) {
+        console.log("🔄 EventsService - Creating new DynamoDB client instance");
+        const client = await createAWSClient(DynamoDBClient);
 
-      console.log("EventsService - Successfully created authenticated client");
+        this.docClient = DynamoDBDocumentClient.from(client, {
+          marshallOptions: {
+            removeUndefinedValues: true,
+            convertEmptyValues: true,
+          },
+        });
+
+        console.log("✅ EventsService - DynamoDB client created successfully");
+      } else {
+        console.log("✅ EventsService - Using existing DynamoDB client");
+      }
+
       return this.docClient;
     } catch (error) {
       console.error(
-        "EventsService - Failed to create authenticated client:",
+        "❌ EventsService - Error getting authenticated DynamoDB client:",
         error
       );
-      throw new Error("Failed to initialize database connection");
+      console.error(
+        "❌ EventsService - Stack trace:",
+        error instanceof Error ? error.stack : "No stack trace"
+      );
+
+      // Reset the client so next time we try to create a new one
+      this.docClient = null;
+
+      // Throw a friendly error
+      if (error instanceof Error) {
+        if (error.message.includes("credentials")) {
+          throw new Error(
+            "Authentication error: Unable to get valid AWS credentials. Please make sure you're logged in."
+          );
+        } else if (
+          error.message.includes("Missing required AWS configuration")
+        ) {
+          throw new Error(
+            "Configuration error: Missing required AWS settings. Please check your environment variables."
+          );
+        }
+      }
+
+      // Re-throw the original error if we didn't handle it specially
+      throw error;
     }
   }
 
@@ -260,8 +289,113 @@ export class EventsService {
     eventData: EventFormData,
     flyerFile?: File
   ): Promise<Event> {
-    // Implementation exists...
-    throw new Error("Not implemented");
+    console.log(`🚀 EventsService - Creating event START - user: ${userId}`, {
+      eventData,
+      hasImage: !!flyerFile,
+      environment: import.meta.env.MODE,
+      region: import.meta.env.VITE_AWS_REGION,
+    });
+
+    try {
+      // Generate a unique ID for the event
+      const eventId = nanoid();
+      console.log(`📝 EventsService - Generated event ID: ${eventId}`);
+
+      // Format the event data
+      const now = new Date().toISOString();
+      const dateId = eventData.date.split("T")[0];
+      const dateCreativeId = `${dateId}#${userId}`;
+
+      console.log(`🔍 EventsService - Getting authenticated client...`);
+      // Get authenticated client - with additional error handling
+      let client;
+      try {
+        client = await this.getAuthenticatedClient();
+        console.log(`✅ EventsService - Got authenticated client successfully`);
+      } catch (authError) {
+        console.error(`❌ EventsService - Auth client error:`, authError);
+        throw new Error(
+          `Authentication error: ${
+            authError instanceof Error ? authError.message : String(authError)
+          }`
+        );
+      }
+
+      // Create the event item to save to DynamoDB
+      const eventItem: any = {
+        id: eventId,
+        creativeId: userId,
+        name: eventData.name,
+        description: eventData.description,
+        date: eventData.date,
+        time: eventData.time,
+        venue: eventData.venue,
+        city: eventData.city,
+        country: eventData.country,
+        type: eventData.type,
+        tags: eventData.tags || [],
+        flyerUrl: eventData.flyerUrl || "",
+        dateId,
+        dateCreativeId,
+        ticketLink: eventData.ticketLink || "",
+        uploadConfig: eventData.uploadConfig || { enabled: false },
+        createdAt: now,
+        updatedAt: now,
+      };
+
+      // Add the end date and time if provided
+      if (eventData.endDate) {
+        eventItem.endDate = eventData.endDate;
+      }
+
+      if (eventData.endTime) {
+        eventItem.endTime = eventData.endTime;
+      }
+
+      console.log(`📦 EventsService - Prepared event item:`, eventItem);
+      console.log(
+        `💾 EventsService - Creating event in DynamoDB table: ${TableNames.EVENTS}`
+      );
+
+      // Create event in DynamoDB
+      const command = new PutCommand({
+        TableName: TableNames.EVENTS,
+        Item: eventItem,
+      });
+
+      console.log(`📡 EventsService - Sending command to DynamoDB...`);
+      await client.send(command);
+      console.log(`✅ EventsService - Event created with ID: ${eventId}`);
+
+      // Return the created event
+      const result = {
+        ...eventItem,
+        // Fill in any missing fields needed by the Event type
+        creativeName: "",
+        creativeType: "",
+        creativePhotoUrl: "",
+        creativeBio: "",
+        creativeStats: {
+          upcomingEvents: 0,
+          totalEvents: 0,
+          followers: 0,
+        },
+      } as Event;
+
+      console.log(`🎉 EventsService - Returning created event:`, result);
+      return result;
+    } catch (error) {
+      console.error("❌ EventsService - Error creating event:", error);
+      console.error(
+        "❌ EventsService - Error stack:",
+        error instanceof Error ? error.stack : "No stack trace"
+      );
+      throw new Error(
+        `Failed to create event: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
   }
 
   async updateEvent(
@@ -436,8 +570,14 @@ export const eventOperations = {
   getFanEvents: async (userId: string): Promise<Event[]> => {
     return await eventsServiceInstance.getFanEvents(userId);
   },
-  createEvent: (userId: string, eventData: EventFormData, flyerFile?: File) =>
-    eventsServiceInstance.createEvent(userId, eventData, flyerFile),
+  createEvent: (userId: string, eventData: EventFormData, flyerFile?: File) => {
+    console.log("🚀 eventOperations.createEvent called with:", {
+      userId: userId ? userId.substring(0, 8) + "..." : "undefined",
+      eventDataName: eventData?.name,
+      hasImage: !!flyerFile,
+    });
+    return eventsServiceInstance.createEvent(userId, eventData, flyerFile);
+  },
   updateEvent: (eventId: string, userId: string, eventData: Partial<Event>) =>
     eventsServiceInstance.updateEvent(eventId, userId, eventData),
   deleteEvent: (eventId: string, userId: string) =>

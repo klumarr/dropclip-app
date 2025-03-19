@@ -174,7 +174,13 @@ export const CreateEventDialog: React.FC<CreateEventDialogProps> = ({
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
-      await onSubmit({
+      console.log("📝 CreateEventDialog - Submitting event:", {
+        title: details.name,
+        date: details.date,
+        uploadEnabled: uploadConfig.enabled,
+      });
+
+      const formData = {
         name: details.name,
         description: details.description,
         date: details.date,
@@ -191,10 +197,15 @@ export const CreateEventDialog: React.FC<CreateEventDialogProps> = ({
         uploadConfig,
         tags: details.tags,
         suggestedTags: details.suggestedTags,
-      });
+      };
+
+      console.log("🚀 CreateEventDialog - Calling onSubmit with form data");
+      await onSubmit(formData);
+      console.log("✅ CreateEventDialog - Event created successfully");
       handleClose();
     } catch (error) {
-      console.error("Error creating event:", error);
+      console.error("❌ CreateEventDialog - Error creating event:", error);
+      // Add UI feedback here if desired
     } finally {
       setIsSubmitting(false);
     }

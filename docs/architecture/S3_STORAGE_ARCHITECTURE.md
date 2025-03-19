@@ -7,14 +7,14 @@
 - **Purpose**: Temporary staging bucket for initial uploads
 - **Access**: Write access through pre-signed URLs
 - **Lifecycle**: Files are processed and moved to appropriate destination buckets
-- **Use Cases**: Initial upload point for all video content requiring processing
+- **Use Cases**: Initial upload point for all video content requiring processing, at present stores event flyers in new event form for previews and then is moved to content-dev bucket to be distributed via cloudfront
 
 ### 2. dropclip-content-dev
 
 - **Purpose**: Main content distribution bucket
 - **Access**: Read-only through CloudFront
 - **Integration**: Connected to CloudFront for content delivery
-- **Use Cases**: Processed videos and their associated metadata
+- **Use Cases**: Processed videos and their associated metadata, flyers are moved from uploads to this bucket to be distributed via cloudfront
 
 ### 3. dropclip-images-dev
 

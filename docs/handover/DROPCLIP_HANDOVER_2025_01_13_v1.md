@@ -1,4 +1,4 @@
-# DropClip Project Handover Brief - 2024/01/10 v1
+# DropClip Project Handover Brief - 2024/01/13 v1
 
 ## Current Situation
 
